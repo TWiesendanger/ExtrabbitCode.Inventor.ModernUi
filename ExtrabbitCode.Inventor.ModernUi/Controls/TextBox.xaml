@@ -1,0 +1,93 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Validation adorner: a red "!" badge to the right of the field. Uses WPF's built-in
+         Validation.ErrorTemplate (we only set it; we register no dependency properties). The error
+         red is hard-coded because it is the same in both themes and adorners don't always resolve
+         window-scoped DynamicResources. The tooltip shows the first validation error message. -->
+    <ControlTemplate x:Key="ModernValidationErrorTemplate">
+        <DockPanel LastChildFill="True">
+            <Grid DockPanel.Dock="Right"
+                  Width="16" Height="16"
+                  Margin="6,0,0,0"
+                  VerticalAlignment="Center"
+                  ToolTip="{Binding [0].ErrorContent}">
+                <Ellipse Fill="#ec4a41" />
+                <TextBlock Text="!"
+                           Foreground="#FFFFFF"
+                           FontWeight="Bold"
+                           FontSize="11"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center" />
+            </Grid>
+            <AdornedElementPlaceholder />
+        </DockPanel>
+    </ControlTemplate>
+
+    <Style TargetType="TextBox">
+        <Setter Property="Validation.ErrorTemplate" Value="{StaticResource ModernValidationErrorTemplate}" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Foreground}" />
+        <Setter Property="Background" Value="{DynamicResource Brush.Control}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border}" />
+        <Setter Property="CaretBrush" Value="{DynamicResource Brush.Foreground}" />
+        <Setter Property="SelectionBrush" Value="{DynamicResource Brush.AccentMuted}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Padding" Value="{DynamicResource Padding.Control}" />
+        <Setter Property="MinHeight" Value="{DynamicResource Size.ControlHeight}" />
+        <Setter Property="FontFamily" Value="{DynamicResource Font.Family}" />
+        <Setter Property="FontSize" Value="{DynamicResource Font.Size.Normal}" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TextBox">
+                    <Border x:Name="Bd"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="{DynamicResource Radius.Control}"
+                            SnapsToDevicePixels="True">
+                        <Grid>
+                            <ScrollViewer x:Name="PART_ContentHost"
+                                          Margin="{TemplateBinding Padding}"
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                          Focusable="False"
+                                          HorizontalScrollBarVisibility="Hidden"
+                                          VerticalScrollBarVisibility="Hidden" />
+                            <!-- Accent underline shown only while focused. -->
+                            <Border x:Name="Underline"
+                                    Height="2"
+                                    Margin="2,0,2,0"
+                                    VerticalAlignment="Bottom"
+                                    Background="{DynamicResource Brush.Accent}"
+                                    CornerRadius="0,0,2,2"
+                                    Visibility="Collapsed" />
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <!-- Hover: white underline. Focus (below, wins when both) switches it to accent. -->
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Underline" Property="Visibility" Value="Visible" />
+                            <Setter TargetName="Underline" Property="Background" Value="{DynamicResource Brush.Foreground}" />
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                            <Setter TargetName="Underline" Property="Visibility" Value="Visible" />
+                            <Setter TargetName="Underline" Property="Background" Value="{DynamicResource Brush.Accent}" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Bd" Property="Opacity" Value="0.5" />
+                        </Trigger>
+                        <!-- Invalid value: red border + red underline. -->
+                        <Trigger Property="Validation.HasError" Value="True">
+                            <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource Brush.Error}" />
+                            <Setter TargetName="Underline" Property="Visibility" Value="Visible" />
+                            <Setter TargetName="Underline" Property="Background" Value="{DynamicResource Brush.Error}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+</ResourceDictionary>

@@ -1,0 +1,22 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:sys="clr-namespace:System;assembly=System.Runtime">
+
+    <!--
+        Non-color design tokens. Edit here to change radii, control sizes and paddings globally.
+        Colors live in ThemePalette (C#); font tokens (Font.Family, Font.Size.*) are injected by
+        ModernUi.Apply. Everything is referenced via DynamicResource so it stays window-scoped.
+    -->
+
+    <CornerRadius x:Key="Radius.Control">4</CornerRadius>
+    <CornerRadius x:Key="Radius.Card">6</CornerRadius>
+
+    <sys:Double x:Key="Size.ControlHeight">30</sys:Double>
+    <sys:Double x:Key="Size.ControlHeightLarge">35</sys:Double>
+
+    <Thickness x:Key="Padding.Control">10,6</Thickness>
+    <Thickness x:Key="Padding.Card">16</Thickness>
+    <Thickness x:Key="Margin.Stack">0,0,0,8</Thickness>
+
+</ResourceDictionary>

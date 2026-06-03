@@ -1,0 +1,58 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Style TargetType="RadioButton">
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Foreground}" />
+        <Setter Property="FontFamily" Value="{DynamicResource Font.Family}" />
+        <Setter Property="FontSize" Value="{DynamicResource Font.Size.Normal}" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Margin" Value="0,2" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RadioButton">
+                    <StackPanel Orientation="Horizontal" Background="Transparent">
+                        <Grid Width="18" Height="18" VerticalAlignment="Center">
+                            <!-- Outward grey glow on hover; the opaque Outer circle covers the inner half. -->
+                            <Ellipse x:Name="Glow"
+                                     Fill="{DynamicResource Brush.Control}"
+                                     Opacity="0">
+                                <Ellipse.Effect>
+                                    <DropShadowEffect Color="#C8C8C8" ShadowDepth="0" BlurRadius="6" Opacity="0.9" />
+                                </Ellipse.Effect>
+                            </Ellipse>
+                            <Ellipse x:Name="Outer"
+                                     Fill="{DynamicResource Brush.Control}"
+                                     Stroke="{DynamicResource Brush.Foreground}"
+                                     StrokeThickness="0.6" />
+                            <Ellipse x:Name="Dot"
+                                     Width="8" Height="8"
+                                     Fill="#FFFFFFFF"
+                                     Visibility="Collapsed" />
+                        </Grid>
+                        <ContentPresenter Margin="8,0,0,0"
+                                          VerticalAlignment="Center"
+                                          RecognizesAccessKey="True" />
+                    </StackPanel>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Outer" Property="Fill" Value="{DynamicResource Brush.Accent}" />
+                            <Setter TargetName="Outer" Property="Stroke" Value="{DynamicResource Brush.Accent}" />
+                            <Setter TargetName="Dot" Property="Visibility" Value="Visible" />
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Glow" Property="Opacity" Value="1" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.5" />
+                            <Setter Property="Cursor" Value="Arrow" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+</ResourceDictionary>

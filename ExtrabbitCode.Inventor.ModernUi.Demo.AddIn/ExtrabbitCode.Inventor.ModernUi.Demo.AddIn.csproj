@@ -1,0 +1,66 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <OutputType>Library</OutputType>
+    <UseWPF>true</UseWPF>
+    <!-- WinForms brings System.Drawing + AxHost, used to convert PNGs to IPictureDisp for ribbon icons. -->
+    <UseWindowsForms>true</UseWindowsForms>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>ExtrabbitCode.Inventor.ModernUi.Demo.AddIn</RootNamespace>
+    <AssemblyName>ExtrabbitCode.Inventor.ModernUi.Demo.AddIn</AssemblyName>
+
+    <!-- Inventor loads .NET 8 add-ins as in-process COM servers. This embeds a native manifest with
+         a clrClass entry so Inventor can activate the add-in by CLSID without regasm/regsvr32. -->
+    <ApplicationManifest>Addin\ExtrabbitCode.Inventor.ModernUi.Demo.AddIn.manifest</ApplicationManifest>
+
+    <!-- Ship all managed dependencies (ModernUi.dll, etc.) next to the add-in. -->
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+
+    <!-- Autodesk.Inventor.Sdk version targeting (interop is provided by Inventor at runtime). -->
+    <InventorVersion>2025</InventorVersion>
+    <CopyInventorFiles>false</CopyInventorFiles>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Autodesk.Inventor.Sdk" Version="2.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- WinForms is enabled only for AxHost/System.Drawing in PictureConverter (which uses explicit
+         usings). Drop the WinForms/Drawing global usings so Application/UserControl/FontFamily stay
+         unambiguous in the rest of the add-in (Inventor + WPF). -->
+    <Using Remove="System.Windows.Forms" />
+    <Using Remove="System.Drawing" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ExtrabbitCode.Inventor.ModernUi\ExtrabbitCode.Inventor.ModernUi.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The demo gallery lives once in the Gallery project; link the same source here so the add-in
+         and the gallery app never drift. (No shared project needed for a single UserControl.) -->
+    <Page Include="..\ExtrabbitCode.Inventor.ModernUi.Gallery\GalleryView.xaml" Link="GalleryView.xaml" />
+    <Compile Include="..\ExtrabbitCode.Inventor.ModernUi.Gallery\GalleryView.xaml.cs" Link="GalleryView.xaml.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Branding: ribbon button needs 16/32; the gallery loads "ModernUi-64.png" for the window icon. -->
+    <EmbeddedResource Include="..\resources\ModernUi-16.png" LogicalName="ModernUi-16.png" />
+    <EmbeddedResource Include="..\resources\ModernUi-32.png" LogicalName="ModernUi-32.png" />
+    <EmbeddedResource Include="..\resources\ModernUi-64.png" LogicalName="ModernUi-64.png" />
+  </ItemGroup>
+
+  <!-- Deploy the build output to the path referenced by the .addin, and drop the .addin into the
+       Inventor add-ins folder. Skip with -p:DeployToInventor=false (e.g. CI / library-only builds).
+       ContinueOnError: if Inventor is running it holds the deployed DLL, so the copy fails — that is
+       downgraded to a warning (close Inventor and rebuild to update) rather than failing the build. -->
+  <Target Name="DeployToInventor" AfterTargets="Build" Condition="'$(DeployToInventor)' != 'false'">
+    <Exec Command="&quot;$(ProjectDir)Addin\BuildScript.cmd&quot; &quot;$(ProjectDir)&quot; $(TargetName) &quot;$(TargetPath)&quot; &quot;$(TargetDir)&quot;"
+          ContinueOnError="true" />
+  </Target>
+
+</Project>

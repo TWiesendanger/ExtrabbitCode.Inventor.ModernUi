@@ -1,0 +1,158 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework">
+
+    <!-- Caption buttons (min / max / restore). Icon glyphs from Segoe Fluent Icons. -->
+    <Style x:Key="CaptionButton" TargetType="Button">
+        <Setter Property="Width" Value="46" />
+        <Setter Property="Height" Value="34" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Foreground}" />
+        <Setter Property="FontFamily" Value="Segoe Fluent Icons, Segoe MDL2 Assets" />
+        <Setter Property="FontSize" Value="10" />
+        <Setter Property="WindowChrome.IsHitTestVisibleInChrome" Value="True" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Bd" Background="{TemplateBinding Background}">
+                        <TextBlock Text="{TemplateBinding Content}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   FontFamily="{TemplateBinding FontFamily}"
+                                   FontSize="{TemplateBinding FontSize}"
+                                   Foreground="{TemplateBinding Foreground}" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Brush.AccentMuted}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Close button: red hover. -->
+    <Style x:Key="CaptionCloseButton" TargetType="Button" BasedOn="{StaticResource CaptionButton}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Bd" Background="{TemplateBinding Background}">
+                        <TextBlock x:Name="Glyph"
+                                   Text="{TemplateBinding Content}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   FontFamily="{TemplateBinding FontFamily}"
+                                   FontSize="{TemplateBinding FontSize}"
+                                   Foreground="{TemplateBinding Foreground}" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Brush.Error}" />
+                            <Setter TargetName="Glyph" Property="Foreground" Value="#FFFFFFFF" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Window chrome: custom dark/light title bar via WindowChrome. Targets the framework Window
+         type (no custom type in BAML) so two library copies never cross-cast. Keyed and assigned
+         explicitly by ModernUi.Apply, because a Window does not reliably pick up an implicit style
+         from its own resources. -->
+    <Style x:Key="ModernWindowStyle" TargetType="{x:Type Window}">
+        <Setter Property="Background" Value="{DynamicResource Brush.Background}" />
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Foreground}" />
+        <Setter Property="FontFamily" Value="{DynamicResource Font.Family}" />
+        <Setter Property="FontSize" Value="{DynamicResource Font.Size.Normal}" />
+        <Setter Property="WindowChrome.WindowChrome">
+            <Setter.Value>
+                <shell:WindowChrome CaptionHeight="34"
+                                    ResizeBorderThickness="6"
+                                    CornerRadius="0"
+                                    GlassFrameThickness="0"
+                                    UseAeroCaptionButtons="False" />
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Window}">
+                    <Border x:Name="RootBorder"
+                            Background="{DynamicResource Brush.Background}"
+                            BorderBrush="{DynamicResource Brush.Border}"
+                            BorderThickness="1">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="34" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+
+                            <!-- Title bar -->
+                            <Grid Grid.Row="0" Background="{DynamicResource Brush.Panel}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="10,0,0,0">
+                                    <Image x:Name="TitleIcon"
+                                           Source="{TemplateBinding Icon}"
+                                           Width="16" Height="16"
+                                           Margin="0,0,8,0"
+                                           VerticalAlignment="Center"
+                                           RenderOptions.BitmapScalingMode="HighQuality" />
+                                    <TextBlock VerticalAlignment="Center"
+                                               Text="{TemplateBinding Title}"
+                                               TextTrimming="CharacterEllipsis"
+                                               Foreground="{DynamicResource Brush.Foreground}"
+                                               FontSize="{DynamicResource Font.Size.Normal}" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                    <Button x:Name="MinButton"
+                                            Style="{DynamicResource CaptionButton}"
+                                            Command="{x:Static SystemCommands.MinimizeWindowCommand}"
+                                            Content="&#xE921;" />
+                                    <Button x:Name="MaxButton"
+                                            Style="{DynamicResource CaptionButton}"
+                                            Command="{x:Static SystemCommands.MaximizeWindowCommand}"
+                                            Content="&#xE922;" />
+                                    <Button x:Name="RestoreButton"
+                                            Style="{DynamicResource CaptionButton}"
+                                            Command="{x:Static SystemCommands.RestoreWindowCommand}"
+                                            Content="&#xE923;"
+                                            Visibility="Collapsed" />
+                                    <Button Style="{DynamicResource CaptionCloseButton}"
+                                            Command="{x:Static SystemCommands.CloseWindowCommand}"
+                                            Content="&#xE8BB;" />
+                                </StackPanel>
+                            </Grid>
+
+                            <!-- Window content. AdornerDecorator restores the adorner layer that the
+                                 default Window template provides — needed for validation error templates. -->
+                            <AdornerDecorator Grid.Row="1">
+                                <ContentPresenter />
+                            </AdornerDecorator>
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="Icon" Value="{x:Null}">
+                            <Setter TargetName="TitleIcon" Property="Visibility" Value="Collapsed" />
+                        </Trigger>
+                        <Trigger Property="WindowState" Value="Maximized">
+                            <Setter TargetName="RootBorder" Property="Padding" Value="7" />
+                            <Setter TargetName="MaxButton" Property="Visibility" Value="Collapsed" />
+                            <Setter TargetName="RestoreButton" Property="Visibility" Value="Visible" />
+                        </Trigger>
+                        <Trigger Property="ResizeMode" Value="NoResize">
+                            <Setter TargetName="MinButton" Property="Visibility" Value="Collapsed" />
+                            <Setter TargetName="MaxButton" Property="Visibility" Value="Collapsed" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+</ResourceDictionary>

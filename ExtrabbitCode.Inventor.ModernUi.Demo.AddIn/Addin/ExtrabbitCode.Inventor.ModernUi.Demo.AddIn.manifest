@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+  <assemblyIdentity name="ExtrabbitCode.Inventor.ModernUi.Demo.AddIn" version="1.0.0.0" />
+  <!-- Registration-free COM: lets Inventor activate this .NET 8 add-in by CLSID without regasm /
+       regsvr32. The clsid MUST match the [Guid] on DemoAddInServer and the .addin ClassId. -->
+  <clrClass clsid="{80423f77-2aef-4502-91da-29bd193cc7bd}"
+            progid="ExtrabbitCode.Inventor.ModernUi.Demo.DemoAddInServer"
+            threadingModel="Both"
+            name="ExtrabbitCode.Inventor.ModernUi.Demo.AddIn.DemoAddInServer"
+            runtimeVersion="" />
+  <file name="ExtrabbitCode.Inventor.ModernUi.Demo.AddIn.dll" hashalg="SHA1" />
+</assembly>

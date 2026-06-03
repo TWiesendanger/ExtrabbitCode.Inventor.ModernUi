@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>ExtrabbitCode.Inventor.ModernUi.ConflictTest</RootNamespace>
+    <AssemblyName>ExtrabbitCode.Inventor.ModernUi.ConflictTest</AssemblyName>
+    <LibraryProject>$(MSBuildProjectDirectory)\..\ExtrabbitCode.Inventor.ModernUi\ExtrabbitCode.Inventor.ModernUi.csproj</LibraryProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Ensures the library compiles before the test. We never use its types directly (reflection
+         only), so it is not loaded into the default context. -->
+    <ProjectReference Include="..\ExtrabbitCode.Inventor.ModernUi\ExtrabbitCode.Inventor.ModernUi.csproj" />
+  </ItemGroup>
+
+  <!-- Build the library as TWO different versions into plugins\A (V1) and plugins\B (V2). Each gets
+       a deps.json so the test's AddinLoadContext (AssemblyDependencyResolver) can isolate it like a
+       deployed add-in. Skip with -p:BuildCoexistenceVersions=false. -->
+  <Target Name="BuildCoexistenceVersions" AfterTargets="Build" Condition="'$(BuildCoexistenceVersions)' != 'false'">
+    <Message Importance="high" Text="Building two ModernUi versions (V1, V2) for the coexistence test..." />
+    <Exec Command="dotnet build &quot;$(LibraryProject)&quot; -c $(Configuration) --nologo -v q -p:Version=1.0.0.0 -p:GenerateDependencyFile=true --output &quot;$(TargetDir)plugins\A&quot;" />
+    <Exec Command="dotnet build &quot;$(LibraryProject)&quot; -c $(Configuration) --nologo -v q -p:Version=2.0.0.0 -p:DefineConstants=MODERNUI_V2 -p:GenerateDependencyFile=true --output &quot;$(TargetDir)plugins\B&quot;" />
+  </Target>
+
+</Project>

@@ -1,0 +1,13 @@
+<Addin Type="Standard">
+	<ClassId>{80423f77-2aef-4502-91da-29bd193cc7bd}</ClassId>
+	<ClientId>{80423f77-2aef-4502-91da-29bd193cc7bd}</ClientId>
+	<DisplayName>ExtrabbitCode Modern UI Demo</DisplayName>
+	<Description>Showcase add-in for the ExtrabbitCode.Inventor.ModernUi styling library.</Description>
+	<Assembly>C:\ProgramData\ExtrabbitCode\ExtrabbitCode.Inventor.ModernUi.Demo.AddIn\ExtrabbitCode.Inventor.ModernUi.Demo.AddIn.dll</Assembly>
+	<LoadOnStartUp>1</LoadOnStartUp>
+	<UserUnloadable>1</UserUnloadable>
+	<Hidden>0</Hidden>
+	<SupportedSoftwareVersionGreaterThan>28..</SupportedSoftwareVersionGreaterThan>
+	<DataVersion>1</DataVersion>
+	<UserInterfaceVersion>1</UserInterfaceVersion>
+</Addin>

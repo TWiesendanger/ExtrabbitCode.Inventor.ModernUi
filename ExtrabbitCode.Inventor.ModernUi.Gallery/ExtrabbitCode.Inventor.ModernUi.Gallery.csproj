@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>ExtrabbitCode.Inventor.ModernUi.Gallery</RootNamespace>
+    <AssemblyName>ExtrabbitCode.Inventor.ModernUi.Gallery</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ExtrabbitCode.Inventor.ModernUi\ExtrabbitCode.Inventor.ModernUi.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Branding: the gallery loads "ModernUi-64.png" for the window/nav logo. -->
+    <EmbeddedResource Include="..\resources\ModernUi-64.png" LogicalName="ModernUi-64.png" />
+  </ItemGroup>
+
+</Project>

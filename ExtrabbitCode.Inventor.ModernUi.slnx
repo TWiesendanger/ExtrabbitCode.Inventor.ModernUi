@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="ExtrabbitCode.Inventor.ModernUi.ConflictTest/ExtrabbitCode.Inventor.ModernUi.ConflictTest.csproj" />
+  <Project Path="ExtrabbitCode.Inventor.ModernUi.Demo.AddIn/ExtrabbitCode.Inventor.ModernUi.Demo.AddIn.csproj" />
+  <Project Path="ExtrabbitCode.Inventor.ModernUi.Gallery/ExtrabbitCode.Inventor.ModernUi.Gallery.csproj" />
+  <Project Path="ExtrabbitCode.Inventor.ModernUi/ExtrabbitCode.Inventor.ModernUi.csproj" />
+</Solution>
