@@ -1,0 +1,31 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- ============================================================================================
+         Shipped ONLY in the V1 build of the library. The V2 build compiles a different file
+         (VersionShowcase.V2.xaml) to this same logical path (Controls/VersionShowcase.xaml).
+         Together with the version-hardened pack URI in ModernUi.LoadDictionary, this proves that a
+         V1 window resolves THIS dictionary and a V2 window resolves the other one — even though both
+         assemblies share the simple name "ExtrabbitCode.Inventor.ModernUi" in one process.
+
+         Note: only framework types are styled (Border, TextBlock) and colors come from DynamicResource
+         keys injected per-window — so even if a window picked up the "wrong" version's dictionary, the
+         result would be cosmetic, never a crash.
+         ============================================================================================ -->
+
+    <!-- Present in BOTH versions, different look. V1 = filled accent pill. -->
+    <Style x:Key="Coexistence.VersionBadge" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource Brush.Accent}" />
+        <Setter Property="CornerRadius" Value="10" />
+        <Setter Property="Padding" Value="10,3" />
+        <Setter Property="HorizontalAlignment" Value="Left" />
+    </Style>
+
+    <!-- Exists ONLY in V1. A V2 window referencing this key via DynamicResource gets nothing
+         (the control stays unstyled) — graceful degradation, never an exception. -->
+    <Style x:Key="Coexistence.V1Only" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Accent}" />
+        <Setter Property="FontWeight" Value="Bold" />
+    </Style>
+
+</ResourceDictionary>

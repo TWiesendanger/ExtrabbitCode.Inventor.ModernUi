@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net8.0-windows</TargetFramework>
@@ -9,6 +9,81 @@
     <AssemblyName>ExtrabbitCode.Inventor.ModernUi</AssemblyName>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Version>1.0.0</Version>
+
+    <!-- The two version-specific showcase dictionaries must NOT be auto-included as Page items
+         (only one is compiled per build, mapped to a shared logical path below). -->
+    <DefaultItemExcludes>$(DefaultItemExcludes);Controls\VersionShowcase.V1.xaml;Controls\VersionShowcase.V2.xaml</DefaultItemExcludes>
   </PropertyGroup>
+
+  <!-- Coexistence demo: pick the V1 or V2 showcase dictionary by build, and Link it to the single
+       logical path Controls/VersionShowcase.xaml so the runtime pack URI is identical in both
+       builds. The V2 build is selected when MODERNUI_V2 is defined (set by the .Coexistence.B
+       deploy: -p:DefineConstants=MODERNUI_V2). -->
+  <ItemGroup>
+    <Page Include="Controls\VersionShowcase.V1.xaml" Link="Controls\VersionShowcase.xaml"
+          Condition="!$(DefineConstants.Contains('MODERNUI_V2'))" />
+    <Page Include="Controls\VersionShowcase.V2.xaml" Link="Controls\VersionShowcase.xaml"
+          Condition="$(DefineConstants.Contains('MODERNUI_V2'))" />
+  </ItemGroup>
+
+  <!-- ============================================================================================
+       Coexistence-safety guard. Fails the build if the library ever breaks one of the three rules
+       that make two versions loadable into one process without conflicts. This turns the design
+       rules from "remember to follow" into "can't compile if violated".
+       ============================================================================================ -->
+  <UsingTask TaskName="CheckCoexistenceRules"
+             TaskFactory="RoslynCodeTaskFactory"
+             AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+    <ParameterGroup>
+      <SourceFiles ParameterType="Microsoft.Build.Framework.ITaskItem[]" Required="true" />
+      <XamlFiles ParameterType="Microsoft.Build.Framework.ITaskItem[]" Required="false" />
+    </ParameterGroup>
+    <Task>
+      <Using Namespace="System" />
+      <Using Namespace="System.IO" />
+      <Using Namespace="System.Text.RegularExpressions" />
+      <Code Type="Fragment" Language="cs"><![CDATA[
+        var dp = new Regex(@"DependencyProperty\s*\.\s*Register(Attached)?\s*\(");
+        var appRes = new Regex(@"Application\s*\.\s*Current\s*\.\s*Resources");
+        var cls = new Regex(@"\bclass\s+(\w+)\s*:\s*([^\r\n{]+)");
+        var ctrl = new Regex(@"\b(Window|UserControl|ContentControl|ItemsControl|Selector|Control|FrameworkElement|ButtonBase|Button|ToggleButton|Panel|Decorator|Shape|TextBoxBase)\b");
+        var ownXmlns = new Regex(@"assembly\s*=\s*ExtrabbitCode\.Inventor\.ModernUi\b");
+        var empty = new Microsoft.Build.Framework.ITaskItem[0];
+
+        foreach (var item in SourceFiles ?? empty)
+        {
+            var path = item.GetMetadata("FullPath");
+            if (string.IsNullOrEmpty(path) || !File.Exists(path)) continue;
+            var norm = path.Replace('/', '\\');
+            if (norm.IndexOf("\\obj\\", StringComparison.OrdinalIgnoreCase) >= 0) continue;
+            if (norm.IndexOf("\\bin\\", StringComparison.OrdinalIgnoreCase) >= 0) continue;
+            var text = File.ReadAllText(path);
+            if (dp.IsMatch(text))
+                Log.LogError("Coexistence rule: '{0}' calls DependencyProperty.Register*. A DP registered against a shared type clashes across library versions in one process. Style framework controls instead.", path);
+            if (appRes.IsMatch(text))
+                Log.LogError("Coexistence rule: '{0}' touches Application.Current.Resources. Write to window-scoped resources only.", path);
+            foreach (Match m in cls.Matches(text))
+            {
+                var name = m.Groups[1].Value;
+                if (name == "ModernWindow") continue;
+                if (ctrl.IsMatch(m.Groups[2].Value))
+                    Log.LogError("Coexistence rule: '{0}' declares custom control '{1}' deriving from a WPF type. Only ModernWindow may subclass a framework control.", path, name);
+            }
+        }
+
+        foreach (var item in XamlFiles ?? empty)
+        {
+            var path = item.GetMetadata("FullPath");
+            if (string.IsNullOrEmpty(path) || !File.Exists(path)) continue;
+            if (ownXmlns.IsMatch(File.ReadAllText(path)))
+                Log.LogError("Coexistence rule: '{0}' references this assembly via a XAML clr-namespace (assembly=ExtrabbitCode.Inventor.ModernUi). That reintroduces cross-version type resolution. Reference only framework types.", path);
+        }
+      ]]></Code>
+    </Task>
+  </UsingTask>
+
+  <Target Name="EnforceCoexistenceRules" BeforeTargets="CoreCompile">
+    <CheckCoexistenceRules SourceFiles="@(Compile)" XamlFiles="@(Page)" />
+  </Target>
 
 </Project>

@@ -58,6 +58,14 @@ Non-color tokens (corner radius, control height, paddings) live in `Shared.xaml`
 - Window-scoped resources only — **never** `Application.Current.Resources`.
 - Colors/font built in code and injected per window; style XAML references only framework types and
   string resource keys via `DynamicResource`.
+- Style dictionaries load via a **version-qualified pack URI** (`;v1.2.3.4;component`), so when two
+  builds share the same simple name in one process each window resolves *its own* version's XAML
+  (falls back to the simple-name URI if a host can't resolve it — cosmetic at worst).
+
+These rules are enforced at **build time**: a Roslyn-backed MSBuild task (`EnforceCoexistenceRules`
+in the library `.csproj`) fails the build if any source calls `DependencyProperty.Register*`, touches
+`Application.Current.Resources`, subclasses a WPF control (other than `ModernWindow`), or references
+this assembly from a XAML `clr-namespace`. The design rules can't silently rot as the library grows.
 
 ## Proving coexistence — and why it matters
 
@@ -90,6 +98,12 @@ Two layers prove it:
      silently merged into one.
    - **Both dialogs render = no global clash.** Both themed windows opening together, with no
      exception, is the live confirmation that the three failure modes don't happen.
+   - **Version-specific styles, visibly resolved per version.** Each build ships a *different*
+     `Controls/VersionShowcase.xaml` at the same logical path. The dialog shows a "version badge"
+     styled differently in V1 (filled pill) vs V2 (outlined chip) — proving the version-qualified
+     pack URI resolves the correct one — plus two labels styled by a `V1Only` / `V2Only` key that
+     exists in only one build: the absent one simply stays unstyled. That is the **"a control one
+     version doesn't know about"** case, degrading gracefully instead of throwing.
 
    To run it: build the two add-ins (deploys each with its own library version + `.addin`), start
    Inventor 2025+, and open both add-ins' **Modern UI Coexistence** buttons. Two themed dialogs, one

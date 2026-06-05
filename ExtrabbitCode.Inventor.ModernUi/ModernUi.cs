@@ -1,4 +1,5 @@
 using System.IO.Packaging;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -37,7 +38,12 @@ public static class ModernUi
         "Controls/ComboBox.xaml",
         "Controls/Card.xaml",
         "Controls/ProgressBar.xaml",
-        "Controls/ToggleSwitch.xaml"
+        "Controls/ToggleSwitch.xaml",
+
+        // Demo-only: the two library builds (V1 / V2) ship a DIFFERENT file at this same logical
+        // path, to exercise version coexistence. Harmless in the product (its keys are namespaced
+        // "Coexistence.*" and referenced by nothing unless a consumer opts in).
+        "Controls/VersionShowcase.xaml"
     ];
 
     /// <summary>
@@ -120,8 +126,29 @@ public static class ModernUi
 
     private static ResourceDictionary LoadDictionary(string relativePath)
     {
-        string assembly = typeof(ModernUi).Assembly.GetName().Name!;
-        Uri uri = new($"/{assembly};component/{relativePath}", UriKind.Relative);
+        AssemblyName name = typeof(ModernUi).Assembly.GetName();
+
+        // Version-hardened pack URI: the ";v1.2.3.4;component" segment pins the lookup to THIS
+        // assembly's exact version. When two builds of this library share one process (e.g. two
+        // Inventor add-ins), each window then resolves its OWN version's dictionary instead of
+        // whichever copy WPF happened to load first. If the version-qualified form can't be
+        // resolved in some host, we fall back to the simple-name URI — worst case cosmetic (the
+        // other version's identical-shaped, framework-typed styles), never a crash.
+        Version? version = name.Version;
+        if (version is not null)
+        {
+            try
+            {
+                Uri versioned = new($"/{name.Name};v{version};component/{relativePath}", UriKind.Relative);
+                return new ResourceDictionary { Source = versioned };
+            }
+            catch
+            {
+                // Fall through to the unversioned URI below.
+            }
+        }
+
+        Uri uri = new($"/{name.Name};component/{relativePath}", UriKind.Relative);
         return new ResourceDictionary { Source = uri };
     }
 

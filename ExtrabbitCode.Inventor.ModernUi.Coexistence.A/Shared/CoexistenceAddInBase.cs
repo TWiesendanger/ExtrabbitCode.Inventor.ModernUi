@@ -149,7 +149,48 @@ public abstract class CoexistenceAddInBase : IsolatedApplicationAddInServer
         combo.SelectedIndex = 0;
         panel.Children.Add(combo);
 
+        panel.Children.Add(BuildVersionShowcase(version));
+
         return panel;
+    }
+
+    /// <summary>
+    /// Demonstrates version coexistence at the resource level. The styles referenced here are
+    /// defined in the library's <c>Controls/VersionShowcase.xaml</c>, of which the V1 and V2 builds
+    /// ship DIFFERENT files at the same logical path:
+    /// <list type="bullet">
+    /// <item><c>Coexistence.VersionBadge</c> exists in both, but looks different per version — so the
+    /// version-hardened pack URI is doing its job (each window resolves its OWN version's style).</item>
+    /// <item><c>Coexistence.V1Only</c> / <c>Coexistence.V2Only</c> each exist in only one version.
+    /// Referenced via <c>DynamicResource</c>, the "missing" one simply leaves the control unstyled —
+    /// graceful degradation, never an exception. This is the "a control one version doesn't know"
+    /// case.</item>
+    /// </list>
+    /// </summary>
+    private static FrameworkElement BuildVersionShowcase(string version)
+    {
+        StackPanel section = new() { Margin = new Thickness(0, 18, 0, 0) };
+
+        TextBlock heading = new() { Text = "Version-specific styles", Margin = new Thickness(0, 0, 0, 8) };
+        heading.SetResourceReference(FrameworkElement.StyleProperty, "CaptionTextStyle");
+        section.Children.Add(heading);
+
+        // Same key in both builds, different look → proves version-correct resolution.
+        TextBlock badgeText = new() { Text = $"ModernUi {version} badge" };
+        System.Windows.Controls.Border badge = new() { Child = badgeText, Margin = new Thickness(0, 0, 0, 10) };
+        badge.SetResourceReference(FrameworkElement.StyleProperty, "Coexistence.VersionBadge");
+        section.Children.Add(badge);
+
+        // One of these is defined in this build, the other is not. The undefined one stays unstyled.
+        TextBlock v1Only = new() { Text = "Styled only by V1 (Coexistence.V1Only)", Margin = new Thickness(0, 0, 0, 4) };
+        v1Only.SetResourceReference(FrameworkElement.StyleProperty, "Coexistence.V1Only");
+        section.Children.Add(v1Only);
+
+        TextBlock v2Only = new() { Text = "Styled only by V2 (Coexistence.V2Only)" };
+        v2Only.SetResourceReference(FrameworkElement.StyleProperty, "Coexistence.V2Only");
+        section.Children.Add(v2Only);
+
+        return section;
     }
 
     private static Theme ReadTheme(global::Inventor.Application app)

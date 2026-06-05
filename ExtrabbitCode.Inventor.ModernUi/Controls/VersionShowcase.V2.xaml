@@ -1,0 +1,26 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- ============================================================================================
+         Shipped ONLY in the V2 build of the library (compiled when MODERNUI_V2 is defined). Maps to
+         the same logical path as VersionShowcase.V1.xaml — see that file's header for the rationale.
+         ============================================================================================ -->
+
+    <!-- Present in BOTH versions, different look. V2 = outlined, square-cornered chip. -->
+    <Style x:Key="Coexistence.VersionBadge" TargetType="Border">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Accent}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="2" />
+        <Setter Property="Padding" Value="10,3" />
+        <Setter Property="HorizontalAlignment" Value="Left" />
+    </Style>
+
+    <!-- Exists ONLY in V2. A V1 window referencing this key via DynamicResource gets nothing
+         (the control stays unstyled) — graceful degradation, never an exception. -->
+    <Style x:Key="Coexistence.V2Only" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource Brush.Error}" />
+        <Setter Property="FontStyle" Value="Italic" />
+    </Style>
+
+</ResourceDictionary>
