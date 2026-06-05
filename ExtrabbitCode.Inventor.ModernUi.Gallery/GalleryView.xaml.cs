@@ -358,6 +358,14 @@ public partial class GalleryView : UserControl
                     <TextBlock Text="Card surface" />
                 </Border>
                 """),
+            new DemoItem("Expander", """
+                <Expander Header="Output" IsExpanded="True">
+                    <StackPanel>
+                        <TextBlock Text="Body Name" Margin="0,0,0,4" />
+                        <TextBox Text="Solid1" Width="200" HorizontalAlignment="Left" />
+                    </StackPanel>
+                </Expander>
+                """),
         ]),
     ];
 }
