@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Interop;
 using Inventor;
+using System.Windows.Media.Imaging;
 
 namespace ExtrabbitCode.Inventor.ModernUi.Coexistence;
 
@@ -32,8 +33,8 @@ public abstract class CoexistenceAddInBase : IsolatedApplicationAddInServer
         _app = site.Application;
 
         Assembly self = typeof(CoexistenceAddInBase).Assembly;
-        object smallIcon = PictureDispConverter.FromResource(self, "ModernUi-16.png") ?? (object)Type.Missing;
-        object largeIcon = PictureDispConverter.FromResource(self, "ModernUi-32.png") ?? (object)Type.Missing;
+        object smallIcon = PictureDispConverter.FromResource(self, "ModernUi-16.png") ?? Type.Missing;
+        object largeIcon = PictureDispConverter.FromResource(self, "ModernUi-32.png") ?? Type.Missing;
 
         ControlDefinitions defs = _app.CommandManager.ControlDefinitions;
         _button = defs.AddButtonDefinition(
@@ -73,9 +74,9 @@ public abstract class CoexistenceAddInBase : IsolatedApplicationAddInServer
                 return null;
             }
 
-            var bitmap = new System.Windows.Media.Imaging.BitmapImage();
+            BitmapImage bitmap = new();
             bitmap.BeginInit();
-            bitmap.CacheOption = System.Windows.Media.Imaging.BitmapCacheOption.OnLoad;
+            bitmap.CacheOption = BitmapCacheOption.OnLoad;
             bitmap.StreamSource = stream;
             bitmap.EndInit();
             bitmap.Freeze();
@@ -103,7 +104,7 @@ public abstract class CoexistenceAddInBase : IsolatedApplicationAddInServer
         string asmVersion = typeof(CoexistenceMarker).Assembly.GetName().Version!.ToString();
         string greeting = (string)(typeof(CoexistenceMarker).GetMethod(VersionMethod)?.Invoke(null, null) ?? "<missing>");
 
-        ModernWindow window = new ModernWindow(theme, font: font)
+        ModernWindow window = new(theme, font: font)
         {
             Title = DisplayName,
             Icon = TryLoadWindowIcon(),

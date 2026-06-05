@@ -4,8 +4,7 @@ using System.Runtime.InteropServices;
 namespace ExtrabbitCode.Inventor.ModernUi.Coexistence;
 
 /// <summary>
-/// Converts an image to the IPictureDisp Inventor ribbon icons expect — the same approach used in
-/// the other ExtrabbitCode Inventor add-ins (<c>Bitmap.GetHicon</c> + <c>OleCreatePictureIndirect</c>).
+/// Converts an image to the IPictureDisp Inventor ribbon icons expect
 /// Uses System.Drawing for the bitmap; no WinForms. Returns the picture as <see cref="object"/> with
 /// the IPictureDisp IID, so no direct <c>stdole</c> reference is required.
 /// </summary>

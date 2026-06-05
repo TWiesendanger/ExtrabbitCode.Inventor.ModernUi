@@ -83,7 +83,7 @@ public static class ModernMessageBox
         ThemePalette? palette = null,
         FontOptions? font = null)
     {
-        var window = new ModernWindow(theme, palette, font)
+        ModernWindow window = new(theme, palette, font)
         {
             Title = title,
             Owner = owner,
@@ -102,18 +102,18 @@ public static class ModernMessageBox
             _ => ModernDialogResult.Cancel,
         };
 
-        var root = new Grid { Margin = new Thickness(24, 22, 24, 18) };
+        Grid root = new() { Margin = new Thickness(24, 22, 24, 18) };
         root.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         root.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
 
-        var header = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 0, 20) };
+        StackPanel header = new() { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 0, 20) };
         FrameworkElement? glyph = BuildIcon(icon);
         if (glyph is not null)
         {
             header.Children.Add(glyph);
         }
 
-        var text = new TextBlock
+        TextBlock text = new()
         {
             Text = message,
             TextWrapping = TextWrapping.Wrap,
@@ -124,7 +124,7 @@ public static class ModernMessageBox
         Grid.SetRow(header, 0);
         root.Children.Add(header);
 
-        var buttonBar = new StackPanel
+        StackPanel buttonBar = new()
         {
             Orientation = Orientation.Horizontal,
             HorizontalAlignment = HorizontalAlignment.Right,
@@ -134,7 +134,7 @@ public static class ModernMessageBox
 
         void Add(string content, ModernDialogResult value, bool isDefault, bool isCancel, bool accent)
         {
-            var button = new Button
+            Button button = new()
             {
                 Content = content,
                 MinWidth = 92,
@@ -173,6 +173,8 @@ public static class ModernMessageBox
                 Add("No", ModernDialogResult.No, isDefault: false, isCancel: false, accent: false);
                 Add("Cancel", ModernDialogResult.Cancel, isDefault: false, isCancel: true, accent: false);
                 break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(buttons), buttons, null);
         }
 
         window.Content = root;
@@ -202,14 +204,14 @@ public static class ModernMessageBox
         // Segoe Fluent Icons glyphs.
         (int glyph, string? brushKey, string? hardColor) = icon switch
         {
-            ModernDialogIcon.Info => (0xE946, "Brush.Accent", (string?)null),
-            ModernDialogIcon.Warning => (0xE7BA, (string?)null, "#E0A52E"),
-            ModernDialogIcon.Error => (0xE783, "Brush.Error", (string?)null),
+            ModernDialogIcon.Info => (0xE946, "Brush.Accent", null),
+            ModernDialogIcon.Warning => (0xE7BA, null, "#E0A52E"),
+            ModernDialogIcon.Error => (0xE783, "Brush.Error", null),
             ModernDialogIcon.Question => (0xE897, "Brush.Accent", (string?)null),
-            _ => (0, (string?)null, (string?)null),
+            _ => (0, null, null),
         };
 
-        var tb = new TextBlock
+        TextBlock tb = new()
         {
             Text = char.ConvertFromUtf32(glyph),
             FontFamily = new FontFamily("Segoe Fluent Icons, Segoe MDL2 Assets"),

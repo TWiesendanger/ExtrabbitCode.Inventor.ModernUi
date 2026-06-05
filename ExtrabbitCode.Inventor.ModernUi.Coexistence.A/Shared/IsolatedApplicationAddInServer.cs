@@ -24,10 +24,6 @@ public abstract class IsolatedApplicationAddInServer : ApplicationAddInServer
     {
         Type type = GetType();
 
-        // Are we still in the default context (where Inventor loaded us) and need to isolate?
-        // Compare against the Default singleton — NOT `is AddinLoadContext`: that type is itself
-        // duplicated into the isolated context, so a type check never matches and recurses forever
-        // (StackOverflowException).
         if (AssemblyLoadContext.GetLoadContext(type.Assembly) == AssemblyLoadContext.Default)
         {
             AddinLoadContext context = new(type.Name, type.Assembly.Location);
