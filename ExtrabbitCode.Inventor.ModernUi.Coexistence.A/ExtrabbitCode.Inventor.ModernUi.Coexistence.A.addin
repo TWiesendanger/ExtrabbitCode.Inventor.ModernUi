@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Addin Type="Standard">
+	<ClassId>{5f78f343-a56f-43b8-8454-5db53f2d9dbe}</ClassId>
+	<ClientId>{5f78f343-a56f-43b8-8454-5db53f2d9dbe}</ClientId>
+	<DisplayName>Modern UI Coexistence A (V1)</DisplayName>
+	<Description>Coexistence test add-in A — ships ModernUi V1, loaded in an isolated context.</Description>
+	<Assembly>C:\ProgramData\ExtrabbitCode\ExtrabbitCode.Inventor.ModernUi.Coexistence.A\ExtrabbitCode.Inventor.ModernUi.Coexistence.A.dll</Assembly>
+	<LoadOnStartUp>1</LoadOnStartUp>
+	<UserUnloadable>1</UserUnloadable>
+	<Hidden>0</Hidden>
+	<SupportedSoftwareVersionGreaterThan>28..</SupportedSoftwareVersionGreaterThan>
+	<DataVersion>1</DataVersion>
+	<UserInterfaceVersion>1</UserInterfaceVersion>
+</Addin>

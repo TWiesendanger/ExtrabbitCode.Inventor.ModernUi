@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+  <assemblyIdentity name="ExtrabbitCode.Inventor.ModernUi.Coexistence.B" version="1.0.0.0" />
+  <clrClass clsid="{3c646f71-d600-43f9-8373-40dd27209bd5}"
+            progid="ExtrabbitCode.Inventor.ModernUi.Coexistence.B.AddInServerB"
+            threadingModel="Both"
+            name="ExtrabbitCode.Inventor.ModernUi.Coexistence.B.AddInServerB"
+            runtimeVersion="" />
+  <file name="ExtrabbitCode.Inventor.ModernUi.Coexistence.B.dll" hashalg="SHA1" />
+</assembly>

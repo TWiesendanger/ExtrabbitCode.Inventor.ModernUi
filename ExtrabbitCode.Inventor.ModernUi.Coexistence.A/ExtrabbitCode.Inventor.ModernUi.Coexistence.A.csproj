@@ -1,0 +1,46 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <OutputType>Library</OutputType>
+    <UseWPF>true</UseWPF>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>ExtrabbitCode.Inventor.ModernUi.Coexistence.A</RootNamespace>
+    <AssemblyName>ExtrabbitCode.Inventor.ModernUi.Coexistence.A</AssemblyName>
+    <ApplicationManifest>ExtrabbitCode.Inventor.ModernUi.Coexistence.A.manifest</ApplicationManifest>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <InventorVersion>2025</InventorVersion>
+    <CopyInventorFiles>false</CopyInventorFiles>
+
+    <!-- This add-in ships ModernUi V1. -->
+    <LibraryProject>$(MSBuildProjectDirectory)\..\ExtrabbitCode.Inventor.ModernUi\ExtrabbitCode.Inventor.ModernUi.csproj</LibraryProject>
+    <LibVersionArgs>-p:Version=1.0.0.0</LibVersionArgs>
+    <AddinManifestFile>ExtrabbitCode.Inventor.ModernUi.Coexistence.A.addin</AddinManifestFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Autodesk.Inventor.Sdk" Version="2.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Compile against the V1 API. The version-only method is called via reflection, so the same
+         source works whichever version is deployed. -->
+    <ProjectReference Include="..\ExtrabbitCode.Inventor.ModernUi\ExtrabbitCode.Inventor.ModernUi.csproj" />
+  </ItemGroup>
+
+  <!-- Deploy: mirror the add-in output, then build ModernUi V1 into the same folder, then drop the
+       .addin into the Inventor add-ins folder. -->
+  <Target Name="DeployCoexistence" AfterTargets="Build" Condition="'$(DeployToInventor)' != 'false'">
+    <PropertyGroup>
+      <DeployDir>C:\ProgramData\ExtrabbitCode\$(AssemblyName)</DeployDir>
+      <AddinsFolder>C:\ProgramData\Autodesk\Inventor Addins</AddinsFolder>
+    </PropertyGroup>
+    <Exec Command="&quot;$(MSBuildProjectDirectory)\..\build\Mirror.cmd&quot; &quot;$(TargetDir).&quot; &quot;$(DeployDir)&quot;" ContinueOnError="true" />
+    <Exec Command="dotnet build &quot;$(LibraryProject)&quot; -c $(Configuration) --nologo -v q $(LibVersionArgs) -p:GenerateDependencyFile=true --output &quot;$(DeployDir)&quot;" ContinueOnError="true" />
+    <MakeDir Directories="$(AddinsFolder)" />
+    <Copy SourceFiles="$(MSBuildProjectDirectory)\$(AddinManifestFile)" DestinationFolder="$(AddinsFolder)" ContinueOnError="true" />
+  </Target>
+
+</Project>
