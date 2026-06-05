@@ -20,15 +20,14 @@ public class DemoAddInServer : ApplicationAddInServer
 
     private Application? _app;
     private ButtonDefinition? _button;
-    private System.Drawing.Image? _icon16;
-    private System.Drawing.Image? _icon32;
 
     public void Activate(ApplicationAddInSite addInSiteObject, bool firstTime)
     {
         _app = addInSiteObject.Application;
 
-        _icon16 = LoadImage("ModernUi-16.png");
-        _icon32 = LoadImage("ModernUi-32.png");
+        System.Reflection.Assembly self = typeof(DemoAddInServer).Assembly;
+        object smallIcon = PictureDispConverter.FromResource(self, "ModernUi-16.png") ?? (object)Type.Missing;
+        object largeIcon = PictureDispConverter.FromResource(self, "ModernUi-32.png") ?? (object)Type.Missing;
 
         ControlDefinitions defs = _app.CommandManager.ControlDefinitions;
         _button = defs.AddButtonDefinition(
@@ -38,8 +37,8 @@ public class DemoAddInServer : ApplicationAddInServer
             "{" + AddInGuid + "}",
             "Show the Modern UI control gallery",
             "Opens a themed dialog showcasing the ExtrabbitCode Modern UI controls in the active Inventor theme and font.",
-            PictureConverter.ToPictureDisp(_icon16),
-            PictureConverter.ToPictureDisp(_icon32));
+            smallIcon,
+            largeIcon);
 
         _button.OnExecute += OnShowGallery;
 
@@ -55,20 +54,9 @@ public class DemoAddInServer : ApplicationAddInServer
 
         _button = null;
         _app = null;
-        _icon16?.Dispose();
-        _icon16 = null;
-        _icon32?.Dispose();
-        _icon32 = null;
 
         GC.Collect();
         GC.WaitForPendingFinalizers();
-    }
-
-    private static System.Drawing.Image LoadImage(string resourceName)
-    {
-        using System.IO.Stream stream = typeof(DemoAddInServer).Assembly.GetManifestResourceStream(resourceName)!;
-        using var source = System.Drawing.Image.FromStream(stream);
-        return new System.Drawing.Bitmap(source); // independent copy so the stream can close
     }
 
     /// <summary>Legacy member of the add-in interface; unused.</summary>

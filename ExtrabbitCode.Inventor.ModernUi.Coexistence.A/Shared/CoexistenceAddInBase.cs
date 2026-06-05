@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Interop;
@@ -30,6 +31,10 @@ public abstract class CoexistenceAddInBase : IsolatedApplicationAddInServer
     {
         _app = site.Application;
 
+        Assembly self = typeof(CoexistenceAddInBase).Assembly;
+        object smallIcon = PictureDispConverter.FromResource(self, "ModernUi-16.png") ?? (object)Type.Missing;
+        object largeIcon = PictureDispConverter.FromResource(self, "ModernUi-32.png") ?? (object)Type.Missing;
+
         ControlDefinitions defs = _app.CommandManager.ControlDefinitions;
         _button = defs.AddButtonDefinition(
             DisplayName,
@@ -38,8 +43,8 @@ public abstract class CoexistenceAddInBase : IsolatedApplicationAddInServer
             "{" + AddInGuid + "}",
             DisplayName,
             DisplayName,
-            Type.Missing,
-            Type.Missing);
+            smallIcon,
+            largeIcon);
 
         _button.OnExecute += OnExecute;
         AddButtonToRibbons();
@@ -56,6 +61,30 @@ public abstract class CoexistenceAddInBase : IsolatedApplicationAddInServer
         _app = null;
         GC.Collect();
         GC.WaitForPendingFinalizers();
+    }
+
+    private static System.Windows.Media.ImageSource? TryLoadWindowIcon()
+    {
+        try
+        {
+            using System.IO.Stream? stream = typeof(CoexistenceAddInBase).Assembly.GetManifestResourceStream("ModernUi-64.png");
+            if (stream is null)
+            {
+                return null;
+            }
+
+            var bitmap = new System.Windows.Media.Imaging.BitmapImage();
+            bitmap.BeginInit();
+            bitmap.CacheOption = System.Windows.Media.Imaging.BitmapCacheOption.OnLoad;
+            bitmap.StreamSource = stream;
+            bitmap.EndInit();
+            bitmap.Freeze();
+            return bitmap;
+        }
+        catch
+        {
+            return null;
+        }
     }
 
     private void OnExecute(NameValueMap context)
@@ -77,6 +106,7 @@ public abstract class CoexistenceAddInBase : IsolatedApplicationAddInServer
         ModernWindow window = new ModernWindow(theme, font: font)
         {
             Title = DisplayName,
+            Icon = TryLoadWindowIcon(),
             Content = BuildContent(version, asmVersion, greeting),
         };
         _ = new WindowInteropHelper(window) { Owner = new IntPtr(_app.MainFrameHWND) };

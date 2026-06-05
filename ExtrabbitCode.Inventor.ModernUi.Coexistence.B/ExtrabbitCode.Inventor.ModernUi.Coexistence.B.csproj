@@ -13,6 +13,7 @@
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <InventorVersion>2025</InventorVersion>
     <CopyInventorFiles>false</CopyInventorFiles>
+    <PlatformTarget>x64</PlatformTarget>
 
     <!-- This add-in ships ModernUi V2 (the MODERNUI_V2 build with GetV2()). -->
     <LibraryProject>$(MSBuildProjectDirectory)\..\ExtrabbitCode.Inventor.ModernUi\ExtrabbitCode.Inventor.ModernUi.csproj</LibraryProject>
@@ -22,6 +23,13 @@
 
   <ItemGroup>
     <PackageReference Include="Autodesk.Inventor.Sdk" Version="2.0.1" />
+    <PackageReference Include="System.Drawing.Common" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="..\resources\ModernUi-16.png" LogicalName="ModernUi-16.png" />
+    <EmbeddedResource Include="..\resources\ModernUi-32.png" LogicalName="ModernUi-32.png" />
+    <EmbeddedResource Include="..\resources\ModernUi-64.png" LogicalName="ModernUi-64.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -34,6 +42,7 @@
     <Compile Include="..\ExtrabbitCode.Inventor.ModernUi.Coexistence.A\Shared\AddinLoadContext.cs" Link="Shared\AddinLoadContext.cs" />
     <Compile Include="..\ExtrabbitCode.Inventor.ModernUi.Coexistence.A\Shared\IsolatedApplicationAddInServer.cs" Link="Shared\IsolatedApplicationAddInServer.cs" />
     <Compile Include="..\ExtrabbitCode.Inventor.ModernUi.Coexistence.A\Shared\CoexistenceAddInBase.cs" Link="Shared\CoexistenceAddInBase.cs" />
+    <Compile Include="..\ExtrabbitCode.Inventor.ModernUi.Coexistence.A\Shared\PictureDispConverter.cs" Link="Shared\PictureDispConverter.cs" />
   </ItemGroup>
 
   <Target Name="DeployCoexistence" AfterTargets="Build" Condition="'$(DeployToInventor)' != 'false'">
