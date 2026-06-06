@@ -1,6 +1,5 @@
 using System.IO;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using ExtrabbitCode.Inventor.ModernUi;
@@ -24,7 +23,26 @@ public partial class App : Application
             return;
         }
 
-        new LauncherWindow().Show();
+        ShowGallery(Theme.Dark);
+    }
+
+    /// <summary>Opens the gallery directly in the given theme; the in-window toggle switches it live.</summary>
+    private static void ShowGallery(Theme theme)
+    {
+        var gallery = new GalleryView();
+        gallery.Initialize(
+            theme,
+            $"Font: {FontOptions.Default.Family.Source} {FontOptions.Default.NormalSize:0.#}px");
+
+        new ModernWindow(theme)
+        {
+            Title = "ExtrabbitCode Modern UI — Gallery",
+            Icon = GalleryView.LoadBranding(),
+            Width = 760,
+            Height = 920,
+            WindowStartupLocation = WindowStartupLocation.CenterScreen,
+            Content = gallery,
+        }.Show();
     }
 
     private void ShootGalleries(string outputDir)
@@ -86,54 +104,4 @@ public partial class App : Application
         encoder.Save(fs);
     }
 
-    /// <summary>
-    /// Small dark launcher: two buttons that open the gallery in light and dark. Built in code so
-    /// the library's only custom type (ModernWindow) never enters this app's XAML/BAML.
-    /// </summary>
-    private sealed class LauncherWindow : ModernWindow
-    {
-        public LauncherWindow() : base(Theme.Dark)
-        {
-            Title = "ExtrabbitCode Modern UI — Gallery";
-            Icon = GalleryView.LoadBranding();
-            Width = 380;
-            Height = 240;
-            WindowStartupLocation = WindowStartupLocation.CenterScreen;
-
-            var dark = new Button { Content = "Open gallery — Dark", Margin = new Thickness(0, 0, 0, 10) };
-            dark.SetResourceReference(StyleProperty, "AccentButton");
-            dark.Click += (_, _) => OpenGallery(Theme.Dark);
-
-            var light = new Button { Content = "Open gallery — Light" };
-            light.Click += (_, _) => OpenGallery(Theme.Light);
-
-            Content = new StackPanel
-            {
-                Margin = new Thickness(24),
-                VerticalAlignment = VerticalAlignment.Center,
-                Children =
-                {
-                    new TextBlock { Text = "Pick a theme to preview the styled controls." },
-                    new StackPanel { Height = 12 },
-                    dark,
-                    light,
-                },
-            };
-        }
-
-        private void OpenGallery(Theme theme)
-        {
-            var gallery = new GalleryView();
-            gallery.Initialize(
-                theme,
-                $"Font: {FontOptions.Default.Family.Source} {FontOptions.Default.NormalSize:0.#}px");
-
-            new ModernWindow(theme)
-            {
-                Title = $"Control gallery — {theme}",
-                Owner = this,
-                Content = gallery,
-            }.Show();
-        }
-    }
 }
