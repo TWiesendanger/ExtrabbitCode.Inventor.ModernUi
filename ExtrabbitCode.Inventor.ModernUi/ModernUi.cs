@@ -44,6 +44,9 @@ public static class ModernUi
         "Controls/Separator.xaml",
         "Controls/ScrollBar.xaml",
         "Controls/ToolTip.xaml",
+        "Controls/TabControl.xaml",
+        "Controls/ListBox.xaml",
+        "Controls/Slider.xaml",
 
         // Demo-only: the two library builds (V1 / V2) ship a DIFFERENT file at this same logical
         // path, to exercise version coexistence. Harmless in the product (its keys are namespaced

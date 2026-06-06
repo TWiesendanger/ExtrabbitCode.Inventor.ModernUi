@@ -256,6 +256,43 @@ public partial class GalleryView : UserControl
                     <RadioButton Content="Option two" GroupName="demo" />
                 </StackPanel>
                 """),
+            new DemoItem("List box", """
+                <ListBox Width="240" Height="120" HorizontalAlignment="Left" SelectedIndex="0">
+                    <ListBoxItem Content="Solid1" />
+                    <ListBoxItem Content="Solid2" />
+                    <ListBoxItem Content="Surface1" />
+                    <ListBoxItem Content="Work Plane 1" />
+                    <ListBoxItem Content="Sketch 1" />
+                </ListBox>
+                """),
+            new DemoItem("Slider", """
+                <Slider Width="280" HorizontalAlignment="Left"
+                        Minimum="0" Maximum="100" Value="40" />
+                """),
+            new DemoItem("Slider with live value", """
+                <DockPanel Width="280" HorizontalAlignment="Left">
+                    <TextBlock DockPanel.Dock="Right" Width="32" TextAlignment="Right"
+                               Text="{Binding Value, ElementName=mySlider, StringFormat={}{0:0}}" />
+                    <Slider x:Name="mySlider" VerticalAlignment="Center"
+                            Minimum="0" Maximum="100" Value="40" />
+                </DockPanel>
+                """),
+            new DemoItem("Slider with ticks + snapping", """
+                <Slider Width="280" HorizontalAlignment="Left"
+                        Minimum="0" Maximum="100" Value="40"
+                        TickPlacement="BottomRight" TickFrequency="10"
+                        IsSnapToTickEnabled="True" />
+                """),
+            new DemoItem("Slider with min / max labels", """
+                <DockPanel Width="300" HorizontalAlignment="Left">
+                    <TextBlock DockPanel.Dock="Left" Text="0" Margin="0,0,8,0" VerticalAlignment="Center"
+                               Foreground="{DynamicResource Brush.ForegroundMuted}" />
+                    <TextBlock DockPanel.Dock="Right" Text="100" Margin="8,0,0,0" VerticalAlignment="Center"
+                               Foreground="{DynamicResource Brush.ForegroundMuted}" />
+                    <Slider VerticalAlignment="Center" Minimum="0" Maximum="100" Value="40"
+                            AutoToolTipPlacement="TopLeft" AutoToolTipPrecision="0" />
+                </DockPanel>
+                """),
         ]),
 
         new DemoPage("Validation",
@@ -401,6 +438,19 @@ public partial class GalleryView : UserControl
                         <TextBlock Text="Item 9" /> <TextBlock Text="Item 10" />
                     </StackPanel>
                 </ScrollViewer>
+                """),
+            new DemoItem("Tab control", """
+                <TabControl Width="300" Height="120" HorizontalAlignment="Left">
+                    <TabItem Header="General">
+                        <TextBlock Text="General settings" />
+                    </TabItem>
+                    <TabItem Header="Advanced">
+                        <TextBlock Text="Advanced settings" />
+                    </TabItem>
+                    <TabItem Header="About">
+                        <TextBlock Text="About this add-in" />
+                    </TabItem>
+                </TabControl>
                 """),
         ]),
     ];
