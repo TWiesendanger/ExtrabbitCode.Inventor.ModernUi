@@ -136,7 +136,15 @@ public partial class GalleryView : UserControl
         card.Child = item.Build is not null ? item.Build() : ParseSnippet(item.Xaml);
         stack.Children.Add(card);
 
-        stack.Children.Add(BuildCodeBox(item.Xaml));
+        // The XAML lives in a collapsed "XAML" expander so it doesn't crowd the live controls.
+        var xaml = new Expander
+        {
+            Header = "XAML",
+            IsExpanded = false,
+            Margin = new Thickness(0, 4, 0, 0),
+            Content = BuildCodeBox(item.Xaml),
+        };
+        stack.Children.Add(xaml);
         return stack;
     }
 
