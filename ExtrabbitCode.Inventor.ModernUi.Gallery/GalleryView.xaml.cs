@@ -711,6 +711,31 @@ public partial class GalleryView : UserControl
                 """),
         ]),
 
+        new DemoPage("Badges",
+        [
+            new DemoItem("Status badges", """
+                <StackPanel Orientation="Horizontal">
+                    <ContentControl Style="{DynamicResource Badge}" Content="Draft" />
+                    <ContentControl Style="{DynamicResource BadgeAccent}" Content="New" Margin="8,0,0,0" />
+                    <ContentControl Style="{DynamicResource BadgeError}" Content="Error" Margin="8,0,0,0" />
+                </StackPanel>
+                """),
+            new DemoItem("Counter on a button", """
+                <Grid HorizontalAlignment="Left">
+                    <Button Content="Inbox" />
+                    <ContentControl Style="{DynamicResource CounterBadge}" Content="3"
+                                    HorizontalAlignment="Right" VerticalAlignment="Top"
+                                    Margin="0,-8,-8,0" />
+                </Grid>
+                """),
+            new DemoItem("Shield (two-tone)", """
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                    <ContentControl Style="{DynamicResource ShieldLabel}" Content="build" />
+                    <ContentControl Style="{DynamicResource ShieldValue}" Content="passing" />
+                </StackPanel>
+                """),
+        ]),
+
         new DemoPage("Layout",
         [
             new DemoItem("Group box", """
