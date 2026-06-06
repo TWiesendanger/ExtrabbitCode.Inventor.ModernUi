@@ -223,6 +223,19 @@ public partial class GalleryView : UserControl
             new DemoItem("Disabled button", """
                 <Button Content="Disabled" Width="120" HorizontalAlignment="Left" IsEnabled="False" />
                 """),
+            new DemoItem("Icon buttons", """
+                <StackPanel Orientation="Horizontal">
+                    <Button Style="{DynamicResource IconButton}" ToolTip="Settings">
+                        <TextBlock FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" Text="&#xE713;" />
+                    </Button>
+                    <Button Style="{DynamicResource IconButton}" ToolTip="Refresh" Margin="6,0,0,0">
+                        <TextBlock FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" Text="&#xE72C;" />
+                    </Button>
+                    <Button Style="{DynamicResource IconButton}" ToolTip="Delete" Margin="6,0,0,0">
+                        <TextBlock FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" Text="&#xE74D;" />
+                    </Button>
+                </StackPanel>
+                """),
         ]),
 
         new DemoPage("Text input",

@@ -85,4 +85,50 @@
         <Setter Property="FontWeight" Value="SemiBold" />
     </Style>
 
+    <!-- Compact, borderless icon button for toolbar / in-cell actions (content is usually an icon
+         glyph). No min size or chrome; a rounded highlight appears on hover/press.
+         Use: Style="{DynamicResource IconButton}". -->
+    <Style x:Key="IconButton" TargetType="Button">
+        <Setter Property="Foreground" Value="{DynamicResource Brush.ForegroundMuted}" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Padding" Value="6" />
+        <Setter Property="MinWidth" Value="0" />
+        <Setter Property="MinHeight" Value="0" />
+        <Setter Property="FontFamily" Value="{DynamicResource Font.Family}" />
+        <Setter Property="FontSize" Value="{DynamicResource Font.Size.Normal}" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Bd"
+                            Background="{TemplateBinding Background}"
+                            CornerRadius="{DynamicResource Radius.Control}"
+                            SnapsToDevicePixels="True">
+                        <ContentPresenter Margin="{TemplateBinding Padding}"
+                                          HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                          RecognizesAccessKey="True" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Brush.AccentMuted}" />
+                            <Setter Property="Foreground" Value="{DynamicResource Brush.Foreground}" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Brush.Accent}" />
+                            <Setter Property="Foreground" Value="#FFFFFFFF" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.45" />
+                            <Setter Property="Cursor" Value="Arrow" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
 </ResourceDictionary>
