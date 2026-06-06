@@ -2,9 +2,11 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Documents;
 using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -163,27 +165,93 @@ public partial class GalleryView : UserControl
         }
     }
 
+    // --- XAML syntax highlighting (VS-dark palette on a fixed dark code surface) ----------------
+
+    private static readonly Regex XamlToken = new(
+        @"(?<comment><!--.*?-->)" +
+        @"|(?<tag></?[A-Za-z_][\w\.\-:]*)" +
+        @"|(?<close>/?>)" +
+        @"|(?<attr>[A-Za-z_][\w\.\-:]*)(?=\s*=)" +
+        @"|(?<str>""[^""]*"")" +
+        @"|(?<entity>&#?\w+;)",
+        RegexOptions.Singleline | RegexOptions.Compiled);
+
+    private static SolidColorBrush Rgb(byte r, byte g, byte b)
+    {
+        var brush = new SolidColorBrush(Color.FromRgb(r, g, b));
+        brush.Freeze();
+        return brush;
+    }
+
+    private static readonly Brush CodeDefault = Rgb(0xD4, 0xD4, 0xD4);
+    private static readonly Brush CodeComment = Rgb(0x6A, 0x99, 0x55);
+    private static readonly Brush CodeTag = Rgb(0x56, 0x9C, 0xD6);
+    private static readonly Brush CodeAttr = Rgb(0x9C, 0xDC, 0xFE);
+    private static readonly Brush CodeString = Rgb(0xCE, 0x91, 0x78);
+    private static readonly Brush CodeEntity = Rgb(0xD7, 0xBA, 0x7D);
+    private static readonly Brush CodePunct = Rgb(0x80, 0x80, 0x80);
+
+    private static Brush ColorFor(Match m) =>
+          m.Groups["comment"].Success ? CodeComment
+        : m.Groups["tag"].Success ? CodeTag
+        : m.Groups["close"].Success ? CodePunct
+        : m.Groups["attr"].Success ? CodeAttr
+        : m.Groups["str"].Success ? CodeString
+        : m.Groups["entity"].Success ? CodeEntity
+        : CodeDefault;
+
+    private static void AppendHighlighted(InlineCollection inlines, string code)
+    {
+        int pos = 0;
+        foreach (Match m in XamlToken.Matches(code))
+        {
+            if (m.Index > pos)
+            {
+                inlines.Add(new Run(code.Substring(pos, m.Index - pos)) { Foreground = CodeDefault });
+            }
+            inlines.Add(new Run(m.Value) { Foreground = ColorFor(m) });
+            pos = m.Index + m.Length;
+        }
+        if (pos < code.Length)
+        {
+            inlines.Add(new Run(code.Substring(pos)) { Foreground = CodeDefault });
+        }
+    }
+
     private static FrameworkElement BuildCodeBox(string code)
     {
-        var border = new Border { CornerRadius = new CornerRadius(4), Padding = new Thickness(12), BorderThickness = new Thickness(1) };
-        border.SetResourceReference(Border.BackgroundProperty, "Brush.Control");
-        border.SetResourceReference(Border.BorderBrushProperty, "Brush.Border");
+        var paragraph = new Paragraph { Margin = new Thickness(0) };
+        AppendHighlighted(paragraph.Inlines, code);
 
-        var box = new TextBox
+        var doc = new FlowDocument(paragraph)
         {
-            Text = code,
-            IsReadOnly = true,
-            Style = null, // strip the themed TextBox style; this is a code label, not an input
-            BorderThickness = new Thickness(0),
-            Background = Brushes.Transparent,
+            PagePadding = new Thickness(0),
             FontFamily = new FontFamily("Cascadia Code, Consolas, Courier New"),
             FontSize = 12,
-            TextWrapping = TextWrapping.Wrap,
-            HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
+            Foreground = CodeDefault,
         };
-        box.SetResourceReference(ForegroundProperty, "Brush.ForegroundMuted");
-        border.Child = box;
-        return border;
+
+        var box = new RichTextBox
+        {
+            Document = doc,
+            IsReadOnly = true,
+            IsDocumentEnabled = true,
+            BorderThickness = new Thickness(0),
+            Background = Brushes.Transparent,
+            Foreground = CodeDefault,
+            Padding = new Thickness(0),
+            HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
+            VerticalScrollBarVisibility = ScrollBarVisibility.Disabled,
+        };
+
+        // Fixed dark code surface so the syntax colors read in both light and dark themes.
+        return new Border
+        {
+            CornerRadius = new CornerRadius(4),
+            Padding = new Thickness(12),
+            Background = Rgb(0x25, 0x2B, 0x34),
+            Child = box,
+        };
     }
 
     private FrameworkElement BuildMessageBoxDemo(string buttonText, string title, string message,
