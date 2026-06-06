@@ -487,6 +487,76 @@ public partial class GalleryView : UserControl
         return new DataTemplate { VisualTree = button };
     }
 
+    private FrameworkElement BuildToastControls()
+    {
+        var panel = new StackPanel { HorizontalAlignment = HorizontalAlignment.Left, MinWidth = 260 };
+
+        // Max visible.
+        var maxLabel = new TextBlock { Text = $"Max visible: {ModernToast.MaxVisible}", Margin = new Thickness(0, 0, 0, 4) };
+        var maxSlider = new Slider
+        {
+            Minimum = 1, Maximum = 6, Value = ModernToast.MaxVisible,
+            TickFrequency = 1, IsSnapToTickEnabled = true, TickPlacement = System.Windows.Controls.Primitives.TickPlacement.BottomRight,
+            Width = 220, HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 0, 0, 14),
+        };
+        maxSlider.ValueChanged += (_, e) =>
+        {
+            ModernToast.MaxVisible = (int)e.NewValue;
+            maxLabel.Text = $"Max visible: {ModernToast.MaxVisible}";
+        };
+
+        // Default duration (seconds).
+        var durLabel = new TextBlock { Text = $"Duration: {ModernToast.DefaultDuration.TotalSeconds:0} s", Margin = new Thickness(0, 0, 0, 4) };
+        var durSlider = new Slider
+        {
+            Minimum = 1, Maximum = 10, Value = ModernToast.DefaultDuration.TotalSeconds,
+            TickFrequency = 1, IsSnapToTickEnabled = true, TickPlacement = System.Windows.Controls.Primitives.TickPlacement.BottomRight,
+            Width = 220, HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 0, 0, 14),
+        };
+        durSlider.ValueChanged += (_, e) =>
+        {
+            ModernToast.DefaultDuration = TimeSpan.FromSeconds(e.NewValue);
+            durLabel.Text = $"Duration: {e.NewValue:0} s";
+        };
+
+        // Burst button to show the cap in action.
+        var burst = new Button { Content = "Show 6 toasts in a row", HorizontalAlignment = HorizontalAlignment.Left };
+        var types = new[] { ToastType.Info, ToastType.Success, ToastType.Warning, ToastType.Error };
+        burst.Click += (_, _) =>
+        {
+            Window? owner = Window.GetWindow(this);
+            if (owner is null)
+            {
+                return;
+            }
+            for (int i = 1; i <= 6; i++)
+            {
+                ModernToast.Show(owner, $"Notification #{i}", types[(i - 1) % types.Length]);
+            }
+        };
+
+        panel.Children.Add(maxLabel);
+        panel.Children.Add(maxSlider);
+        panel.Children.Add(durLabel);
+        panel.Children.Add(durSlider);
+        panel.Children.Add(burst);
+        return panel;
+    }
+
+    private FrameworkElement BuildToastDemo(string label, ToastType type, string title, string message)
+    {
+        var trigger = new Button { Content = label, HorizontalAlignment = HorizontalAlignment.Left };
+        trigger.Click += (_, _) =>
+        {
+            Window? owner = Window.GetWindow(this);
+            if (owner is not null)
+            {
+                ModernToast.Show(owner, message, type, title);
+            }
+        };
+        return trigger;
+    }
+
     private static FrameworkElement BuildValidationField()
     {
         var box = new TextBox { Width = 240, HorizontalAlignment = HorizontalAlignment.Left };
@@ -734,6 +804,35 @@ public partial class GalleryView : UserControl
                     <ContentControl Style="{DynamicResource ShieldValue}" Content="passing" />
                 </StackPanel>
                 """),
+        ]),
+
+        new DemoPage("Toasts",
+        [
+            new DemoItem("Settings (max visible / duration)", """
+                // Both are static knobs on ModernToast, applied to every toast.
+                ModernToast.MaxVisible = 3;                              // cap shown at once
+                ModernToast.DefaultDuration = TimeSpan.FromSeconds(4);   // auto-dismiss after
+
+                // Per-call duration still overrides the default:
+                ModernToast.Show(owner, "Saved", ToastType.Success,
+                    duration: TimeSpan.FromSeconds(2));
+                """) { Build = BuildToastControls },
+            new DemoItem("Info toast", """
+                ModernToast.Show(owner, "Your settings were loaded.",
+                    ToastType.Info, title: "Heads up");
+                """) { Build = () => BuildToastDemo("Show info", ToastType.Info, "Heads up", "Your settings were loaded.") },
+            new DemoItem("Success toast", """
+                ModernToast.Show(owner, "Export completed.",
+                    ToastType.Success, title: "Done");
+                """) { Build = () => BuildToastDemo("Show success", ToastType.Success, "Done", "Export completed.") },
+            new DemoItem("Warning toast", """
+                ModernToast.Show(owner, "Some parameters were skipped.",
+                    ToastType.Warning, title: "Check input");
+                """) { Build = () => BuildToastDemo("Show warning", ToastType.Warning, "Check input", "Some parameters were skipped.") },
+            new DemoItem("Error toast", """
+                ModernToast.Show(owner, "The file could not be opened.",
+                    ToastType.Error, title: "Failed");
+                """) { Build = () => BuildToastDemo("Show error", ToastType.Error, "Failed", "The file could not be opened.") },
         ]),
 
         new DemoPage("Layout",
