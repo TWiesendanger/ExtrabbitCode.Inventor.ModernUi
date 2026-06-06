@@ -88,6 +88,12 @@
                     <TextBlock x:Name="InfoText"
                                Style="{DynamicResource CaptionTextStyle}"
                                Margin="0,6,0,0" />
+                    <TextBlock Text="Accent color"
+                               Style="{DynamicResource CaptionTextStyle}"
+                               Margin="0,12,0,4" />
+                    <ComboBox x:Name="AccentPicker"
+                              DisplayMemberPath="Name"
+                              SelectionChanged="OnAccentChanged" />
                 </StackPanel>
 
                 <ListBox x:Name="NavList"

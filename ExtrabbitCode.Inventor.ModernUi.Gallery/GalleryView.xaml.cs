@@ -29,6 +29,20 @@ public partial class GalleryView : UserControl
     private readonly List<DemoPage> _pages;
     private Theme _theme;
     private string _detail = string.Empty;
+    private Color? _accent;
+
+    private sealed record AccentOption(string Name, Color? Color);
+
+    // null = keep the palette's default accent.
+    private static readonly AccentOption[] Accents =
+    [
+        new("Inventor Blue", null),
+        new("Orange", Color.FromRgb(0xF2, 0x8C, 0x28)),
+        new("Green", Color.FromRgb(0x3F, 0xB9, 0x50)),
+        new("Purple", Color.FromRgb(0x89, 0x57, 0xE5)),
+        new("Teal", Color.FromRgb(0x1F, 0xA8, 0xA8)),
+        new("Pink", Color.FromRgb(0xE5, 0x48, 0x8D)),
+    ];
 
     public GalleryView()
     {
@@ -36,6 +50,9 @@ public partial class GalleryView : UserControl
         _pages = BuildPages();
         NavList.ItemsSource = _pages;
         NavList.SelectedIndex = 0;
+
+        AccentPicker.ItemsSource = Accents;
+        AccentPicker.SelectedIndex = 0;
 
         ImageSource? branding = LoadBranding();
         LogoImage.Source = branding;
@@ -101,15 +118,43 @@ public partial class GalleryView : UserControl
     private void OnToggleTheme(object sender, RoutedEventArgs e)
     {
         _theme = _theme == Theme.Light ? Theme.Dark : Theme.Light;
-
-        Window? window = Window.GetWindow(this);
-        if (window is not null)
-        {
-            ModernUi.SetTheme(window, _theme);
-        }
-
+        ApplyCurrentTheme();
         UpdateInfo();
         UpdateToggleIcon();
+    }
+
+    private void OnAccentChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (AccentPicker.SelectedItem is AccentOption option)
+        {
+            _accent = option.Color;
+            ApplyCurrentTheme();
+        }
+    }
+
+    /// <summary>Re-applies the current theme + chosen accent to the host window (re-colors live).</summary>
+    private void ApplyCurrentTheme()
+    {
+        Window? window = Window.GetWindow(this);
+        if (window is null)
+        {
+            return;
+        }
+
+        ThemePalette palette = ThemePalette.For(_theme);
+        if (_accent is Color accent)
+        {
+            palette = palette with { Accent = accent, AccentMuted = Muted(accent) };
+        }
+
+        ModernUi.SetTheme(window, _theme, palette);
+    }
+
+    /// <summary>Derives a calmer companion to an accent by blending it toward the panel color.</summary>
+    private static Color Muted(Color c)
+    {
+        static byte Mix(byte x, byte n) => (byte)((x * 0.6) + (n * 0.4));
+        return Color.FromRgb(Mix(c.R, 0x4B), Mix(c.G, 0x54), Mix(c.B, 0x63));
     }
 
     private void UpdateInfo() => InfoText.Text = $"{_theme}  ·  {_detail}";
