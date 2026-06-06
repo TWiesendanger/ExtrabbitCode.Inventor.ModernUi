@@ -195,6 +195,79 @@ public partial class GalleryView : UserControl
         return trigger;
     }
 
+    /// <summary>Loads an embedded image (by logical name) from the hosting assembly, or null.</summary>
+    private static ImageSource? LoadIcon(string name)
+    {
+        try
+        {
+            using Stream? stream = typeof(GalleryView).Assembly.GetManifestResourceStream(name);
+            if (stream is null)
+            {
+                return null;
+            }
+
+            var bitmap = new BitmapImage();
+            bitmap.BeginInit();
+            bitmap.CacheOption = BitmapCacheOption.OnLoad;
+            bitmap.StreamSource = stream;
+            bitmap.EndInit();
+            bitmap.Freeze();
+            return bitmap;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    /// <summary>A tree node whose header is an icon + label, with optional child nodes.</summary>
+    private static TreeViewItem IconNode(ImageSource? icon, string text, bool expanded, params TreeViewItem[] children)
+    {
+        var header = new StackPanel { Orientation = Orientation.Horizontal };
+        if (icon is not null)
+        {
+            header.Children.Add(new Image
+            {
+                Source = icon,
+                Width = 16,
+                Height = 16,
+                Margin = new Thickness(0, 0, 8, 0),
+                VerticalAlignment = VerticalAlignment.Center,
+            });
+        }
+        header.Children.Add(new TextBlock { Text = text, VerticalAlignment = VerticalAlignment.Center });
+
+        var node = new TreeViewItem { Header = header, IsExpanded = expanded };
+        foreach (TreeViewItem child in children)
+        {
+            node.Items.Add(child);
+        }
+        return node;
+    }
+
+    /// <summary>An assembly model tree using the Inventor file-type icons from resources.</summary>
+    private static FrameworkElement BuildAssemblyTree()
+    {
+        ImageSource? iam = LoadIcon("iam64x64.png");
+        ImageSource? ipt = LoadIcon("ipt64x64.png");
+        ImageSource? idw = LoadIcon("idw64x64.png");
+        ImageSource? ipn = LoadIcon("ipn64x64.png");
+        ImageSource? other = LoadIcon("everythingelse64x64.png");
+
+        var tree = new TreeView { Width = 300, Height = 250, HorizontalAlignment = HorizontalAlignment.Left };
+        tree.Items.Add(
+            IconNode(iam, "Bracket.iam", true,
+                IconNode(ipt, "Base.ipt", false),
+                IconNode(ipt, "Cover.ipt", false),
+                IconNode(iam, "Hinge.iam", true,
+                    IconNode(ipt, "Pin.ipt", false),
+                    IconNode(ipt, "Bushing.ipt", false)),
+                IconNode(idw, "Bracket.idw", false),
+                IconNode(ipn, "Bracket.ipn", false),
+                IconNode(other, "Notes.txt", false)));
+        return tree;
+    }
+
     private static FrameworkElement BuildDataGrid()
     {
         var items = new ObservableCollection<DemoParameter>
@@ -590,6 +663,89 @@ public partial class GalleryView : UserControl
                     </TreeViewItem>
                 </TreeView>
                 """),
+            new DemoItem("Tree view with icons", """
+                <TreeView Width="280" Height="210" HorizontalAlignment="Left">
+                    <TreeViewItem IsExpanded="True">
+                        <TreeViewItem.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets"
+                                           Text="&#xE8B7;" Margin="0,0,8,0" VerticalAlignment="Center" />
+                                <TextBlock Text="Assembly1" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </TreeViewItem.Header>
+                        <TreeViewItem>
+                            <TreeViewItem.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets"
+                                               Text="&#xE7C3;" Margin="0,0,8,0" VerticalAlignment="Center" />
+                                    <TextBlock Text="Part1" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </TreeViewItem.Header>
+                        </TreeViewItem>
+                        <TreeViewItem IsExpanded="True">
+                            <TreeViewItem.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets"
+                                               Text="&#xE8B7;" Margin="0,0,8,0" VerticalAlignment="Center" />
+                                    <TextBlock Text="Sub-assembly" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </TreeViewItem.Header>
+                            <TreeViewItem>
+                                <TreeViewItem.Header>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets"
+                                                   Text="&#xE7C3;" Margin="0,0,8,0" VerticalAlignment="Center" />
+                                        <TextBlock Text="Part2" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </TreeViewItem.Header>
+                            </TreeViewItem>
+                            <TreeViewItem>
+                                <TreeViewItem.Header>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets"
+                                                   Text="&#xE70F;" Margin="0,0,8,0" VerticalAlignment="Center" />
+                                        <TextBlock Text="Sketch1" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </TreeViewItem.Header>
+                            </TreeViewItem>
+                        </TreeViewItem>
+                    </TreeViewItem>
+                </TreeView>
+                """),
+            new DemoItem("Tree view with checkboxes", """
+                <TreeView Width="280" Height="170" HorizontalAlignment="Left">
+                    <TreeViewItem IsExpanded="True">
+                        <TreeViewItem.Header>
+                            <CheckBox Content="All layers" IsChecked="True" />
+                        </TreeViewItem.Header>
+                        <TreeViewItem>
+                            <TreeViewItem.Header><CheckBox Content="Dimensions" IsChecked="True" /></TreeViewItem.Header>
+                        </TreeViewItem>
+                        <TreeViewItem>
+                            <TreeViewItem.Header><CheckBox Content="Sketches" /></TreeViewItem.Header>
+                        </TreeViewItem>
+                        <TreeViewItem>
+                            <TreeViewItem.Header><CheckBox Content="Work features" IsChecked="True" /></TreeViewItem.Header>
+                        </TreeViewItem>
+                    </TreeViewItem>
+                </TreeView>
+                """),
+            new DemoItem("Assembly tree (file-type icons)", """
+                <TreeView Width="300" Height="250" HorizontalAlignment="Left">
+                    <TreeViewItem IsExpanded="True">
+                        <TreeViewItem.Header>
+                            <StackPanel Orientation="Horizontal">
+                                <Image Source="/resources/iam64x64.png" Width="16" Height="16"
+                                       Margin="0,0,8,0" VerticalAlignment="Center" />
+                                <TextBlock Text="Bracket.iam" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </TreeViewItem.Header>
+                        <!-- child nodes use ipt / idw / ipn / generic icons the same way -->
+                        <TreeViewItem Header="Base.ipt" />
+                        <TreeViewItem Header="Cover.ipt" />
+                    </TreeViewItem>
+                </TreeView>
+                """) { Build = BuildAssemblyTree },
             new DemoItem("Data grid", """
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,8">

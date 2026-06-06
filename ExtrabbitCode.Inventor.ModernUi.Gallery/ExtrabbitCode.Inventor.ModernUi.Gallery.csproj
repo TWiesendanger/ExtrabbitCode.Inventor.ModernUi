@@ -17,6 +17,12 @@
   <ItemGroup>
     <!-- Branding: the gallery loads "ModernUi-64.png" for the window/nav logo. -->
     <EmbeddedResource Include="..\resources\ModernUi-64.png" LogicalName="ModernUi-64.png" />
+    <!-- Inventor file-type icons for the assembly-tree sample. -->
+    <EmbeddedResource Include="..\resources\iam64x64.png" LogicalName="iam64x64.png" />
+    <EmbeddedResource Include="..\resources\ipt64x64.png" LogicalName="ipt64x64.png" />
+    <EmbeddedResource Include="..\resources\idw64x64.png" LogicalName="idw64x64.png" />
+    <EmbeddedResource Include="..\resources\ipn64x64.png" LogicalName="ipn64x64.png" />
+    <EmbeddedResource Include="..\resources\everythingelse64x64.png" LogicalName="everythingelse64x64.png" />
   </ItemGroup>
 
 </Project>
