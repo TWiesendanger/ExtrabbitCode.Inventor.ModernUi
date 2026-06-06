@@ -83,7 +83,12 @@ public static class ModernMessageBox
         ThemePalette? palette = null,
         FontOptions? font = null)
     {
-        ModernWindow window = new(theme, palette, font)
+        // Match the owner's current colors (e.g. a customized accent) unless an explicit palette is
+        // given. The owner's Color.* resources are read directly — Color is a framework type, so this
+        // is safe even when the owner was themed by a different version of this library.
+        ThemePalette? effective = palette ?? TryInheritPalette(owner, theme);
+
+        ModernWindow window = new(theme, effective, font)
         {
             Title = title,
             Owner = owner,
@@ -192,6 +197,31 @@ public static class ModernMessageBox
 
         window.ShowDialog();
         return result;
+    }
+
+    /// <summary>Reconstructs a palette from the owner's injected <c>Color.*</c> resources, or null.</summary>
+    private static ThemePalette? TryInheritPalette(Window? owner, Theme theme)
+    {
+        if (owner is null || owner.TryFindResource("Color.Accent") is not Color)
+        {
+            return null;
+        }
+
+        ThemePalette d = ThemePalette.For(theme);
+        Color C(string key, Color fallback) => owner.TryFindResource(key) is Color c ? c : fallback;
+
+        return d with
+        {
+            Background = C("Color.Background", d.Background),
+            Panel = C("Color.Panel", d.Panel),
+            Control = C("Color.Control", d.Control),
+            Foreground = C("Color.Foreground", d.Foreground),
+            ForegroundMuted = C("Color.ForegroundMuted", d.ForegroundMuted),
+            Border = C("Color.Border", d.Border),
+            Accent = C("Color.Accent", d.Accent),
+            AccentMuted = C("Color.AccentMuted", d.AccentMuted),
+            Error = C("Color.Error", d.Error),
+        };
     }
 
     private static FrameworkElement? BuildIcon(ModernDialogIcon icon)
