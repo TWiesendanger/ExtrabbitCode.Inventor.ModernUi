@@ -276,6 +276,79 @@ public partial class GalleryView : UserControl
         return tree;
     }
 
+    /// <summary>
+    /// A checkbox tree with tri-state parent behaviour: checking the parent checks all children;
+    /// checking some children puts the parent in the indeterminate (third) state.
+    /// </summary>
+    private static FrameworkElement BuildCheckboxTree()
+    {
+        var children = new[]
+        {
+            new CheckBox { Content = "Dimensions", IsChecked = true },
+            new CheckBox { Content = "Sketches", IsChecked = false },
+            new CheckBox { Content = "Work features", IsChecked = true },
+        };
+        // IsThreeState=false so a user click only toggles on/off; the indeterminate state is set
+        // programmatically from the children.
+        var parent = new CheckBox { Content = "All layers", IsThreeState = false };
+
+        bool updating = false;
+
+        // Parent -> children: clicking the parent forces every child to the same state.
+        parent.Click += (_, _) =>
+        {
+            bool target = parent.IsChecked == true;
+            updating = true;
+            foreach (CheckBox child in children)
+            {
+                child.IsChecked = target;
+            }
+            updating = false;
+        };
+
+        // Children -> parent: all checked = checked, none = unchecked, mixed = indeterminate.
+        void SyncParent()
+        {
+            if (updating)
+            {
+                return;
+            }
+
+            int checkedCount = 0;
+            foreach (CheckBox child in children)
+            {
+                if (child.IsChecked == true)
+                {
+                    checkedCount++;
+                }
+            }
+
+            updating = true;
+            parent.IsChecked = checkedCount == 0 ? false
+                : checkedCount == children.Length ? true
+                : null;
+            updating = false;
+        }
+
+        foreach (CheckBox child in children)
+        {
+            child.Checked += (_, _) => SyncParent();
+            child.Unchecked += (_, _) => SyncParent();
+        }
+
+        SyncParent(); // initial 2-of-3 -> parent shows the indeterminate dash
+
+        var root = new TreeViewItem { Header = parent, IsExpanded = true };
+        foreach (CheckBox child in children)
+        {
+            root.Items.Add(new TreeViewItem { Header = child });
+        }
+
+        var tree = new TreeView { Width = 280, Height = 180, HorizontalAlignment = HorizontalAlignment.Left };
+        tree.Items.Add(root);
+        return tree;
+    }
+
     private static FrameworkElement BuildDataGrid()
     {
         var items = new ObservableCollection<DemoParameter>
@@ -720,24 +793,32 @@ public partial class GalleryView : UserControl
                     </TreeViewItem>
                 </TreeView>
                 """),
-            new DemoItem("Tree view with checkboxes", """
-                <TreeView Width="280" Height="170" HorizontalAlignment="Left">
+            new DemoItem("Tree view with checkboxes (tri-state)", """
+                <!-- Tri-state is wired in code: the parent toggles every child; the children set the
+                     parent to checked / unchecked / indeterminate (null) based on how many are on. -->
+                <TreeView Width="280" Height="180" HorizontalAlignment="Left">
                     <TreeViewItem IsExpanded="True">
                         <TreeViewItem.Header>
-                            <CheckBox Content="All layers" IsChecked="True" />
+                            <CheckBox Content="All layers" Click="OnParentClick" />
                         </TreeViewItem.Header>
                         <TreeViewItem>
-                            <TreeViewItem.Header><CheckBox Content="Dimensions" IsChecked="True" /></TreeViewItem.Header>
+                            <TreeViewItem.Header>
+                                <CheckBox Content="Dimensions" Checked="OnChildChanged" Unchecked="OnChildChanged" />
+                            </TreeViewItem.Header>
                         </TreeViewItem>
                         <TreeViewItem>
-                            <TreeViewItem.Header><CheckBox Content="Sketches" /></TreeViewItem.Header>
+                            <TreeViewItem.Header>
+                                <CheckBox Content="Sketches" Checked="OnChildChanged" Unchecked="OnChildChanged" />
+                            </TreeViewItem.Header>
                         </TreeViewItem>
                         <TreeViewItem>
-                            <TreeViewItem.Header><CheckBox Content="Work features" IsChecked="True" /></TreeViewItem.Header>
+                            <TreeViewItem.Header>
+                                <CheckBox Content="Work features" Checked="OnChildChanged" Unchecked="OnChildChanged" />
+                            </TreeViewItem.Header>
                         </TreeViewItem>
                     </TreeViewItem>
                 </TreeView>
-                """),
+                """) { Build = BuildCheckboxTree },
             new DemoItem("Assembly tree (file-type icons)", """
                 <TreeView Width="300" Height="250" HorizontalAlignment="Left">
                     <TreeViewItem IsExpanded="True">

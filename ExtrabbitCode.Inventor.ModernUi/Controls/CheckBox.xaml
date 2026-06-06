@@ -32,15 +32,23 @@
                                     CornerRadius="3"
                                     UseLayoutRounding="False"
                                     SnapsToDevicePixels="False">
-                                <Path x:Name="Check"
-                                      Width="11" Height="11"
-                                      Stretch="Uniform"
-                                      Data="M 0,5 L 4,9 L 11,0"
-                                      Stroke="{DynamicResource Brush.Background}"
-                                      StrokeThickness="2"
-                                      StrokeEndLineCap="Round"
-                                      StrokeStartLineCap="Round"
-                                      Visibility="Collapsed" />
+                                <Grid>
+                                    <Path x:Name="Check"
+                                          Width="11" Height="11"
+                                          Stretch="Uniform"
+                                          Data="M 0,5 L 4,9 L 11,0"
+                                          Stroke="{DynamicResource Brush.Background}"
+                                          StrokeThickness="2"
+                                          StrokeEndLineCap="Round"
+                                          StrokeStartLineCap="Round"
+                                          Visibility="Collapsed" />
+                                    <!-- Indeterminate (tri-state) dash. -->
+                                    <Border x:Name="Dash"
+                                            Width="9" Height="2" CornerRadius="1"
+                                            Background="{DynamicResource Brush.Background}"
+                                            HorizontalAlignment="Center" VerticalAlignment="Center"
+                                            Visibility="Collapsed" />
+                                </Grid>
                             </Border>
                         </Grid>
                         <ContentPresenter Margin="8,0,0,0"
@@ -55,8 +63,10 @@
                             <Setter TargetName="Check" Property="Visibility" Value="Visible" />
                         </Trigger>
                         <Trigger Property="IsChecked" Value="{x:Null}">
-                            <Setter TargetName="Box" Property="Background" Value="{DynamicResource Brush.AccentMuted}" />
-                            <Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource Brush.Accent}" />
+                            <!-- Indeterminate: white box with a dash (same fill as checked, dash vs tick). -->
+                            <Setter TargetName="Box" Property="Background" Value="{DynamicResource Brush.Foreground}" />
+                            <Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource Brush.Foreground}" />
+                            <Setter TargetName="Dash" Property="Visibility" Value="Visible" />
                         </Trigger>
                         <!-- Hover: outward grey glow only (matches the button). -->
                         <Trigger Property="IsMouseOver" Value="True">
