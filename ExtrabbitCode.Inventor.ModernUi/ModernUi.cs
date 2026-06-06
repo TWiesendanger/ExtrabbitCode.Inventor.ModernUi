@@ -40,6 +40,10 @@ public static class ModernUi
         "Controls/ProgressBar.xaml",
         "Controls/ToggleSwitch.xaml",
         "Controls/Expander.xaml",
+        "Controls/GroupBox.xaml",
+        "Controls/Separator.xaml",
+        "Controls/ScrollBar.xaml",
+        "Controls/ToolTip.xaml",
 
         // Demo-only: the two library builds (V1 / V2) ship a DIFFERENT file at this same logical
         // path, to exercise version coexistence. Harmless in the product (its keys are namespaced

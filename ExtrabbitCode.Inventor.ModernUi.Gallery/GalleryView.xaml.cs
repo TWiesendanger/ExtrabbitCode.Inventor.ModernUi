@@ -367,6 +367,42 @@ public partial class GalleryView : UserControl
                 </Expander>
                 """),
         ]),
+
+        new DemoPage("Layout",
+        [
+            new DemoItem("Group box", """
+                <GroupBox Header="Output" Width="260" HorizontalAlignment="Left">
+                    <StackPanel>
+                        <TextBlock Text="Body Name" Margin="0,0,0,4" />
+                        <TextBox Text="Solid1" />
+                    </StackPanel>
+                </GroupBox>
+                """),
+            new DemoItem("Separator", """
+                <StackPanel Width="260" HorizontalAlignment="Left">
+                    <TextBlock Text="Section one" />
+                    <Separator />
+                    <TextBlock Text="Section two" />
+                </StackPanel>
+                """),
+            new DemoItem("Tooltip", """
+                <Button Content="Hover for a themed tooltip"
+                        HorizontalAlignment="Left"
+                        ToolTip="Themed tooltip — panel surface, theme border and font." />
+                """),
+            new DemoItem("Scroll bar", """
+                <ScrollViewer Height="96" Width="260" HorizontalAlignment="Left"
+                              VerticalScrollBarVisibility="Visible">
+                    <StackPanel>
+                        <TextBlock Text="Item 1" /> <TextBlock Text="Item 2" />
+                        <TextBlock Text="Item 3" /> <TextBlock Text="Item 4" />
+                        <TextBlock Text="Item 5" /> <TextBlock Text="Item 6" />
+                        <TextBlock Text="Item 7" /> <TextBlock Text="Item 8" />
+                        <TextBlock Text="Item 9" /> <TextBlock Text="Item 10" />
+                    </StackPanel>
+                </ScrollViewer>
+                """),
+        ]),
     ];
 }
 
