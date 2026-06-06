@@ -9,6 +9,7 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Markup;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 
 namespace ExtrabbitCode.Inventor.ModernUi.Demo;
@@ -417,6 +418,140 @@ public partial class GalleryView : UserControl
         return tree;
     }
 
+    /// <summary>A spinner driven by a controllable clock, with a slider that changes its speed live.</summary>
+    private static FrameworkElement BuildSpeedSpinner()
+    {
+        var ring = new System.Windows.Shapes.Ellipse
+        {
+            Width = 45,
+            Height = 45,
+            StrokeThickness = 4,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            VerticalAlignment = VerticalAlignment.Center,
+        };
+        ring.SetResourceReference(System.Windows.Shapes.Shape.StrokeProperty, "Brush.Border");
+
+        var arc = new System.Windows.Shapes.Path
+        {
+            StrokeThickness = 4,
+            StrokeStartLineCap = PenLineCap.Round,
+            StrokeEndLineCap = PenLineCap.Round,
+            Data = Geometry.Parse("M 25,2.5 A 22.5,22.5 0 1 1 2.5,25"),
+        };
+        arc.SetResourceReference(System.Windows.Shapes.Shape.StrokeProperty, "Brush.Accent");
+
+        var rotate = new RotateTransform();
+        var face = new Grid { Width = 50, Height = 50, RenderTransformOrigin = new Point(0.5, 0.5), RenderTransform = rotate };
+        face.Children.Add(ring);
+        face.Children.Add(arc);
+
+        var spinner = new Viewbox { Width = 40, Height = 40, Child = face, HorizontalAlignment = HorizontalAlignment.Left };
+
+        var anim = new DoubleAnimation(0, 360, TimeSpan.FromSeconds(0.9)) { RepeatBehavior = RepeatBehavior.Forever };
+        AnimationClock clock = anim.CreateClock();
+        rotate.ApplyAnimationClock(RotateTransform.AngleProperty, clock);
+
+        var label = new TextBlock { Text = "Speed: 1.0x", Margin = new Thickness(0, 12, 0, 4) };
+        var slider = new Slider
+        {
+            Minimum = 0.25,
+            Maximum = 3,
+            Value = 1,
+            Width = 220,
+            HorizontalAlignment = HorizontalAlignment.Left,
+            TickFrequency = 0.25,
+            IsSnapToTickEnabled = true,
+        };
+        slider.ValueChanged += (_, e) =>
+        {
+            if (clock.Controller is not null)
+            {
+                clock.Controller.SpeedRatio = e.NewValue;
+            }
+            label.Text = $"Speed: {e.NewValue:0.0}x";
+        };
+
+        var panel = new StackPanel { HorizontalAlignment = HorizontalAlignment.Left };
+        panel.Children.Add(spinner);
+        panel.Children.Add(label);
+        panel.Children.Add(slider);
+        return panel;
+    }
+
+    /// <summary>An indeterminate bar driven by controllable clocks, with a live speed slider.</summary>
+    private static FrameworkElement BuildSpeedBar()
+    {
+        var s1 = new GradientStop(Colors.Transparent, -0.4);
+        var s2 = new GradientStop(Color.FromRgb(0x06, 0x96, 0xD7), -0.2);
+        var s3 = new GradientStop(Colors.Transparent, 0.0);
+        var brush = new LinearGradientBrush { StartPoint = new Point(0, 0), EndPoint = new Point(1, 0) };
+        brush.GradientStops.Add(s1);
+        brush.GradientStops.Add(s2);
+        brush.GradientStops.Add(s3);
+
+        var band = new Border { CornerRadius = new CornerRadius(4), Background = brush };
+        var track = new Border
+        {
+            Height = 8,
+            Width = 260,
+            HorizontalAlignment = HorizontalAlignment.Left,
+            CornerRadius = new CornerRadius(4),
+            BorderThickness = new Thickness(1),
+            ClipToBounds = true,
+            Child = band,
+        };
+        track.SetResourceReference(Border.BackgroundProperty, "Brush.Control");
+        track.SetResourceReference(Border.BorderBrushProperty, "Brush.Border");
+        // Follow the theme accent (GradientStop can't take a DynamicResource in code).
+        track.Loaded += (_, _) =>
+        {
+            if (track.TryFindResource("Color.Accent") is Color accent)
+            {
+                s2.Color = accent;
+            }
+        };
+
+        var dur = TimeSpan.FromSeconds(1.1);
+        var clocks = new[]
+        {
+            new DoubleAnimation(-0.4, 1.0, dur) { RepeatBehavior = RepeatBehavior.Forever }.CreateClock(),
+            new DoubleAnimation(-0.2, 1.2, dur) { RepeatBehavior = RepeatBehavior.Forever }.CreateClock(),
+            new DoubleAnimation(0.0, 1.4, dur) { RepeatBehavior = RepeatBehavior.Forever }.CreateClock(),
+        };
+        s1.ApplyAnimationClock(GradientStop.OffsetProperty, clocks[0]);
+        s2.ApplyAnimationClock(GradientStop.OffsetProperty, clocks[1]);
+        s3.ApplyAnimationClock(GradientStop.OffsetProperty, clocks[2]);
+
+        var label = new TextBlock { Text = "Speed: 1.0x", Margin = new Thickness(0, 12, 0, 4) };
+        var slider = new Slider
+        {
+            Minimum = 0.25,
+            Maximum = 3,
+            Value = 1,
+            Width = 260,
+            HorizontalAlignment = HorizontalAlignment.Left,
+            TickFrequency = 0.25,
+            IsSnapToTickEnabled = true,
+        };
+        slider.ValueChanged += (_, e) =>
+        {
+            foreach (AnimationClock clock in clocks)
+            {
+                if (clock.Controller is not null)
+                {
+                    clock.Controller.SpeedRatio = e.NewValue;
+                }
+            }
+            label.Text = $"Speed: {e.NewValue:0.0}x";
+        };
+
+        var panel = new StackPanel { HorizontalAlignment = HorizontalAlignment.Left };
+        panel.Children.Add(track);
+        panel.Children.Add(label);
+        panel.Children.Add(slider);
+        return panel;
+    }
+
     private static FrameworkElement BuildDataGrid()
     {
         var items = new ObservableCollection<DemoParameter>
@@ -766,6 +901,45 @@ public partial class GalleryView : UserControl
             new DemoItem("Progress bar", """
                 <ProgressBar Value="60" Maximum="100" />
                 """),
+            new DemoItem("Indeterminate bar", """
+                <ProgressBar Style="{DynamicResource IndeterminateBar}" />
+                """),
+            new DemoItem("Spinner", """
+                <StackPanel Orientation="Horizontal">
+                    <ProgressBar Style="{DynamicResource Spinner}" />
+                    <ProgressBar Style="{DynamicResource Spinner}" Width="40" Height="40" Margin="20,0,0,0" />
+                </StackPanel>
+                """),
+            new DemoItem("Spinner with label", """
+                <StackPanel Orientation="Horizontal">
+                    <ProgressBar Style="{DynamicResource Spinner}" Width="20" Height="20" />
+                    <TextBlock Text="Loading…" VerticalAlignment="Center" Margin="10,0,0,0" />
+                </StackPanel>
+                """),
+            new DemoItem("Dots loader", """
+                <ProgressBar Style="{DynamicResource DotsLoader}" HorizontalAlignment="Left" />
+                """),
+            new DemoItem("Spinner with speed control", """
+                // Animation timing can't be data-bound in XAML, so drive it from a controllable
+                // clock and change SpeedRatio at runtime:
+                var anim = new DoubleAnimation(0, 360, TimeSpan.FromSeconds(0.9))
+                    { RepeatBehavior = RepeatBehavior.Forever };
+                AnimationClock clock = anim.CreateClock();
+                rotate.ApplyAnimationClock(RotateTransform.AngleProperty, clock);
+
+                clock.Controller.SpeedRatio = 2.0;   // 2x faster, live
+                """) { Build = BuildSpeedSpinner },
+            new DemoItem("Indeterminate bar with speed control", """
+                // Same controllable-clock pattern, applied to the gradient offsets:
+                foreach (var (stop, from, to) in stops)
+                {
+                    var clock = new DoubleAnimation(from, to, TimeSpan.FromSeconds(1.1))
+                        { RepeatBehavior = RepeatBehavior.Forever }.CreateClock();
+                    stop.ApplyAnimationClock(GradientStop.OffsetProperty, clock);
+                    clocks.Add(clock);
+                }
+                // slider: foreach (clock) clock.Controller.SpeedRatio = value;
+                """) { Build = BuildSpeedBar },
             new DemoItem("Card", """
                 <Border Style="{DynamicResource Card}">
                     <TextBlock Text="Card surface" />

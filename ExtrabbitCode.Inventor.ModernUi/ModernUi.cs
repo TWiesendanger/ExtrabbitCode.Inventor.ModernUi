@@ -51,6 +51,7 @@ public static class ModernUi
         "Controls/TreeView.xaml",
         "Controls/DataGrid.xaml",
         "Controls/Badge.xaml",
+        "Controls/Spinner.xaml",
 
         // Demo-only: the two library builds (V1 / V2) ship a DIFFERENT file at this same logical
         // path, to exercise version coexistence. Harmless in the product (its keys are namespaced
@@ -106,7 +107,11 @@ public static class ModernUi
         ApplyPalette(window.Resources, palette ?? ThemePalette.For(theme));
     }
 
-    /// <summary>Inserts the <c>Brush.*</c> resources from a palette into a resource dictionary.</summary>
+    /// <summary>
+    /// Inserts the <c>Brush.*</c> (and matching <c>Color.*</c>) resources from a palette into a
+    /// resource dictionary. The raw <c>Color.*</c> values are there for places that need a
+    /// <see cref="Color"/> rather than a brush — e.g. gradient stops in an animation.
+    /// </summary>
     internal static void ApplyPalette(ResourceDictionary res, ThemePalette p)
     {
         res["Brush.Background"] = Frozen(p.Background);
@@ -118,6 +123,16 @@ public static class ModernUi
         res["Brush.Accent"] = Frozen(p.Accent);
         res["Brush.AccentMuted"] = Frozen(p.AccentMuted);
         res["Brush.Error"] = Frozen(p.Error);
+
+        res["Color.Background"] = p.Background;
+        res["Color.Panel"] = p.Panel;
+        res["Color.Control"] = p.Control;
+        res["Color.Foreground"] = p.Foreground;
+        res["Color.ForegroundMuted"] = p.ForegroundMuted;
+        res["Color.Border"] = p.Border;
+        res["Color.Accent"] = p.Accent;
+        res["Color.AccentMuted"] = p.AccentMuted;
+        res["Color.Error"] = p.Error;
     }
 
     /// <summary>Inserts the <c>Font.*</c> resources derived from <paramref name="font"/>.</summary>
