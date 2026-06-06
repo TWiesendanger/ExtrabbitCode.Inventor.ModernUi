@@ -41,11 +41,11 @@
     <EmbeddedResource Include="..\resources\ModernUi-32.png" LogicalName="ModernUi-32.png" />
     <EmbeddedResource Include="..\resources\ModernUi-64.png" LogicalName="ModernUi-64.png" />
     <!-- Inventor file-type icons for the assembly-tree gallery sample. -->
-    <EmbeddedResource Include="..\resources\iam64x64.png" LogicalName="iam64x64.png" />
-    <EmbeddedResource Include="..\resources\ipt64x64.png" LogicalName="ipt64x64.png" />
-    <EmbeddedResource Include="..\resources\idw64x64.png" LogicalName="idw64x64.png" />
-    <EmbeddedResource Include="..\resources\ipn64x64.png" LogicalName="ipn64x64.png" />
-    <EmbeddedResource Include="..\resources\everythingelse64x64.png" LogicalName="everythingelse64x64.png" />
+    <EmbeddedResource Include="..\resources\assembly.png" LogicalName="assembly.png" />
+    <EmbeddedResource Include="..\resources\part.png" LogicalName="part.png" />
+    <EmbeddedResource Include="..\resources\drawing.png" LogicalName="drawing.png" />
+    <EmbeddedResource Include="..\resources\presentation.png" LogicalName="presentation.png" />
+    <EmbeddedResource Include="..\resources\other.png" LogicalName="other.png" />
   </ItemGroup>
 
   <!-- Deploy the build output to the path referenced by the .addin, and drop the .addin into the

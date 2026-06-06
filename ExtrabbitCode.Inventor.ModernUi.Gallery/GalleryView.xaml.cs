@@ -256,11 +256,11 @@ public partial class GalleryView : UserControl
     /// <summary>An assembly model tree using the Inventor file-type icons from resources.</summary>
     private static FrameworkElement BuildAssemblyTree()
     {
-        ImageSource? iam = LoadIcon("iam64x64.png");
-        ImageSource? ipt = LoadIcon("ipt64x64.png");
-        ImageSource? idw = LoadIcon("idw64x64.png");
-        ImageSource? ipn = LoadIcon("ipn64x64.png");
-        ImageSource? other = LoadIcon("everythingelse64x64.png");
+        ImageSource? iam = LoadIcon("assembly.png");
+        ImageSource? ipt = LoadIcon("part.png");
+        ImageSource? idw = LoadIcon("drawing.png");
+        ImageSource? ipn = LoadIcon("presentation.png");
+        ImageSource? other = LoadIcon("other.png");
 
         var tree = new TreeView { Width = 300, Height = 250, HorizontalAlignment = HorizontalAlignment.Left };
         tree.Items.Add(
@@ -743,7 +743,7 @@ public partial class GalleryView : UserControl
                     <TreeViewItem IsExpanded="True">
                         <TreeViewItem.Header>
                             <StackPanel Orientation="Horizontal">
-                                <Image Source="/resources/iam64x64.png" Width="16" Height="16"
+                                <Image Source="/resources/assembly.png" Width="16" Height="16"
                                        Margin="0,0,8,0" VerticalAlignment="Center" />
                                 <TextBlock Text="Bracket.iam" VerticalAlignment="Center" />
                             </StackPanel>
