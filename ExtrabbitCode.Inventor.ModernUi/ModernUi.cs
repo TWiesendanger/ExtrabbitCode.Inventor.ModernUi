@@ -47,6 +47,9 @@ public static class ModernUi
         "Controls/TabControl.xaml",
         "Controls/ListBox.xaml",
         "Controls/Slider.xaml",
+        "Controls/Menu.xaml",
+        "Controls/TreeView.xaml",
+        "Controls/DataGrid.xaml",
 
         // Demo-only: the two library builds (V1 / V2) ship a DIFFERENT file at this same logical
         // path, to exercise version coexistence. Harmless in the product (its keys are namespaced

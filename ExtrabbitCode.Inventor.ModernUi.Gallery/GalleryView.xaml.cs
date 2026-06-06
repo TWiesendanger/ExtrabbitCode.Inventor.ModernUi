@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Globalization;
 using System.IO;
 using System.Windows;
@@ -192,6 +193,76 @@ public partial class GalleryView : UserControl
             }
         };
         return trigger;
+    }
+
+    private static FrameworkElement BuildDataGrid()
+    {
+        var items = new ObservableCollection<DemoParameter>
+        {
+            new() { Name = "Length", Value = 120.0, Unit = "mm" },
+            new() { Name = "Width", Value = 60.0, Unit = "mm" },
+            new() { Name = "Height", Value = 25.5, Unit = "mm" },
+            new() { Name = "Holes", Value = 4, Unit = string.Empty },
+        };
+
+        var grid = new DataGrid
+        {
+            AutoGenerateColumns = false,
+            CanUserAddRows = false,
+            IsReadOnly = true,
+            Height = 200,
+            ItemsSource = items,
+        };
+        grid.Columns.Add(new DataGridTextColumn { Header = "Parameter", Binding = new Binding("Name"), Width = new DataGridLength(1, DataGridLengthUnitType.Star) });
+        grid.Columns.Add(new DataGridTextColumn { Header = "Value", Binding = new Binding("Value"), Width = new DataGridLength(80) });
+        grid.Columns.Add(new DataGridTextColumn { Header = "Unit", Binding = new Binding("Unit"), Width = new DataGridLength(70) });
+        grid.Columns.Add(new DataGridTemplateColumn { Header = string.Empty, Width = new DataGridLength(64), CellTemplate = BuildDeleteCellTemplate(items) });
+
+        // Toggle read-only / editable.
+        var editToggle = new Button { Content = "Switch to edit" };
+        editToggle.Click += (_, _) =>
+        {
+            grid.IsReadOnly = !grid.IsReadOnly;
+            editToggle.Content = grid.IsReadOnly ? "Switch to edit" : "Switch to read-only";
+        };
+
+        // Add a new row.
+        var addRow = new Button { Content = "Add row", Margin = new Thickness(8, 0, 0, 0) };
+        addRow.Click += (_, _) => items.Add(new DemoParameter { Name = "New parameter", Value = 0, Unit = "mm" });
+
+        var bar = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 0, 8) };
+        bar.Children.Add(editToggle);
+        bar.Children.Add(addRow);
+
+        var panel = new StackPanel();
+        panel.Children.Add(bar);
+        panel.Children.Add(grid);
+        return panel;
+    }
+
+    /// <summary>A per-row trash-icon button that removes its row's item from the collection.</summary>
+    private static DataTemplate BuildDeleteCellTemplate(ObservableCollection<DemoParameter> items)
+    {
+        var icon = new FrameworkElementFactory(typeof(TextBlock));
+        icon.SetValue(TextBlock.TextProperty, ""); // Segoe Fluent Icons "Delete" (trash)
+        icon.SetValue(TextBlock.FontFamilyProperty, new FontFamily("Segoe Fluent Icons, Segoe MDL2 Assets"));
+        icon.SetValue(TextBlock.FontSizeProperty, 14.0);
+
+        var button = new FrameworkElementFactory(typeof(Button));
+        button.AppendChild(icon);
+        button.SetResourceReference(FrameworkElement.StyleProperty, "IconButton");
+        button.SetValue(FrameworkElement.HorizontalAlignmentProperty, HorizontalAlignment.Center);
+        button.SetValue(FrameworkElement.VerticalAlignmentProperty, VerticalAlignment.Center);
+        button.SetValue(FrameworkElement.ToolTipProperty, "Delete row");
+        button.AddHandler(Button.ClickEvent, new RoutedEventHandler((sender, _) =>
+        {
+            if (sender is FrameworkElement { DataContext: DemoParameter row })
+            {
+                items.Remove(row);
+            }
+        }));
+
+        return new DataTemplate { VisualTree = button };
     }
 
     private static FrameworkElement BuildValidationField()
@@ -466,6 +537,86 @@ public partial class GalleryView : UserControl
                 </TabControl>
                 """),
         ]),
+
+        new DemoPage("Menus",
+        [
+            new DemoItem("Menu bar", """
+                <Menu HorizontalAlignment="Left">
+                    <MenuItem Header="File">
+                        <MenuItem Header="New" InputGestureText="Ctrl+N" />
+                        <MenuItem Header="Open" InputGestureText="Ctrl+O" />
+                        <Separator />
+                        <MenuItem Header="Exit" />
+                    </MenuItem>
+                    <MenuItem Header="Edit">
+                        <MenuItem Header="Undo" InputGestureText="Ctrl+Z" />
+                        <MenuItem Header="Redo" InputGestureText="Ctrl+Y" />
+                        <Separator />
+                        <MenuItem Header="Snap to grid" IsCheckable="True" IsChecked="True" />
+                    </MenuItem>
+                </Menu>
+                """),
+            new DemoItem("Context menu (right-click)", """
+                <Border Background="{DynamicResource Brush.Control}" CornerRadius="4"
+                        Padding="24" HorizontalAlignment="Left">
+                    <TextBlock Text="Right-click here" />
+                    <Border.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="Cut" InputGestureText="Ctrl+X" />
+                            <MenuItem Header="Copy" InputGestureText="Ctrl+C" />
+                            <MenuItem Header="Paste" InputGestureText="Ctrl+V" />
+                            <Separator />
+                            <MenuItem Header="More">
+                                <MenuItem Header="Rename" />
+                                <MenuItem Header="Delete" />
+                            </MenuItem>
+                        </ContextMenu>
+                    </Border.ContextMenu>
+                </Border>
+                """),
+        ]),
+
+        new DemoPage("Data",
+        [
+            new DemoItem("Tree view", """
+                <TreeView Width="260" Height="180" HorizontalAlignment="Left">
+                    <TreeViewItem Header="Assembly1" IsExpanded="True">
+                        <TreeViewItem Header="Part1" />
+                        <TreeViewItem Header="Part2" />
+                        <TreeViewItem Header="Sub-assembly" IsExpanded="True">
+                            <TreeViewItem Header="Part3" />
+                            <TreeViewItem Header="Part4" />
+                        </TreeViewItem>
+                    </TreeViewItem>
+                </TreeView>
+                """),
+            new DemoItem("Data grid", """
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                        <Button Content="Switch to edit" Click="OnToggleReadOnly" />
+                        <Button Content="Add row" Click="OnAddRow" Margin="8,0,0,0" />
+                    </StackPanel>
+                    <DataGrid ItemsSource="{Binding Parameters}" IsReadOnly="True"
+                              AutoGenerateColumns="False" CanUserAddRows="False">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Parameter" Binding="{Binding Name}" Width="*" />
+                            <DataGridTextColumn Header="Value" Binding="{Binding Value}" />
+                            <DataGridTextColumn Header="Unit" Binding="{Binding Unit}" />
+                            <DataGridTemplateColumn Width="64">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Click="OnDeleteRow" ToolTip="Delete row"
+                                                Style="{DynamicResource IconButton}">
+                                            <TextBlock FontFamily="Segoe Fluent Icons" Text="&#xE74D;" />
+                                        </Button>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </StackPanel>
+                """) { Build = BuildDataGrid },
+        ]),
     ];
 }
 
@@ -498,6 +649,16 @@ public sealed class DemoPage
     public string Name { get; }
 
     public IReadOnlyList<DemoItem> Items { get; }
+}
+
+/// <summary>Demo row for the DataGrid showcase.</summary>
+public sealed class DemoParameter
+{
+    public string Name { get; set; } = string.Empty;
+
+    public double Value { get; set; }
+
+    public string Unit { get; set; } = string.Empty;
 }
 
 /// <summary>Demo binding source for the validation showcase.</summary>
