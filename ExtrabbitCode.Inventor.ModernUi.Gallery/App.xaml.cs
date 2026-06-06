@@ -34,9 +34,11 @@ public partial class App : Application
             theme,
             $"Font: {FontOptions.Default.Family.Source} {FontOptions.Default.NormalSize:0.#}px");
 
+        string version = typeof(ModernWindow).Assembly.GetName().Version?.ToString(3) ?? "";
+
         new ModernWindow(theme)
         {
-            Title = "ExtrabbitCode Modern UI — Gallery",
+            Title = $"ExtrabbitCode Modern UI — Gallery  v{version}",
             Icon = GalleryView.LoadBranding(),
             Width = 760,
             Height = 920,
