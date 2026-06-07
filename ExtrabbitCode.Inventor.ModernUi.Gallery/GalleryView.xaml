@@ -106,9 +106,21 @@
         <!-- Right content -->
         <ScrollViewer Grid.Column="1" Padding="24" VerticalScrollBarVisibility="Auto">
             <StackPanel>
-                <TextBlock x:Name="PageTitle"
-                           Style="{DynamicResource TitleTextStyle}"
-                           Margin="0,0,0,16" />
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                    <Button x:Name="BackButton"
+                            Click="OnBack"
+                            Style="{DynamicResource IconButton}"
+                            Visibility="Collapsed"
+                            VerticalAlignment="Center"
+                            Margin="0,0,8,0"
+                            ToolTip="Back">
+                        <TextBlock FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets"
+                                   FontSize="16" Text="&#xE72B;" />
+                    </Button>
+                    <TextBlock x:Name="PageTitle"
+                               Style="{DynamicResource TitleTextStyle}"
+                               VerticalAlignment="Center" />
+                </StackPanel>
                 <StackPanel x:Name="ContentHost" />
             </StackPanel>
         </ScrollViewer>

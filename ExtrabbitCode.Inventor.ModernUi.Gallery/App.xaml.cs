@@ -40,8 +40,10 @@ public partial class App : Application
         {
             Title = $"ExtrabbitCode Modern UI — Gallery  v{version}",
             Icon = GalleryView.LoadBranding(),
-            Width = 760,
-            Height = 920,
+            Width = 1040,
+            Height = 720,
+            MinWidth = 820,
+            MinHeight = 560,
             WindowStartupLocation = WindowStartupLocation.CenterScreen,
             Content = gallery,
         }.Show();

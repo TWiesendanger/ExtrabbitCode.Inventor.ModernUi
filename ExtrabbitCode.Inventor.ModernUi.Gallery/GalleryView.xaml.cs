@@ -11,6 +11,7 @@ using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 
 namespace ExtrabbitCode.Inventor.ModernUi.Demo;
 
@@ -30,6 +31,11 @@ public partial class GalleryView : UserControl
     private Theme _theme;
     private string _detail = string.Empty;
     private Color? _accent;
+    private DemoItem? _pendingScrollTo;
+    private readonly Stack<DemoPage> _history = new();
+    private bool _navigatingBack;
+
+    private const string OverviewPageName = "Overview";
 
     private sealed record AccentOption(string Name, Color? Color);
 
@@ -107,12 +113,117 @@ public partial class GalleryView : UserControl
             return;
         }
 
+        // Track history so the back button can retrace the path (unless this IS a back navigation).
+        if (!_navigatingBack && e.RemovedItems.Count > 0 && e.RemovedItems[0] is DemoPage previous && previous != page)
+        {
+            _history.Push(previous);
+        }
+        BackButton.Visibility = _history.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+
         PageTitle.Text = page.Name;
         ContentHost.Children.Clear();
+
+        if (page.Name == OverviewPageName)
+        {
+            ContentHost.Children.Add(BuildOverview());
+            return;
+        }
+
         foreach (DemoItem item in page.Items)
         {
             ContentHost.Children.Add(BuildBlock(item));
         }
+
+        // If we navigated here from an overview tile, scroll that control into view once laid out.
+        if (_pendingScrollTo is not null)
+        {
+            DemoItem target = _pendingScrollTo;
+            _pendingScrollTo = null;
+            Dispatcher.BeginInvoke(
+                () =>
+                {
+                    foreach (FrameworkElement child in ContentHost.Children)
+                    {
+                        if (ReferenceEquals(child.Tag, target))
+                        {
+                            child.BringIntoView();
+                            break;
+                        }
+                    }
+                },
+                DispatcherPriority.Loaded);
+        }
+    }
+
+    private void OnBack(object sender, RoutedEventArgs e)
+    {
+        if (_history.Count == 0)
+        {
+            return;
+        }
+
+        DemoPage target = _history.Pop();
+        _navigatingBack = true;
+        NavList.SelectedItem = target; // fires OnNavChanged synchronously
+        _navigatingBack = false;
+        BackButton.Visibility = _history.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    // --- overview / home page ----------------------------------------------
+
+    private FrameworkElement BuildOverview()
+    {
+        var root = new StackPanel();
+        foreach (DemoPage page in _pages)
+        {
+            if (page.Name == OverviewPageName || page.Items.Count == 0)
+            {
+                continue;
+            }
+
+            var header = new TextBlock { Text = page.Name, Margin = new Thickness(2, 10, 0, 8) };
+            header.SetResourceReference(StyleProperty, "CaptionTextStyle");
+            root.Children.Add(header);
+
+            var wrap = new WrapPanel { Margin = new Thickness(0, 0, 0, 8) };
+            foreach (DemoItem item in page.Items)
+            {
+                wrap.Children.Add(BuildOverviewTile(page, item));
+            }
+            root.Children.Add(wrap);
+        }
+        return root;
+    }
+
+    private FrameworkElement BuildOverviewTile(DemoPage page, DemoItem item)
+    {
+        var label = new TextBlock
+        {
+            Text = item.Title,
+            TextWrapping = TextWrapping.Wrap,
+            VerticalAlignment = VerticalAlignment.Center,
+        };
+        label.SetResourceReference(ForegroundProperty, "Brush.Foreground");
+        label.SetResourceReference(FontFamilyProperty, "Font.Family");
+        label.SetResourceReference(FontSizeProperty, "Font.Size.Normal");
+
+        var tile = new Border
+        {
+            Width = 200,
+            Height = 64,
+            Margin = new Thickness(0, 0, 10, 10),
+            Cursor = System.Windows.Input.Cursors.Hand,
+            Child = label,
+        };
+        tile.SetResourceReference(StyleProperty, "Card");
+        tile.MouseEnter += (_, _) => tile.SetResourceReference(Border.BorderBrushProperty, "Brush.Accent");
+        tile.MouseLeave += (_, _) => tile.SetResourceReference(Border.BorderBrushProperty, "Brush.Border");
+        tile.MouseLeftButtonUp += (_, _) =>
+        {
+            _pendingScrollTo = item;
+            NavList.SelectedItem = page;
+        };
+        return tile;
     }
 
     private void OnToggleTheme(object sender, RoutedEventArgs e)
@@ -170,7 +281,7 @@ public partial class GalleryView : UserControl
 
     private FrameworkElement BuildBlock(DemoItem item)
     {
-        var stack = new StackPanel { Margin = new Thickness(0, 0, 0, 24) };
+        var stack = new StackPanel { Margin = new Thickness(0, 0, 0, 24), Tag = item };
 
         var title = new TextBlock { Text = item.Title, FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 6) };
         title.SetResourceReference(ForegroundProperty, "Brush.Foreground");
@@ -754,6 +865,8 @@ public partial class GalleryView : UserControl
 
     private List<DemoPage> BuildPages() =>
     [
+        new DemoPage(OverviewPageName, []),
+
         new DemoPage("Buttons",
         [
             new DemoItem("Default button", """

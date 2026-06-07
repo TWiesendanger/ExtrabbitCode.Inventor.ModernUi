@@ -1,6 +1,7 @@
 <Solution>
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />
+    <File Path=".github/workflows/main.yml" />
     <File Path="installer/build.ps1" />
     <File Path="installer/ModernUi.iss" />
     <File Path="README.md" />
