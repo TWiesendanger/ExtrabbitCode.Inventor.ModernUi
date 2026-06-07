@@ -92,7 +92,7 @@ public static class ModernToast
         host.Children.Add(toast);
         AnimateIn(toast);
 
-        var timer = new DispatcherTimer { Interval = duration ?? DefaultDuration };
+        DispatcherTimer timer = new() { Interval = duration ?? DefaultDuration };
         timer.Tick += (_, _) =>
         {
             timer.Stop();
@@ -120,7 +120,7 @@ public static class ModernToast
             return null;
         }
 
-        var host = new StackPanel
+        StackPanel host = new()
         {
             HorizontalAlignment = HorizontalAlignment.Right,
             VerticalAlignment = VerticalAlignment.Bottom,
@@ -128,7 +128,7 @@ public static class ModernToast
         };
 
         owner.Content = null;
-        var grid = new Grid();
+        Grid grid = new();
         grid.Children.Add(content);
         grid.Children.Add(host);
         owner.Content = grid;
@@ -147,10 +147,10 @@ public static class ModernToast
             ToastType.Error => ErrorColor,
             _ => InfoColor,
         };
-        var accentBrush = new SolidColorBrush(accent);
+        SolidColorBrush accentBrush = new(accent);
         accentBrush.Freeze();
 
-        var card = new Border
+        Border card = new()
         {
             CornerRadius = new CornerRadius(6),
             BorderThickness = new Thickness(1),
@@ -164,17 +164,17 @@ public static class ModernToast
         card.SetResourceReference(Border.BackgroundProperty, "Brush.Panel");
         card.SetResourceReference(Border.BorderBrushProperty, "Brush.Border");
 
-        var grid = new Grid();
+        Grid grid = new();
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(4) });
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
 
-        var bar = new Border { Background = accentBrush, CornerRadius = new CornerRadius(6, 0, 0, 6) };
+        Border bar = new() { Background = accentBrush, CornerRadius = new CornerRadius(6, 0, 0, 6) };
         Grid.SetColumn(bar, 0);
         grid.Children.Add(bar);
 
-        var icon = new TextBlock
+        TextBlock icon = new()
         {
             Text = GlyphFor(type),
             FontFamily = new FontFamily("Segoe Fluent Icons, Segoe MDL2 Assets"),
@@ -186,16 +186,16 @@ public static class ModernToast
         Grid.SetColumn(icon, 1);
         grid.Children.Add(icon);
 
-        var text = new StackPanel { Margin = new Thickness(10), VerticalAlignment = VerticalAlignment.Center };
+        StackPanel text = new() { Margin = new Thickness(10), VerticalAlignment = VerticalAlignment.Center };
         if (!string.IsNullOrEmpty(title))
         {
-            var titleBlock = new TextBlock { Text = title, FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 2) };
+            TextBlock titleBlock = new() { Text = title, FontWeight = FontWeights.SemiBold, Margin = new Thickness(0, 0, 0, 2) };
             titleBlock.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Foreground");
             titleBlock.SetResourceReference(TextBlock.FontFamilyProperty, "Font.Family");
             text.Children.Add(titleBlock);
         }
 
-        var messageBlock = new TextBlock { Text = message, TextWrapping = TextWrapping.Wrap };
+        TextBlock messageBlock = new() { Text = message, TextWrapping = TextWrapping.Wrap };
         messageBlock.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Foreground");
         messageBlock.SetResourceReference(TextBlock.FontFamilyProperty, "Font.Family");
         messageBlock.SetResourceReference(TextBlock.FontSizeProperty, "Font.Size.Normal");
@@ -203,7 +203,7 @@ public static class ModernToast
         Grid.SetColumn(text, 2);
         grid.Children.Add(text);
 
-        var close = new TextBlock
+        TextBlock close = new()
         {
             Text = CloseGlyph,
             FontFamily = new FontFamily("Segoe Fluent Icons, Segoe MDL2 Assets"),
@@ -230,11 +230,11 @@ public static class ModernToast
     private static void AnimateIn(FrameworkElement toast)
     {
         toast.Opacity = 0;
-        var shift = new TranslateTransform(0, 12);
+        TranslateTransform shift = new(0, 12);
         toast.RenderTransform = shift;
 
-        var fade = new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(180));
-        var rise = new DoubleAnimation(12, 0, TimeSpan.FromMilliseconds(180));
+        DoubleAnimation fade = new(0, 1, TimeSpan.FromMilliseconds(180));
+        DoubleAnimation rise = new(12, 0, TimeSpan.FromMilliseconds(180));
         toast.BeginAnimation(UIElement.OpacityProperty, fade);
         shift.BeginAnimation(TranslateTransform.YProperty, rise);
     }
@@ -246,7 +246,7 @@ public static class ModernToast
             return;
         }
 
-        var fade = new DoubleAnimation(toast.Opacity, 0, TimeSpan.FromMilliseconds(180));
+        DoubleAnimation fade = new(toast.Opacity, 0, TimeSpan.FromMilliseconds(180));
         fade.Completed += (_, _) => host.Children.Remove(toast);
         toast.BeginAnimation(UIElement.OpacityProperty, fade);
     }
