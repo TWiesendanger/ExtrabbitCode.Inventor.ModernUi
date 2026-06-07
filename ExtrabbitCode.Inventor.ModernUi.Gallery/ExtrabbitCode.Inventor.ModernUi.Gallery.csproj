@@ -8,6 +8,11 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>ExtrabbitCode.Inventor.ModernUi.Gallery</RootNamespace>
     <AssemblyName>ExtrabbitCode.Inventor.ModernUi.Gallery</AssemblyName>
+    <!-- Brand icon embedded in the .exe -> taskbar + Start-menu/desktop shortcuts. -->
+    <ApplicationIcon>..\resources\ModernUi.ico</ApplicationIcon>
+    <!-- Ship only English; drops the per-culture satellite-resource folders (cs, de, fr, ja, …)
+         that a self-contained publish would otherwise produce. -->
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
   </PropertyGroup>
 
   <ItemGroup>

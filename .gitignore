@@ -12,4 +12,10 @@
 
 ## NuGet
 *.nupkg
+*.snupkg
 packages/
+artifacts/
+
+## Installer build output
+installer/publish/
+installer/Output/

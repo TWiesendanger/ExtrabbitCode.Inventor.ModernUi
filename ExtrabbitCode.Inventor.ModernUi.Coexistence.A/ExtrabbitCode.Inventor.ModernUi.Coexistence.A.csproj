@@ -46,7 +46,14 @@
       <DeployDir>C:\ProgramData\ExtrabbitCode\$(AssemblyName)</DeployDir>
       <AddinsFolder>C:\ProgramData\Autodesk\Inventor Addins</AddinsFolder>
     </PropertyGroup>
-    <Exec Command="&quot;$(MSBuildProjectDirectory)\..\build\Mirror.cmd&quot; &quot;$(TargetDir).&quot; &quot;$(DeployDir)&quot;" ContinueOnError="true" />
+    <!-- Mirror the add-in output into the deploy folder (purge stale files, then copy). -->
+    <RemoveDir Directories="$(DeployDir)" ContinueOnError="true" />
+    <ItemGroup>
+      <DeployFiles Include="$(TargetDir)**\*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(DeployFiles)"
+          DestinationFiles="@(DeployFiles->'$(DeployDir)\%(RecursiveDir)%(Filename)%(Extension)')"
+          ContinueOnError="true" />
     <Exec Command="dotnet build &quot;$(LibraryProject)&quot; -c $(Configuration) --nologo -v q $(LibVersionArgs) -p:GenerateDependencyFile=true --output &quot;$(DeployDir)&quot;" ContinueOnError="true" />
     <MakeDir Directories="$(AddinsFolder)" />
     <Copy SourceFiles="$(MSBuildProjectDirectory)\$(AddinManifestFile)" DestinationFolder="$(AddinsFolder)" ContinueOnError="true" />

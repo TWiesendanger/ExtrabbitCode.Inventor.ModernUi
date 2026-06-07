@@ -1,0 +1,85 @@
+name: Publish NuGet Package (Trusted Publishing)
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  publish:
+    # WPF / net8.0-windows must build on Windows.
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Extract version from git tag
+        id: version
+        shell: bash
+        run: |
+          TAG=${GITHUB_REF##*/}
+          VERSION=${TAG#v}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Restore
+        run: dotnet restore ExtrabbitCode.Inventor.ModernUi/ExtrabbitCode.Inventor.ModernUi.csproj
+
+      - name: Build
+        run: dotnet build ExtrabbitCode.Inventor.ModernUi/ExtrabbitCode.Inventor.ModernUi.csproj --configuration Release --no-restore
+
+      - name: NuGet login (OIDC → temp API key)
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: ${{ secrets.NUGET_USERNAME }}
+
+      - name: Pack with version from tag
+        run: dotnet pack ExtrabbitCode.Inventor.ModernUi/ExtrabbitCode.Inventor.ModernUi.csproj --configuration Release --no-build -p:PackageVersion=${{ steps.version.outputs.version }} -o ./artifacts
+
+      - name: Push to NuGet.org
+        run: dotnet nuget push "./artifacts/*.nupkg" --api-key ${{ steps.login.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+
+  installer:
+    # Builds the setup.exe (standalone Gallery + Inventor add-in) and attaches it to the release.
+    runs-on: windows-latest
+    permissions:
+      contents: write   # upload the installer as a release asset
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Extract version from git tag
+        id: version
+        shell: bash
+        run: |
+          TAG=${GITHUB_REF##*/}
+          VERSION=${TAG#v}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Install Inno Setup
+        run: choco install innosetup -y --no-progress
+
+      - name: Build installer
+        shell: pwsh
+        run: ./installer/build.ps1 -Version ${{ steps.version.outputs.version }}
+
+      - name: Upload setup.exe to the release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload "${GITHUB_REF##*/}" installer/Output/*.exe --clobber

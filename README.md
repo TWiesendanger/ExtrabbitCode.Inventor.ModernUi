@@ -121,3 +121,79 @@ dotnet run --project ExtrabbitCode.Inventor.ModernUi.Gallery         # interacti
 `-p:BuildCoexistenceVersions=false` skips building the two test versions.
 
 See the add-in's own `README.md` for installing it into Inventor.
+
+## NuGet package
+
+Only the **library** (`ExtrabbitCode.Inventor.ModernUi`) is packaged; the gallery and add-ins are not.
+
+### Publishing (CI)
+
+`.github/workflows/main.yml` runs when a **GitHub Release is published** and uses NuGet
+**trusted publishing** (OIDC — no stored API key). It:
+
+1. runs on `windows-latest` — WPF / `net8.0-windows` cannot build on Linux;
+2. derives the package version from the release tag (`v1.2.3` → `1.2.3`);
+3. packs the library and pushes to nuget.org with `--skip-duplicate`.
+
+To cut a release, create a GitHub Release tagged `vMAJOR.MINOR.PATCH`. The **tag** drives the package
+version (via `-p:PackageVersion`); the csproj `<Version>` is only the local default, so the two are
+independent. (Requires the package's trusted-publishing policy configured on nuget.org and the
+`NUGET_USERNAME` repository secret.)
+
+### Build / pack locally
+
+```
+# build just the library (Release)
+dotnet build ExtrabbitCode.Inventor.ModernUi/ExtrabbitCode.Inventor.ModernUi.csproj -c Release
+
+# produce the .nupkg (+ .snupkg) with a chosen version
+dotnet pack ExtrabbitCode.Inventor.ModernUi/ExtrabbitCode.Inventor.ModernUi.csproj -c Release \
+    -p:PackageVersion=1.2.3-local -o ./artifacts
+```
+
+Inspect the result with `unzip -l ./artifacts/*.nupkg`: README + icon at the root, and
+`lib/net8.0-windows7.0/` with the DLL and XML docs — no demo/add-in files.
+
+### Test the package before publishing
+
+Register the local `artifacts` folder as a NuGet source and reference it from a throwaway project:
+
+```
+dotnet nuget add source <abs-path>\artifacts -n modernui-local
+dotnet add <your-project> package ExtrabbitCode.Inventor.ModernUi --version 1.2.3-local --source modernui-local
+```
+
+Use a `-local` (prerelease) suffix so it never collides with a real published version. Remove the
+source again with `dotnet nuget remove source modernui-local`.
+
+## Installer (setup.exe)
+
+A Windows installer (built with [Inno Setup](https://jrsoftware.org/isinfo.php)) is attached to each
+GitHub Release. It has two selectable components:
+
+- **Modern UI Gallery** — the standalone WPF app, published **self-contained** (no .NET runtime
+  prerequisite), into Program Files with Start-menu (and optional desktop) shortcuts.
+- **Inventor add-in** — deploys the add-in to `%ProgramData%\ExtrabbitCode\…\Demo.AddIn` and the
+  `.addin` manifest to `%ProgramData%\Autodesk\Inventor Addins`, so the gallery opens from the
+  Inventor ribbon (Inventor 2025+). Uninstalling removes both.
+
+### Build the installer locally
+
+Requires the .NET 8 SDK and Inno Setup 6.
+
+```
+pwsh installer\build.ps1 -Version 1.2.3
+```
+
+This publishes the self-contained app, builds the add-in payload, and compiles
+`installer\ModernUi.iss` → `installer\Output\ExtrabbitCode.Inventor.ModernUi-Setup-<version>.exe`.
+
+Branding (the setup/app icon `resources\ModernUi.ico` and the wizard images `installer\wizard-*.bmp`)
+is committed; it only needs regenerating from the PNG logos if the branding changes.
+
+### Publishing (CI)
+
+The `installer` job in `.github/workflows/main.yml` runs on a published Release (Windows runner):
+it installs Inno Setup, runs the same `build.ps1` with the tag version, and uploads the resulting
+`setup.exe` to the release assets. So a single `vX.Y.Z` release produces **both** the NuGet package
+and the installer.

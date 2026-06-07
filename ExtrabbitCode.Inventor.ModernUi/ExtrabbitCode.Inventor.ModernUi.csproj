@@ -15,6 +15,33 @@
     <DefaultItemExcludes>$(DefaultItemExcludes);Controls\VersionShowcase.V1.xaml;Controls\VersionShowcase.V2.xaml</DefaultItemExcludes>
   </PropertyGroup>
 
+  <!-- NuGet package metadata. The CI workflow packs this project on a Windows runner (WPF/
+       net8.0-windows) and overrides the version from the release tag (-p:PackageVersion=…). -->
+  <PropertyGroup>
+    <IsPackable>true</IsPackable>
+    <PackageId>ExtrabbitCode.Inventor.ModernUi</PackageId>
+    <Authors>Tobias Wiesendanger</Authors>
+    <Company>ExtrabbitCode</Company>
+    <Description>A tiny, conflict-free WPF styling library for Inventor add-ins: themeable controls (light/dark), window-scoped resources only, no custom dependency properties — so several add-ins can each ship their own version into one Inventor.exe without clashing.</Description>
+    <PackageTags>inventor;wpf;theme;dark-theme;controls;addin;ui;styling;extrabbitcode</PackageTags>
+    <Copyright>© 2026 Tobias Wiesendanger</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>icon.png</PackageIcon>
+    <RepositoryUrl>https://github.com/TWiesendanger/ExtrabbitCode.Inventor.ModernUi</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageProjectUrl>https://github.com/TWiesendanger/ExtrabbitCode.Inventor.ModernUi</PackageProjectUrl>
+    <NeutralLanguage>en</NeutralLanguage>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Packaged into the .nupkg root (README + icon). Not compiled into the assembly. -->
+    <None Include="..\README.md" Pack="true" PackagePath="\" />
+    <None Include="..\resources\ModernUi-64.png" Pack="true" PackagePath="icon.png" />
+  </ItemGroup>
+
   <!-- Coexistence demo: pick the V1 or V2 showcase dictionary by build, and Link it to the single
        logical path Controls/VersionShowcase.xaml so the runtime pack URI is identical in both
        builds. The V2 build is selected when MODERNUI_V2 is defined (set by the .Coexistence.B

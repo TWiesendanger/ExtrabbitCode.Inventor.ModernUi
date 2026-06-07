@@ -1,6 +1,8 @@
 <Solution>
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />
+    <File Path="installer/build.ps1" />
+    <File Path="installer/ModernUi.iss" />
     <File Path="README.md" />
   </Folder>
   <Project Path="ExtrabbitCode.Inventor.ModernUi.Coexistence.A/ExtrabbitCode.Inventor.ModernUi.Coexistence.A.csproj" />
