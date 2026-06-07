@@ -30,12 +30,6 @@ jobs:
           VERSION=${TAG#v}
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-      - name: Restore
-        run: dotnet restore ExtrabbitCode.Inventor.ModernUi/ExtrabbitCode.Inventor.ModernUi.csproj
-
-      - name: Build
-        run: dotnet build ExtrabbitCode.Inventor.ModernUi/ExtrabbitCode.Inventor.ModernUi.csproj --configuration Release --no-restore
-
       - name: NuGet login (OIDC → temp API key)
         uses: NuGet/login@v1
         id: login
@@ -43,10 +37,14 @@ jobs:
           user: ${{ secrets.NUGET_USERNAME }}
 
       - name: Pack with version from tag
-        run: dotnet pack ExtrabbitCode.Inventor.ModernUi/ExtrabbitCode.Inventor.ModernUi.csproj --configuration Release --no-build -p:PackageVersion=${{ steps.version.outputs.version }} -o ./artifacts
+        run: dotnet pack ExtrabbitCode.Inventor.ModernUi/ExtrabbitCode.Inventor.ModernUi.csproj --configuration Release -p:PackageVersion=${{ steps.version.outputs.version }} -o artifacts
+
+      - name: List artifacts
+        shell: bash
+        run: ls -la artifacts
 
       - name: Push to NuGet.org
-        run: dotnet nuget push "./artifacts/*.nupkg" --api-key ${{ steps.login.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+        run: dotnet nuget push "artifacts/*.nupkg" --api-key ${{ steps.login.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
 
   installer:
     # Builds the setup.exe (standalone Gallery + Inventor add-in) and attaches it to the release.
