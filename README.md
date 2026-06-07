@@ -149,6 +149,14 @@ Two layers prove it:
    Inventor 2025+, and open both add-ins' **Modern UI Coexistence** buttons. Two themed dialogs, one
    reading "ModernUi V1 … GetV1()", the other "ModernUi V2 … GetV2()", with no errors = pass.
 
+![Two add-ins running side by side in one Inventor session — A on ModernUi V1, B on V2](resources/docs/ParallelTest.png)
+
+*Both add-ins live in a single `Inventor.exe`. A loaded ModernUi **1.0.0.0** and called `GetV1()`; B
+loaded **2.0.0.0** and called `GetV2()` — each version-only method exists only in its own build. The
+version-specific styles resolve per version (V1's filled badge vs V2's outlined chip), and a key
+present in only one build (`Coexistence.V1Only` / `V2Only`) simply stays unstyled in the other. Both
+dialogs render together with no exception — worst case cosmetic, never a crash.*
+
 ## Build & verify
 
 ```
