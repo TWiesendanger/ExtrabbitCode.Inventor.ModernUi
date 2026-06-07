@@ -34,9 +34,44 @@ new WindowInteropHelper(dialog) { Owner = new IntPtr(app.MainFrameHWND) };
 dialog.Show();
 ```
 
-Standard controls (`Button`, `TextBox`, `CheckBox`, `ComboBox`, …) inside the window are themed
-automatically. Keyed variants: `AccentButton`, `Card`, `ToggleSwitch`, `TitleTextStyle`,
-`BodyTextStyle`, `CaptionTextStyle`.
+Standard controls inside the window are themed automatically — see **Controls & components** below.
+
+## Controls & components
+
+The **Gallery** app is the live reference — every item below has a page there with copyable XAML.
+
+**Themed automatically** (just use the standard control inside a `ModernWindow`, or a window passed
+to `ModernUi.Apply`):
+`Button`, `TextBox`, `CheckBox` (incl. tri-state / indeterminate), `RadioButton`, `ComboBox`,
+`ListBox`, `TreeView`, `TabControl`, `DataGrid`, `Slider` (ticks + snapping), `ProgressBar`,
+`Menu` / `ContextMenu`, `ScrollBar`, `ToolTip`, `GroupBox`, `Separator`, `TextBlock`, `Label` — plus
+the `ModernWindow` title bar.
+
+**Opt-in keyed styles** — `Style="{DynamicResource <Name>}"`:
+
+| Purpose | Keys |
+|---|---|
+| Buttons | `AccentButton`, `IconButton` |
+| Typography | `TitleTextStyle`, `BodyTextStyle`, `CaptionTextStyle` |
+| Surface / toggle | `Card`, `ToggleSwitch` |
+| Badges | `Badge`, `BadgeAccent`, `BadgeError`, `CounterBadge`, `ShieldLabel` + `ShieldValue` |
+| Loaders | `Spinner`, `DotsLoader`, `IndeterminateBar` |
+
+**Dialogs & notifications** — code helpers, no XAML needed:
+
+```csharp
+ModernDialogResult r = ModernMessageBox.Show(owner, theme, "Delete the selected items?",
+    "Confirm", ModernDialogButtons.YesNo, ModernDialogIcon.Question);
+
+ModernToast.Show(owner, "Export completed.", ToastType.Success, title: "Done");
+ModernToast.MaxVisible = 3;                             // cap shown at once
+ModernToast.DefaultDuration = TimeSpan.FromSeconds(4);  // auto-dismiss (per-call duration overrides)
+```
+
+Both are hosted window-scoped (the toast inside the owner's visual tree) and **inherit the owner
+window's palette**, so a customized accent carries through. Loader animation speed is fixed in the
+styles; drive a controllable `AnimationClock` if you need it adjustable at runtime (see the Gallery's
+speed-control samples).
 
 ## Changing colors
 
@@ -47,6 +82,11 @@ forking, override at apply-time:
 ModernUi.Apply(window, Theme.Dark,
     ThemePalette.Dark with { Accent = (Color)ColorConverter.ConvertFromString("#FF8A00") });
 ```
+
+`ModernUi.SetTheme(window, theme, palette)` re-colors a window **live** (the Gallery's accent dropdown
+uses this). Alongside each `Brush.*`, the apply step also injects a raw `Color.*` resource (e.g.
+`Color.Accent`) for the few places that need a `Color` rather than a brush — gradient stops and
+animations such as the indeterminate progress bar.
 
 Non-color tokens (corner radius, control height, paddings) live in `Shared.xaml`.
 
