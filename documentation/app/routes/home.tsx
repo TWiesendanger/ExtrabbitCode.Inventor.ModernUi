@@ -42,6 +42,17 @@ export default function Home() {
         >
           Open Documentation
         </Link>
+
+        <div className="mt-16 flex flex-col items-center gap-2">
+          <span className="text-xs text-fd-muted-foreground uppercase tracking-widest">
+            Made by
+          </span>
+          <img
+            src={`${import.meta.env.BASE_URL}images/branding/extrabbit.png`}
+            alt="ExtrabbitCode logo"
+            className="h-8 opacity-80"
+          />
+        </div>
       </main>
     </HomeLayout>
   );
