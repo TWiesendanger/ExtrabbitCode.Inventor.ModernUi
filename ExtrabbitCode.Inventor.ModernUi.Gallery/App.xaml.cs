@@ -238,7 +238,51 @@ public partial class App : Application
         // 5. A sample themed with a fully custom palette (for the Theming docs page).
         CaptureCustomPalette(outputDir);
 
+        // 6. Full gallery-window overview shots (for the docs Introduction page).
+        CaptureOverview(outputDir);
+
         Shutdown();
+    }
+
+    /// <summary>Captures full gallery-window screenshots of a couple of rich pages, for the docs
+    /// Introduction. Shows the themed chrome, the nav (the breadth of controls) and live controls.</summary>
+    private void CaptureOverview(string outputDir)
+    {
+        string[] pages = ["Selection", "Display"];
+
+        foreach (Theme theme in new[] { Theme.Dark, Theme.Light })
+        {
+            var gallery = new GalleryView();
+            gallery.Initialize(theme, $"Font: {FontOptions.Default.Family.Source} {FontOptions.Default.NormalSize:0.#}px");
+
+            var window = new ModernWindow(theme)
+            {
+                Title = "ExtrabbitCode Modern UI - Gallery",
+                Icon = GalleryView.LoadBranding(),
+                Width = 1040,
+                Height = 720,
+                WindowStartupLocation = WindowStartupLocation.Manual,
+                Left = -10000,
+                Top = -10000,
+                ShowInTaskbar = false,
+                ShowActivated = false,
+                Content = gallery,
+            };
+
+            window.Show();
+            WaitMs(300); // let the gallery build and render
+
+            foreach (string page in pages)
+            {
+                gallery.SelectPage(page);
+                WaitMs(150);
+                window.UpdateLayout();
+                SaveBitmap(RenderElement(window),
+                    Path.Combine(outputDir, $"overview__{Slug(page)}-{theme}.png".ToLowerInvariant()));
+            }
+
+            window.Close();
+        }
     }
 
     /// <summary>Renders a small control sample under a completely custom <see cref="ThemePalette"/>,
