@@ -1,7 +1,9 @@
 using System.IO;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
@@ -223,9 +225,16 @@ public partial class App : Application
             {
                 CaptureToast(theme, slug, type, title, message, outputDir);
             }
+
+            // 4. Interactive states (default / hover / focus) for input-reactive controls. These need
+            // a real on-screen window + cursor, so they briefly show a window and move the cursor.
+            foreach ((string slug, Func<FrameworkElement> make) in StateJobs())
+            {
+                CaptureStates(theme, slug, make, outputDir);
+            }
         }
 
-        // 4. A sample themed with a fully custom palette (for the Theming docs page).
+        // 5. A sample themed with a fully custom palette (for the Theming docs page).
         CaptureCustomPalette(outputDir);
 
         Shutdown();
@@ -319,6 +328,91 @@ public partial class App : Application
         ShowInTaskbar = false,
         ShowActivated = false,
     };
+
+    /// <summary>Controls whose hover / focus states are worth showing in the docs (each built fresh
+    /// per capture). The factory returns the exact control to focus / hover.</summary>
+    private static IEnumerable<(string slug, Func<FrameworkElement> make)> StateJobs()
+    {
+        yield return ("text-input__text-box", () => new TextBox { Width = 240, Text = "Editable text" });
+
+        yield return ("text-input__search-box", () =>
+        {
+            var tb = new TextBox { Width = 240, Tag = "Search ..." };
+            tb.SetResourceReference(FrameworkElement.StyleProperty, "SearchBox");
+            return tb;
+        });
+    }
+
+    /// <summary>Captures a control in its default, hover and focused states. Hover/focus are
+    /// input-driven, so this briefly shows an on-screen, activated window, moves the cursor over the
+    /// control, and sets keyboard focus — restoring the cursor afterwards.</summary>
+    private void CaptureStates(Theme theme, string slug, Func<FrameworkElement> make, string outputDir)
+    {
+        var host = new ModernWindow(theme)
+        {
+            Width = 340,
+            Height = 160,
+            WindowStartupLocation = WindowStartupLocation.Manual,
+            Left = 80,
+            Top = 80,
+            ShowInTaskbar = false,
+        };
+
+        FrameworkElement control = make();
+        var container = new Border
+        {
+            Padding = new Thickness(20),
+            HorizontalAlignment = HorizontalAlignment.Left,
+            VerticalAlignment = VerticalAlignment.Top,
+            Child = control,
+        };
+        container.SetResourceReference(Border.BackgroundProperty, "Brush.Background");
+
+        host.Content = container;
+        host.Show();
+        host.Activate();
+        MeasureArrange(host, container);
+
+        // (The default state already has an image from the inline pass, so only hover/focus here.)
+
+        // hover — set IsMouseOver directly (its template trigger fires the hover visual). This is
+        // deterministic, unlike moving the real cursor, which doesn't reliably register off-screen.
+        SetMouseOver(control, true);
+        host.UpdateLayout();
+        SaveBitmap(RenderElement(container), DocPath(outputDir, slug + "--hover", theme));
+        SetMouseOver(control, false);
+
+        // focused — real keyboard focus shows the accent underline (the window is activated above).
+        control.Focus();
+        Keyboard.Focus(control);
+        WaitMs(120);
+        host.UpdateLayout();
+        SaveBitmap(RenderElement(container), DocPath(outputDir, slug + "--focused", theme));
+
+        host.Close();
+    }
+
+    private static void MeasureArrange(Window host, FrameworkElement element)
+    {
+        host.UpdateLayout();
+        element.Measure(new Size(300, double.PositiveInfinity));
+        element.Arrange(new Rect(element.DesiredSize));
+        host.UpdateLayout();
+    }
+
+    // IsMouseOver is a read-only dependency property; its backing key lets us force the hover visual
+    // deterministically for a screenshot. Resolved once via reflection (null if the runtime renames it).
+    private static readonly DependencyPropertyKey? IsMouseOverKey =
+        typeof(UIElement).GetField("IsMouseOverPropertyKey", BindingFlags.NonPublic | BindingFlags.Static)
+            ?.GetValue(null) as DependencyPropertyKey;
+
+    private static void SetMouseOver(UIElement element, bool value)
+    {
+        if (IsMouseOverKey is not null)
+        {
+            element.SetValue(IsMouseOverKey, value);
+        }
+    }
 
     private static IEnumerable<(string slug, Action show)> DialogJobs(Window host, Theme theme)
     {
