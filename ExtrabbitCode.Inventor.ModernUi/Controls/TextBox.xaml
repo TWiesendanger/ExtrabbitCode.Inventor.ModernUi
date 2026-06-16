@@ -32,7 +32,9 @@
         <Setter Property="Background" Value="{DynamicResource Brush.Control}" />
         <Setter Property="BorderBrush" Value="{DynamicResource Brush.Border}" />
         <Setter Property="CaretBrush" Value="{DynamicResource Brush.Foreground}" />
-        <Setter Property="SelectionBrush" Value="{DynamicResource Brush.AccentMuted}" />
+        <!-- Accent (rendered at WPF's default 0.4 SelectionOpacity) keeps the selection visible in
+             both themes; AccentMuted is reserved for subtle hover backgrounds. -->
+        <Setter Property="SelectionBrush" Value="{DynamicResource Brush.Accent}" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="Padding" Value="{DynamicResource Padding.Control}" />
         <Setter Property="MinHeight" Value="{DynamicResource Size.ControlHeight}" />

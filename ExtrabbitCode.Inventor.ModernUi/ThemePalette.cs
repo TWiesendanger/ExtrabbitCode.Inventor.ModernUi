@@ -34,7 +34,8 @@ public sealed record ThemePalette
     /// <summary>Accent: primary buttons, focus / selection border. Key: <c>Brush.Accent</c>.</summary>
     public required Color Accent { get; init; }
 
-    /// <summary>Muted accent: hover / selection backgrounds. Key: <c>Brush.AccentMuted</c>.</summary>
+    /// <summary>Subtle hover background (list / menu items, icon buttons, caption buttons).
+    /// Key: <c>Brush.AccentMuted</c>.</summary>
     public required Color AccentMuted { get; init; }
 
     /// <summary>Error / destructive. Key: <c>Brush.Error</c>.</summary>
@@ -64,7 +65,7 @@ public sealed record ThemePalette
         ForegroundMuted = Hex("#6a6a6a"),
         Border = Hex("#c0c0c0"),
         Accent = Hex("#0696d7"),
-        AccentMuted = Hex("#3a7292"),
+        AccentMuted = Hex("#f2f2f2"),
         Error = Hex("#ec4a41"),
     };
 
