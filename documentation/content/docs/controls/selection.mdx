@@ -7,9 +7,12 @@ description: Check boxes, toggle switches, radio buttons, list boxes and sliders
 
 ```xml
 <CheckBox Content="Checked option" IsChecked="True" />
+<CheckBox Content="Unchecked option" IsChecked="False" />
 ```
 
-<ThemedImage slug="selection__check-box" alt="Check box" />
+| Checked | Unchecked |
+|---|---|
+| <ThemedImage slug="selection__check-box" alt="Checked check box" /> | <ThemedImage slug="selection__check-box-unchecked" alt="Unchecked check box" /> |
 
 ## Toggle switch
 
@@ -17,9 +20,12 @@ Apply the `ToggleSwitch` style to a `CheckBox` for a switch with a sliding thumb
 
 ```xml
 <CheckBox Content="Enabled" IsChecked="True" Style="{DynamicResource ToggleSwitch}" />
+<CheckBox Content="Disabled" IsChecked="True" IsEnabled="False" Style="{DynamicResource ToggleSwitch}" />
 ```
 
-<ThemedImage slug="selection__toggle-switch" alt="Toggle switch" />
+| Enabled | Disabled |
+|---|---|
+| <ThemedImage slug="selection__toggle-switch" alt="Toggle switch" /> | <ThemedImage slug="selection__toggle-switch-disabled" alt="Disabled toggle switch" /> |
 
 ## Radio buttons
 

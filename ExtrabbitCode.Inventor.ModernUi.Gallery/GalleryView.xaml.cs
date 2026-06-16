@@ -996,8 +996,14 @@ public partial class GalleryView : UserControl
             new DemoItem("Check box", """
                 <CheckBox Content="Checked option" IsChecked="True" />
                 """),
+            new DemoItem("Check box (unchecked)", """
+                <CheckBox Content="Unchecked option" IsChecked="False" />
+                """),
             new DemoItem("Toggle switch", """
                 <CheckBox Content="Enabled" IsChecked="True" Style="{DynamicResource ToggleSwitch}" />
+                """),
+            new DemoItem("Toggle switch (disabled)", """
+                <CheckBox Content="Disabled" IsChecked="True" IsEnabled="False" Style="{DynamicResource ToggleSwitch}" />
                 """),
             new DemoItem("Radio buttons", """
                 <StackPanel>
