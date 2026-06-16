@@ -918,6 +918,14 @@ public partial class GalleryView : UserControl
             new DemoItem("Text box", """
                 <TextBox Width="240" HorizontalAlignment="Left" Text="Editable text" />
                 """),
+            new DemoItem("Search box (placeholder + icon)", """
+                <!-- Placeholder text comes from Tag; a magnifier glyph leads the field. -->
+                <StackPanel HorizontalAlignment="Left">
+                    <TextBox Width="240" Style="{DynamicResource SearchBox}" Tag="Search ..." />
+                    <TextBox Width="240" Margin="0,8,0,0" Style="{DynamicResource SearchBox}"
+                             Tag="Search ..." Text="bracket" />
+                </StackPanel>
+                """),
             new DemoItem("Disabled text box", """
                 <TextBox Width="240" HorizontalAlignment="Left" Text="Disabled" IsEnabled="False" />
                 """),

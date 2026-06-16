@@ -25,7 +25,8 @@
         </DockPanel>
     </ControlTemplate>
 
-    <Style TargetType="TextBox">
+    <!-- Shared text box look: themed surface, focus/hover accent underline, validation states. -->
+    <Style x:Key="ModernTextBoxBase" TargetType="TextBox">
         <Setter Property="Validation.ErrorTemplate" Value="{StaticResource ModernValidationErrorTemplate}" />
         <Setter Property="Foreground" Value="{DynamicResource Brush.Foreground}" />
         <Setter Property="Background" Value="{DynamicResource Brush.Control}" />
@@ -79,6 +80,89 @@
                             <Setter TargetName="Bd" Property="Opacity" Value="0.5" />
                         </Trigger>
                         <!-- Invalid value: red border + red underline. -->
+                        <Trigger Property="Validation.HasError" Value="True">
+                            <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource Brush.Error}" />
+                            <Setter TargetName="Underline" Property="Visibility" Value="Visible" />
+                            <Setter TargetName="Underline" Property="Background" Value="{DynamicResource Brush.Error}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Implicit default text box. -->
+    <Style TargetType="TextBox" BasedOn="{StaticResource ModernTextBoxBase}" />
+
+    <!-- Search box: a leading magnifier glyph and a placeholder (set via Tag) shown while empty.
+         Use: <TextBox Style="{DynamicResource SearchBox}" Tag="Search ..." />. The placeholder text
+         comes from the framework Tag property, so no dependency property is registered. -->
+    <Style x:Key="SearchBox" TargetType="TextBox" BasedOn="{StaticResource ModernTextBoxBase}">
+        <Setter Property="Padding" Value="2,6,8,6" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TextBox">
+                    <Border x:Name="Bd"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="{DynamicResource Radius.Control}"
+                            SnapsToDevicePixels="True">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Magnifier glyph (Segoe Fluent Icons "Search", U+E721). -->
+                            <TextBlock Grid.Column="0"
+                                       Text="&#xE721;"
+                                       FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets"
+                                       FontSize="14"
+                                       Foreground="{DynamicResource Brush.ForegroundMuted}"
+                                       VerticalAlignment="Center"
+                                       Margin="8,0,4,0" />
+
+                            <Grid Grid.Column="1">
+                                <TextBlock x:Name="Placeholder"
+                                           Text="{TemplateBinding Tag}"
+                                           Foreground="{DynamicResource Brush.ForegroundMuted}"
+                                           Margin="{TemplateBinding Padding}"
+                                           VerticalAlignment="Center"
+                                           IsHitTestVisible="False"
+                                           Visibility="Collapsed" />
+                                <ScrollViewer x:Name="PART_ContentHost"
+                                              Margin="{TemplateBinding Padding}"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                              Focusable="False"
+                                              HorizontalScrollBarVisibility="Hidden"
+                                              VerticalScrollBarVisibility="Hidden" />
+                                <Border x:Name="Underline"
+                                        Height="2"
+                                        Margin="2,0,2,0"
+                                        VerticalAlignment="Bottom"
+                                        Background="{DynamicResource Brush.Accent}"
+                                        CornerRadius="0,0,2,2"
+                                        Visibility="Collapsed" />
+                            </Grid>
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <!-- Placeholder is shown only while the field is empty. -->
+                        <Trigger Property="Text" Value="">
+                            <Setter TargetName="Placeholder" Property="Visibility" Value="Visible" />
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Underline" Property="Visibility" Value="Visible" />
+                            <Setter TargetName="Underline" Property="Background" Value="{DynamicResource Brush.Foreground}" />
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                            <Setter TargetName="Underline" Property="Visibility" Value="Visible" />
+                            <Setter TargetName="Underline" Property="Background" Value="{DynamicResource Brush.Accent}" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Bd" Property="Opacity" Value="0.5" />
+                        </Trigger>
                         <Trigger Property="Validation.HasError" Value="True">
                             <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource Brush.Error}" />
                             <Setter TargetName="Underline" Property="Visibility" Value="Visible" />
