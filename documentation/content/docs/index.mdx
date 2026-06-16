@@ -1,0 +1,20 @@
+---
+title: Introduction
+description: A tiny, conflict-free WPF styling library for Autodesk Inventor add-ins — themeable controls, light/dark, window-scoped resources.
+---
+
+import { PublicImage } from '@/components/public-image';
+
+<PublicImage src="/images/branding/ModernUi.png" alt="ModernUi" className="w-20 h-20 mb-6" />
+
+**ExtrabbitCode Inventor ModernUi** is a small WPF styling library for Autodesk Inventor add-ins. It
+themes the standard WPF controls (light/dark), ships themed dialogs and toasts, and a Segoe Fluent
+glyph set — all applied **per window** with no global state, so several add-ins can each ship their
+own version into one Inventor process without clashing.
+
+```csharp
+// Theme any window in one call — colours, font and control styles, window-scoped.
+ModernUi.Apply(window, Theme.Dark);
+```
+
+This site documents every control and feature with a short example and a screenshot.
