@@ -85,6 +85,14 @@
         <Setter Property="FontWeight" Value="SemiBold" />
     </Style>
 
+    <!-- Danger / destructive button (delete, remove): Style="{DynamicResource DangerButton}". -->
+    <Style x:Key="DangerButton" TargetType="Button" BasedOn="{StaticResource ModernButtonBase}">
+        <Setter Property="Background" Value="{DynamicResource Brush.Error}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Brush.Error}" />
+        <Setter Property="Foreground" Value="#FFFFFFFF" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+
     <!-- Compact, borderless icon button for toolbar / in-cell actions (content is usually an icon
          glyph). No min size or chrome; a rounded highlight appears on hover/press.
          Use: Style="{DynamicResource IconButton}". -->

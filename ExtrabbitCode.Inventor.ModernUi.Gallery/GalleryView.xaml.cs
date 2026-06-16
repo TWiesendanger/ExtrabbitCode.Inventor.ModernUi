@@ -891,6 +891,10 @@ public partial class GalleryView : UserControl
                 <Button Content="Primary" Width="120" HorizontalAlignment="Left"
                         Style="{DynamicResource AccentButton}" />
                 """),
+            new DemoItem("Danger button", """
+                <Button Content="Delete" Width="120" HorizontalAlignment="Left"
+                        Style="{DynamicResource DangerButton}" />
+                """),
             new DemoItem("Disabled button", """
                 <Button Content="Disabled" Width="120" HorizontalAlignment="Left" IsEnabled="False" />
                 """),

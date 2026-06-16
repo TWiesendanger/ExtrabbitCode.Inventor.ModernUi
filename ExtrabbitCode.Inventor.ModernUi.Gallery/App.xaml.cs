@@ -85,17 +85,10 @@ public partial class App : Application
                     string overviewPath = Path.Combine(outputDir, $"gallery-{theme}.png".ToLowerInvariant());
                     SaveWindowPng(window, overviewPath);
 
-                    // Also capture the Icons page so the glyph catalog is visible in a screenshot.
-                    gallery.SelectPage("Icons");
-                    Dispatcher.BeginInvoke(
-                        () =>
-                        {
-                            string glyphsPath = Path.Combine(outputDir, $"glyphs-{theme}.png".ToLowerInvariant());
-                            SaveWindowPng(window, glyphsPath);
-                            window.Close();
-                            ShootNext();
-                        },
-                        System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+                    // Then walk a curated set of pages, capturing each, so individual features
+                    // (glyph catalog, button variants, message boxes, ...) are visible in screenshots.
+                    var pages = new Queue<string>(PagesToShoot);
+                    ShootPageThenNext(window, gallery, theme, outputDir, pages, ShootNext);
                 });
             };
 
@@ -103,6 +96,33 @@ public partial class App : Application
         }
 
         ShootNext();
+    }
+
+    /// <summary>Pages captured individually by "--shoot" (one PNG each, per theme), in addition to the overview.</summary>
+    private static readonly string[] PagesToShoot = ["Buttons", "Text input", "Icons", "Message boxes"];
+
+    /// <summary>Selects the next queued page, captures it, then either recurses or closes the window
+    /// and moves on to the next theme.</summary>
+    private void ShootPageThenNext(Window window, GalleryView gallery, Theme theme, string outputDir, Queue<string> pages, Action onComplete)
+    {
+        if (pages.Count == 0)
+        {
+            window.Close();
+            onComplete();
+            return;
+        }
+
+        string pageName = pages.Dequeue();
+        gallery.SelectPage(pageName);
+        Dispatcher.BeginInvoke(
+            () =>
+            {
+                string slug = pageName.Replace(' ', '-').ToLowerInvariant();
+                string path = Path.Combine(outputDir, $"{slug}-{theme}.png".ToLowerInvariant());
+                SaveWindowPng(window, path);
+                ShootPageThenNext(window, gallery, theme, outputDir, pages, onComplete);
+            },
+            System.Windows.Threading.DispatcherPriority.ApplicationIdle);
     }
 
     private static void SaveWindowPng(Window window, string path)
