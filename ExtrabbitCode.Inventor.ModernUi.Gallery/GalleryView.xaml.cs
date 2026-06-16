@@ -170,6 +170,15 @@ public partial class GalleryView : UserControl
         BackButton.Visibility = _history.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
     }
 
+    /// <summary>All demo pages (the example catalog). Used by the documentation snapshotter.</summary>
+    public IReadOnlyList<DemoPage> Pages => _pages;
+
+    /// <summary>Builds the live control for an item exactly as the gallery card shows it — from the
+    /// <see cref="DemoItem.Build"/> delegate, or parsed from its XAML snippet. Used by "--shoot-docs"
+    /// to render a single example in isolation.</summary>
+    public FrameworkElement RenderItemControl(DemoItem item) =>
+        item.Build is not null ? item.Build() : ParseSnippet(item.Xaml);
+
     /// <summary>Navigates to the nav page with the given name (no-op if it does not exist). Used by
     /// the headless "--shoot" capture to render a specific page.</summary>
     public void SelectPage(string name)
@@ -1109,7 +1118,8 @@ public partial class GalleryView : UserControl
                     ModernDialogButtons.Ok,
                     ModernDialogIcon.Info);
                 """) { Build = () => BuildMessageBoxDemo("Show info", "Information",
-                    "The export finished successfully.", ModernDialogButtons.Ok, ModernDialogIcon.Info, false) },
+                    "The export finished successfully.", ModernDialogButtons.Ok, ModernDialogIcon.Info, false),
+                    DocCapture = DocCapture.Dialog },
 
             new DemoItem("Confirm (Yes / No)", """
                 var result = ModernMessageBox.Show(owner, theme,
@@ -1118,7 +1128,8 @@ public partial class GalleryView : UserControl
                     ModernDialogButtons.YesNo,
                     ModernDialogIcon.Question);
                 """) { Build = () => BuildMessageBoxDemo("Confirm", "Confirm",
-                    "Delete the selected items?", ModernDialogButtons.YesNo, ModernDialogIcon.Question, true) },
+                    "Delete the selected items?", ModernDialogButtons.YesNo, ModernDialogIcon.Question, true),
+                    DocCapture = DocCapture.Dialog },
 
             new DemoItem("Error (OK / Cancel)", """
                 ModernMessageBox.Show(owner, theme,
@@ -1127,7 +1138,8 @@ public partial class GalleryView : UserControl
                     ModernDialogButtons.OkCancel,
                     ModernDialogIcon.Error);
                 """) { Build = () => BuildMessageBoxDemo("Show error", "Error",
-                    "The file could not be opened.", ModernDialogButtons.OkCancel, ModernDialogIcon.Error, false) },
+                    "The file could not be opened.", ModernDialogButtons.OkCancel, ModernDialogIcon.Error, false),
+                    DocCapture = DocCapture.Dialog },
 
             new DemoItem("Custom button labels", """
                 var buttons = new[]
@@ -1139,7 +1151,7 @@ public partial class GalleryView : UserControl
                 ModernMessageBox.Show(owner, theme,
                     "Share anonymous usage data to help improve the add-in?",
                     "Anonymous Usage Data", buttons, ModernDialogIcon.Question);
-                """) { Build = BuildCustomButtonsDemo },
+                """) { Build = BuildCustomButtonsDemo, DocCapture = DocCapture.Dialog },
 
             new DemoItem("Rich content (hyperlink)", """
                 var text = new TextBlock { TextWrapping = TextWrapping.Wrap, MaxWidth = 400 };
@@ -1150,7 +1162,7 @@ public partial class GalleryView : UserControl
                     new[] { new ModernDialogButton("OK", ModernDialogResult.Ok,
                             IsDefault: true, IsCancel: true, Accent: true) },
                     ModernDialogIcon.Info);
-                """) { Build = BuildRichContentDemo },
+                """) { Build = BuildRichContentDemo, DocCapture = DocCapture.Dialog },
         ]),
 
         new DemoPage("Display",
@@ -1185,7 +1197,7 @@ public partial class GalleryView : UserControl
                 rotate.ApplyAnimationClock(RotateTransform.AngleProperty, clock);
 
                 clock.Controller.SpeedRatio = 2.0;   // 2x faster, live
-                """) { Build = BuildSpeedSpinner },
+                """) { Build = BuildSpeedSpinner, DocCapture = DocCapture.Skip },
             new DemoItem("Indeterminate bar with speed control", """
                 // Same controllable-clock pattern, applied to the gradient offsets:
                 foreach (var (stop, from, to) in stops)
@@ -1196,7 +1208,7 @@ public partial class GalleryView : UserControl
                     clocks.Add(clock);
                 }
                 // slider: foreach (clock) clock.Controller.SpeedRatio = value;
-                """) { Build = BuildSpeedBar },
+                """) { Build = BuildSpeedBar, DocCapture = DocCapture.Skip },
             new DemoItem("Card", """
                 <Border Style="{DynamicResource Card}">
                     <TextBlock Text="Card surface" />
@@ -1247,23 +1259,27 @@ public partial class GalleryView : UserControl
                 // Per-call duration still overrides the default:
                 ModernToast.Show(owner, "Saved", ToastType.Success,
                     duration: TimeSpan.FromSeconds(2));
-                """) { Build = BuildToastControls },
+                """) { Build = BuildToastControls, DocCapture = DocCapture.Skip },
             new DemoItem("Info toast", """
                 ModernToast.Show(owner, "Your settings were loaded.",
                     ToastType.Info, title: "Heads up");
-                """) { Build = () => BuildToastDemo("Show info", ToastType.Info, "Heads up", "Your settings were loaded.") },
+                """) { Build = () => BuildToastDemo("Show info", ToastType.Info, "Heads up", "Your settings were loaded."),
+                    DocCapture = DocCapture.Toast },
             new DemoItem("Success toast", """
                 ModernToast.Show(owner, "Export completed.",
                     ToastType.Success, title: "Done");
-                """) { Build = () => BuildToastDemo("Show success", ToastType.Success, "Done", "Export completed.") },
+                """) { Build = () => BuildToastDemo("Show success", ToastType.Success, "Done", "Export completed."),
+                    DocCapture = DocCapture.Toast },
             new DemoItem("Warning toast", """
                 ModernToast.Show(owner, "Some parameters were skipped.",
                     ToastType.Warning, title: "Check input");
-                """) { Build = () => BuildToastDemo("Show warning", ToastType.Warning, "Check input", "Some parameters were skipped.") },
+                """) { Build = () => BuildToastDemo("Show warning", ToastType.Warning, "Check input", "Some parameters were skipped."),
+                    DocCapture = DocCapture.Toast },
             new DemoItem("Error toast", """
                 ModernToast.Show(owner, "The file could not be opened.",
                     ToastType.Error, title: "Failed");
-                """) { Build = () => BuildToastDemo("Show error", ToastType.Error, "Failed", "The file could not be opened.") },
+                """) { Build = () => BuildToastDemo("Show error", ToastType.Error, "Failed", "The file could not be opened."),
+                    DocCapture = DocCapture.Toast },
         ]),
 
         new DemoPage("Layout",
@@ -1546,6 +1562,22 @@ file static class GlyphCatalogBuilder
     }
 }
 
+/// <summary>How a <see cref="DemoItem"/> is captured by the documentation snapshotter (<c>--shoot-docs</c>).</summary>
+public enum DocCapture
+{
+    /// <summary>Render the live control itself, cropped (the default — works for inline controls).</summary>
+    Inline,
+
+    /// <summary>A modal dialog (e.g. a message box) — captured separately by a dedicated routine.</summary>
+    Dialog,
+
+    /// <summary>A transient toast — captured separately by a dedicated routine.</summary>
+    Toast,
+
+    /// <summary>Not captured as a standalone doc image (e.g. an interactive control with live state).</summary>
+    Skip,
+}
+
 /// <summary>One showcase entry: a title, the XAML shown as code, and (usually) parsed into the live control.</summary>
 public sealed class DemoItem
 {
@@ -1561,6 +1593,9 @@ public sealed class DemoItem
 
     /// <summary>Optional live-control builder; when null the live control is parsed from <see cref="Xaml"/>.</summary>
     public System.Func<FrameworkElement>? Build { get; init; }
+
+    /// <summary>How the documentation snapshotter captures this item. Defaults to <see cref="DocCapture.Inline"/>.</summary>
+    public DocCapture DocCapture { get; init; } = DocCapture.Inline;
 }
 
 /// <summary>A nav page grouping several demo items.</summary>
