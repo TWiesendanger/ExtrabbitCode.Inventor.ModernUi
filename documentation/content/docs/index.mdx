@@ -1,6 +1,6 @@
 ---
 title: Introduction
-description: A tiny, conflict-free WPF styling library for Autodesk Inventor add-ins — themeable controls, light/dark, window-scoped resources.
+description: A tiny, conflict-free WPF styling library for Autodesk Inventor add-ins - themeable controls, light/dark, window-scoped resources.
 ---
 
 import { PublicImage } from '@/components/public-image';
@@ -9,11 +9,11 @@ import { PublicImage } from '@/components/public-image';
 
 **ExtrabbitCode Inventor ModernUi** is a small WPF styling library for Autodesk Inventor add-ins. It
 themes the standard WPF controls (light/dark), ships themed dialogs and toasts, and a Segoe Fluent
-glyph set — all applied **per window** with no global state, so several add-ins can each ship their
+glyph set - all applied **per window** with no global state, so several add-ins can each ship their
 own version into one Inventor process without clashing.
 
 ```csharp
-// Theme any window in one call — colours, font and control styles, window-scoped.
+// Theme any window in one call - colours, font and control styles, window-scoped.
 ModernUi.Apply(window, Theme.Dark);
 ```
 
@@ -24,6 +24,8 @@ properties and writes to `Application.Current.Resources`, so two add-ins shippin
 clash. ModernUi never does either: it injects brushes, fonts and control styles into a single
 window's resources and styles only framework types. The result is a clean Inventor-aligned look that
 is safe to ship alongside any other add-in.
+
+It is possible to isolate an addin but not its wpf content. This is why when using something like wpfui conflicts happen.
 
 ## Explore
 

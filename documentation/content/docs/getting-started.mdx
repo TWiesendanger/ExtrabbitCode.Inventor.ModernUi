@@ -21,14 +21,14 @@ There are two ways to get a themed window. Use **`ModernWindow`** as a base, or 
 ```csharp
 using ExtrabbitCode.Inventor.ModernUi;
 
-// Option A — derive from ModernWindow (themes itself in the constructor):
+// Option A - derive from ModernWindow (themes itself in the constructor):
 var dialog = new ModernWindow(Theme.Dark) { Title = "My dialog", Content = myControl };
 
-// Option B — apply to an existing Window:
+// Option B - apply to an existing Window:
 ModernUi.Apply(existingWindow, Theme.Dark);
 ```
 
-Both inject the colours, font and control styles into **that window's** resources only — nothing is
+Both inject the colours, font and control styles into **that window's** resources only - nothing is
 written to `Application.Current.Resources`.
 
 ## Match Inventor's theme and font
@@ -63,9 +63,13 @@ _ = new WindowInteropHelper(dialog) { Owner = new IntPtr(app.MainFrameHWND) };
 dialog.Show();
 ```
 
+`WindowInteropHelper` is a standard WPF type (`System.Windows.Interop`), not part of this library - it
+lets you set a native window as the owner of a WPF window. `app.MainFrameHWND` is the Inventor API's
+handle for Inventor's main window.
+
 ## Use the controls
 
-Inside a themed window, the standard WPF controls are styled automatically — just write normal XAML:
+Inside a themed window, the standard WPF controls are styled automatically - just write normal XAML:
 
 ```xml
 <StackPanel>

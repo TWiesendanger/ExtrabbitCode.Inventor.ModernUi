@@ -9,7 +9,7 @@ export function meta({}: Route.MetaArgs) {
     {
       name: 'description',
       content:
-        'A tiny, conflict-free WPF styling library for Autodesk Inventor add-ins — themeable controls, light/dark, window-scoped resources.',
+        'A tiny, conflict-free WPF styling library for Autodesk Inventor add-ins - themeable controls, light/dark, window-scoped resources.',
     },
   ];
 }
@@ -30,7 +30,7 @@ export default function Home() {
           </h1>
           <p className="text-fd-muted-foreground text-base leading-relaxed">
             A tiny WPF styling library for Autodesk Inventor add-ins: themeable
-            controls (light/dark), themed dialogs and toasts, and a glyph set —
+            controls (light/dark), themed dialogs and toasts, and a glyph set -
             all applied per-window with zero global state, so several add-ins
             can each ship their own version into one Inventor without clashing.
           </p>
