@@ -443,6 +443,50 @@ public partial class GalleryView : UserControl
         return trigger;
     }
 
+    private FrameworkElement BuildCustomButtonsDemo()
+    {
+        var trigger = new Button { Content = "Consent prompt", HorizontalAlignment = HorizontalAlignment.Left };
+        trigger.Click += (_, _) =>
+        {
+            Window? owner = Window.GetWindow(this);
+            var buttons = new[]
+            {
+                new ModernDialogButton("Enable (recommended)", ModernDialogResult.Yes, IsDefault: true, Accent: true),
+                new ModernDialogButton("Disable", ModernDialogResult.No, IsCancel: true),
+            };
+            ModernDialogResult result = ModernMessageBox.Show(owner, _theme,
+                "Share anonymous usage data to help improve the add-in?",
+                "Anonymous Usage Data", buttons, ModernDialogIcon.Question);
+            ModernMessageBox.Show(owner, _theme, $"You chose: {result}", "Result",
+                ModernDialogButtons.Ok, ModernDialogIcon.Info);
+        };
+        return trigger;
+    }
+
+    private FrameworkElement BuildRichContentDemo()
+    {
+        var trigger = new Button { Content = "Show details", HorizontalAlignment = HorizontalAlignment.Left };
+        trigger.Click += (_, _) =>
+        {
+            Window? owner = Window.GetWindow(this);
+
+            var text = new TextBlock { TextWrapping = TextWrapping.Wrap, MaxWidth = 400 };
+            text.Inlines.Add(new Run("This dialog can host arbitrary content, including a "));
+            var link = new Hyperlink(new Run("hyperlink")) { NavigateUri = new Uri("https://learn.microsoft.com") };
+            link.RequestNavigate += (_, e) => System.Diagnostics.Process.Start(
+                new System.Diagnostics.ProcessStartInfo(e.Uri.AbsoluteUri) { UseShellExecute = true });
+            text.Inlines.Add(link);
+            text.Inlines.Add(new Run(" that opens in the browser."));
+
+            var buttons = new[]
+            {
+                new ModernDialogButton("OK", ModernDialogResult.Ok, IsDefault: true, IsCancel: true, Accent: true),
+            };
+            ModernMessageBox.Show(owner, _theme, text, "Details", buttons, ModernDialogIcon.Info);
+        };
+        return trigger;
+    }
+
     /// <summary>Loads an embedded image (by logical name) from the hosting assembly, or null.</summary>
     private static ImageSource? LoadIcon(string name)
     {
@@ -1084,6 +1128,29 @@ public partial class GalleryView : UserControl
                     ModernDialogIcon.Error);
                 """) { Build = () => BuildMessageBoxDemo("Show error", "Error",
                     "The file could not be opened.", ModernDialogButtons.OkCancel, ModernDialogIcon.Error, false) },
+
+            new DemoItem("Custom button labels", """
+                var buttons = new[]
+                {
+                    new ModernDialogButton("Enable (recommended)", ModernDialogResult.Yes,
+                        IsDefault: true, Accent: true),
+                    new ModernDialogButton("Disable", ModernDialogResult.No, IsCancel: true),
+                };
+                ModernMessageBox.Show(owner, theme,
+                    "Share anonymous usage data to help improve the add-in?",
+                    "Anonymous Usage Data", buttons, ModernDialogIcon.Question);
+                """) { Build = BuildCustomButtonsDemo },
+
+            new DemoItem("Rich content (hyperlink)", """
+                var text = new TextBlock { TextWrapping = TextWrapping.Wrap, MaxWidth = 400 };
+                text.Inlines.Add(new Run("This dialog can host arbitrary content, including a "));
+                text.Inlines.Add(new Hyperlink(new Run("link")) { NavigateUri = uri });
+                text.Inlines.Add(new Run("."));
+                ModernMessageBox.Show(owner, theme, text, "Details",
+                    new[] { new ModernDialogButton("OK", ModernDialogResult.Ok,
+                            IsDefault: true, IsCancel: true, Accent: true) },
+                    ModernDialogIcon.Info);
+                """) { Build = BuildRichContentDemo },
         ]),
 
         new DemoPage("Display",

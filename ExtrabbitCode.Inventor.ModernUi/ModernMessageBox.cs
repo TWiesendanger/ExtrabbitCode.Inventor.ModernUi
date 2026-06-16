@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -59,6 +60,23 @@ public enum ModernDialogIcon
 }
 
 /// <summary>
+/// One button in a <see cref="ModernMessageBox"/> built with a custom button set. Lets a caller use
+/// its own captions (e.g. "Enable (recommended)" / "Disable") and map each to a result.
+/// </summary>
+/// <param name="Label">The button caption.</param>
+/// <param name="Result">The result returned when this button is clicked.</param>
+/// <param name="IsDefault">True if this is the default button (activated by Enter).</param>
+/// <param name="IsCancel">True if this is the cancel button (activated by Esc); also the result used
+/// when the dialog is closed via the title bar.</param>
+/// <param name="Accent">True to render this button with the accent (primary) style.</param>
+public readonly record struct ModernDialogButton(
+    string Label,
+    ModernDialogResult Result,
+    bool IsDefault = false,
+    bool IsCancel = false,
+    bool Accent = false);
+
+/// <summary>
 /// A small themed replacement for <see cref="MessageBox"/>, built on <see cref="ModernWindow"/> so it
 /// matches the theme and stays conflict-free (no custom controls, no dependency-property registration).
 /// </summary>
@@ -83,6 +101,53 @@ public static class ModernMessageBox
         ThemePalette? palette = null,
         FontOptions? font = null)
     {
+        return Show(owner, theme, message, title, ToButtonList(buttons), icon, palette, font);
+    }
+
+    /// <summary>
+    /// Shows a modal themed message box with a custom button set (your own captions / results), with a
+    /// plain-text message.
+    /// </summary>
+    public static ModernDialogResult Show(
+        Window? owner,
+        Theme theme,
+        string message,
+        string title,
+        IReadOnlyList<ModernDialogButton> buttons,
+        ModernDialogIcon icon = ModernDialogIcon.None,
+        ThemePalette? palette = null,
+        FontOptions? font = null)
+    {
+        TextBlock text = new()
+        {
+            Text = message,
+            TextWrapping = TextWrapping.Wrap,
+            MaxWidth = 400,
+            VerticalAlignment = VerticalAlignment.Center,
+        };
+        return Show(owner, theme, text, title, buttons, icon, palette, font);
+    }
+
+    /// <summary>
+    /// Shows a modal themed message box with arbitrary <paramref name="content"/> (e.g. a rich block
+    /// with a hyperlink) and a custom button set. This is the core overload the others delegate to.
+    /// </summary>
+    public static ModernDialogResult Show(
+        Window? owner,
+        Theme theme,
+        FrameworkElement content,
+        string title,
+        IReadOnlyList<ModernDialogButton> buttons,
+        ModernDialogIcon icon = ModernDialogIcon.None,
+        ThemePalette? palette = null,
+        FontOptions? font = null)
+    {
+        ArgumentNullException.ThrowIfNull(content);
+        if (buttons is null || buttons.Count == 0)
+        {
+            throw new ArgumentException("At least one button is required.", nameof(buttons));
+        }
+
         // Match the owner's current colors (e.g. a customized accent) unless an explicit palette is
         // given. The owner's Color.* resources are read directly — Color is a framework type, so this
         // is safe even when the owner was themed by a different version of this library.
@@ -99,13 +164,16 @@ public static class ModernMessageBox
             ShowInTaskbar = false,
         };
 
-        // X / Esc default to the safe outcome.
-        ModernDialogResult result = buttons switch
+        // X / Esc default to the cancel button's outcome (or None if there is no cancel button).
+        ModernDialogResult result = ModernDialogResult.None;
+        foreach (ModernDialogButton b in buttons)
         {
-            ModernDialogButtons.Ok => ModernDialogResult.Ok,
-            ModernDialogButtons.YesNo => ModernDialogResult.No,
-            _ => ModernDialogResult.Cancel,
-        };
+            if (b.IsCancel)
+            {
+                result = b.Result;
+                break;
+            }
+        }
 
         Grid root = new() { Margin = new Thickness(24, 22, 24, 18) };
         root.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
@@ -118,14 +186,7 @@ public static class ModernMessageBox
             header.Children.Add(glyph);
         }
 
-        TextBlock text = new()
-        {
-            Text = message,
-            TextWrapping = TextWrapping.Wrap,
-            MaxWidth = 400,
-            VerticalAlignment = VerticalAlignment.Center,
-        };
-        header.Children.Add(text);
+        header.Children.Add(content);
         Grid.SetRow(header, 0);
         root.Children.Add(header);
 
@@ -137,49 +198,28 @@ public static class ModernMessageBox
         Grid.SetRow(buttonBar, 1);
         root.Children.Add(buttonBar);
 
-        void Add(string content, ModernDialogResult value, bool isDefault, bool isCancel, bool accent)
+        foreach (ModernDialogButton spec in buttons)
         {
             Button button = new()
             {
-                Content = content,
+                Content = spec.Label,
                 MinWidth = 92,
                 Margin = new Thickness(8, 0, 0, 0),
-                IsDefault = isDefault,
-                IsCancel = isCancel,
+                IsDefault = spec.IsDefault,
+                IsCancel = spec.IsCancel,
             };
-            if (accent)
+            if (spec.Accent)
             {
                 button.SetResourceReference(FrameworkElement.StyleProperty, "AccentButton");
             }
 
+            ModernDialogResult value = spec.Result;
             button.Click += (_, _) =>
             {
                 result = value;
                 window.Close();
             };
             buttonBar.Children.Add(button);
-        }
-
-        switch (buttons)
-        {
-            case ModernDialogButtons.Ok:
-                Add("OK", ModernDialogResult.Ok, isDefault: true, isCancel: true, accent: true);
-                break;
-            case ModernDialogButtons.OkCancel:
-                Add("OK", ModernDialogResult.Ok, isDefault: true, isCancel: false, accent: true);
-                Add("Cancel", ModernDialogResult.Cancel, isDefault: false, isCancel: true, accent: false);
-                break;
-            case ModernDialogButtons.YesNo:
-                Add("Yes", ModernDialogResult.Yes, isDefault: true, isCancel: false, accent: true);
-                Add("No", ModernDialogResult.No, isDefault: false, isCancel: true, accent: false);
-                break;
-            case ModernDialogButtons.YesNoCancel:
-                Add("Yes", ModernDialogResult.Yes, isDefault: true, isCancel: false, accent: true);
-                Add("No", ModernDialogResult.No, isDefault: false, isCancel: false, accent: false);
-                Add("Cancel", ModernDialogResult.Cancel, isDefault: false, isCancel: true, accent: false);
-                break;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(buttons), buttons, null);
         }
 
         window.Content = root;
@@ -191,13 +231,40 @@ public static class ModernMessageBox
         const double captionHeight = 34;
         const double borders = 2;
         root.Measure(new Size(maxContentWidth, double.PositiveInfinity));
-        Size content = root.DesiredSize;
-        window.Width = Math.Max(340, content.Width + borders);
-        window.Height = content.Height + captionHeight + borders;
+        Size desired = root.DesiredSize;
+        window.Width = Math.Max(340, desired.Width + borders);
+        window.Height = desired.Height + captionHeight + borders;
 
         window.ShowDialog();
         return result;
     }
+
+    /// <summary>Maps a built-in <see cref="ModernDialogButtons"/> set to an explicit button list,
+    /// preserving the default / cancel / accent assignments.</summary>
+    private static IReadOnlyList<ModernDialogButton> ToButtonList(ModernDialogButtons buttons) => buttons switch
+    {
+        ModernDialogButtons.Ok =>
+        [
+            new ModernDialogButton("OK", ModernDialogResult.Ok, IsDefault: true, IsCancel: true, Accent: true),
+        ],
+        ModernDialogButtons.OkCancel =>
+        [
+            new ModernDialogButton("OK", ModernDialogResult.Ok, IsDefault: true, Accent: true),
+            new ModernDialogButton("Cancel", ModernDialogResult.Cancel, IsCancel: true),
+        ],
+        ModernDialogButtons.YesNo =>
+        [
+            new ModernDialogButton("Yes", ModernDialogResult.Yes, IsDefault: true, Accent: true),
+            new ModernDialogButton("No", ModernDialogResult.No, IsCancel: true),
+        ],
+        ModernDialogButtons.YesNoCancel =>
+        [
+            new ModernDialogButton("Yes", ModernDialogResult.Yes, IsDefault: true, Accent: true),
+            new ModernDialogButton("No", ModernDialogResult.No),
+            new ModernDialogButton("Cancel", ModernDialogResult.Cancel, IsCancel: true),
+        ],
+        _ => throw new ArgumentOutOfRangeException(nameof(buttons), buttons, null),
+    };
 
     /// <summary>Reconstructs a palette from the owner's injected <c>Color.*</c> resources, or null.</summary>
     private static ThemePalette? TryInheritPalette(Window? owner, Theme theme)
