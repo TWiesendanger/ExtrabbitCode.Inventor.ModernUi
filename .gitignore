@@ -19,3 +19,5 @@ artifacts/
 ## Installer build output
 installer/publish/
 installer/Output/
+
+.vscode/settings.json
