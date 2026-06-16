@@ -82,10 +82,20 @@ public partial class App : Application
             {
                 Dispatcher.BeginInvoke(() =>
                 {
-                    string path = Path.Combine(outputDir, $"gallery-{theme}.png".ToLowerInvariant());
-                    SaveWindowPng(window, path);
-                    window.Close();
-                    ShootNext();
+                    string overviewPath = Path.Combine(outputDir, $"gallery-{theme}.png".ToLowerInvariant());
+                    SaveWindowPng(window, overviewPath);
+
+                    // Also capture the Icons page so the glyph catalog is visible in a screenshot.
+                    gallery.SelectPage("Icons");
+                    Dispatcher.BeginInvoke(
+                        () =>
+                        {
+                            string glyphsPath = Path.Combine(outputDir, $"glyphs-{theme}.png".ToLowerInvariant());
+                            SaveWindowPng(window, glyphsPath);
+                            window.Close();
+                            ShootNext();
+                        },
+                        System.Windows.Threading.DispatcherPriority.ApplicationIdle);
                 });
             };
 

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.IO;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
@@ -167,6 +168,20 @@ public partial class GalleryView : UserControl
         NavList.SelectedItem = target; // fires OnNavChanged synchronously
         _navigatingBack = false;
         BackButton.Visibility = _history.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    /// <summary>Navigates to the nav page with the given name (no-op if it does not exist). Used by
+    /// the headless "--shoot" capture to render a specific page.</summary>
+    public void SelectPage(string name)
+    {
+        foreach (DemoPage page in _pages)
+        {
+            if (page.Name == name)
+            {
+                NavList.SelectedItem = page;
+                return;
+            }
+        }
     }
 
     // --- overview / home page ----------------------------------------------
@@ -995,6 +1010,11 @@ public partial class GalleryView : UserControl
 
         new DemoPage("Icons",
         [
+            new DemoItem("ModernGlyphs catalog", """
+                // Named glyphs the library ships; render one with the helper:
+                TextBlock icon = ModernGlyphs.Icon(ModernGlyphs.Settings, 24);
+                // or use the constant directly: ModernGlyphs.Add, .Delete, .Purge, .Book, ...
+                """) { Build = GlyphCatalogBuilder.Build },
             new DemoItem("Single glyph", """
                 <TextBlock FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets"
                            FontSize="24" Text="&#xE706;" />
@@ -1387,6 +1407,64 @@ public partial class GalleryView : UserControl
                 """) { Build = BuildDataGrid },
         ]),
     ];
+}
+
+/// <summary>Renders every named glyph in <see cref="ModernGlyphs"/> as a labelled tile, so the icon
+/// set (including the substitute glyphs like Purge / DeleteAll / Book) can be eyeballed live.</summary>
+file static class GlyphCatalogBuilder
+{
+    public static FrameworkElement Build()
+    {
+        WrapPanel wrap = new() { Orientation = Orientation.Horizontal };
+
+        foreach (FieldInfo field in typeof(ModernGlyphs).GetFields(BindingFlags.Public | BindingFlags.Static))
+        {
+            // The glyph fields are static-readonly strings; skip the const FontFamily (IsLiteral) and
+            // anything that is not a string.
+            if (field.FieldType != typeof(string) || field.IsLiteral)
+            {
+                continue;
+            }
+
+            string glyph = (string)field.GetValue(null)!;
+            int codepoint = glyph.Length > 0 ? char.ConvertToUtf32(glyph, 0) : 0;
+
+            StackPanel tile = new()
+            {
+                Width = 120,
+                Margin = new Thickness(0, 0, 12, 14),
+                HorizontalAlignment = HorizontalAlignment.Center,
+            };
+
+            TextBlock icon = ModernGlyphs.Icon(glyph, 30);
+            icon.Margin = new Thickness(0, 6, 0, 8);
+            icon.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Foreground");
+            tile.Children.Add(icon);
+
+            TextBlock name = new()
+            {
+                Text = field.Name,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                TextAlignment = TextAlignment.Center,
+                FontWeight = FontWeights.SemiBold,
+            };
+            name.SetResourceReference(TextBlock.ForegroundProperty, "Brush.Foreground");
+            tile.Children.Add(name);
+
+            TextBlock code = new()
+            {
+                Text = $"U+{codepoint:X4}",
+                FontSize = 11,
+                HorizontalAlignment = HorizontalAlignment.Center,
+            };
+            code.SetResourceReference(TextBlock.ForegroundProperty, "Brush.ForegroundMuted");
+            tile.Children.Add(code);
+
+            wrap.Children.Add(tile);
+        }
+
+        return wrap;
+    }
 }
 
 /// <summary>One showcase entry: a title, the XAML shown as code, and (usually) parsed into the live control.</summary>
