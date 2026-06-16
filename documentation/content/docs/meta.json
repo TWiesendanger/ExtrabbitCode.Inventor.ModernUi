@@ -1,3 +1,11 @@
 {
-  "pages": ["index"]
+  "pages": [
+    "index",
+    "getting-started",
+    "theming",
+    "controls",
+    "icons",
+    "dialogs-and-toasts",
+    "api"
+  ]
 }

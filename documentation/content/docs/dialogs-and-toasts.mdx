@@ -1,0 +1,117 @@
+---
+title: Dialogs & Toasts
+description: ModernMessageBox for modal dialogs and ModernToast for notifications.
+---
+
+## ModernMessageBox
+
+A themed replacement for `MessageBox`, built on `ModernWindow`. Pass the owner window, theme,
+message, title, a button set and an optional icon.
+
+### Information
+
+```csharp
+ModernMessageBox.Show(owner, theme,
+    "The export finished successfully.", "Information",
+    ModernDialogButtons.Ok, ModernDialogIcon.Info);
+```
+
+<ThemedImage slug="dialogs__information" alt="Information dialog" />
+
+### Confirm (Yes / No)
+
+```csharp
+var result = ModernMessageBox.Show(owner, theme,
+    "Delete the selected items?", "Confirm",
+    ModernDialogButtons.YesNo, ModernDialogIcon.Question);
+
+if (result == ModernDialogResult.Yes) { /* … */ }
+```
+
+<ThemedImage slug="dialogs__confirm" alt="Confirm dialog" />
+
+### Error (OK / Cancel)
+
+```csharp
+ModernMessageBox.Show(owner, theme,
+    "The file could not be opened.", "Error",
+    ModernDialogButtons.OkCancel, ModernDialogIcon.Error);
+```
+
+<ThemedImage slug="dialogs__error" alt="Error dialog" />
+
+### Custom button labels
+
+Pass a list of `ModernDialogButton`s for your own captions and results.
+
+```csharp
+var buttons = new[]
+{
+    new ModernDialogButton("Enable (recommended)", ModernDialogResult.Yes, IsDefault: true, Accent: true),
+    new ModernDialogButton("Disable", ModernDialogResult.No, IsCancel: true),
+};
+
+ModernMessageBox.Show(owner, theme,
+    "Share anonymous usage data to help improve the add-in?",
+    "Anonymous Usage Data", buttons, ModernDialogIcon.Question);
+```
+
+<ThemedImage slug="dialogs__custom-buttons" alt="Dialog with custom button labels" />
+
+### Rich content
+
+Pass a `FrameworkElement` instead of a string to host arbitrary content — for example a paragraph
+with a hyperlink.
+
+```csharp
+var text = new TextBlock { TextWrapping = TextWrapping.Wrap, MaxWidth = 400 };
+text.Inlines.Add(new Run("This dialog can host arbitrary content, including a "));
+text.Inlines.Add(new Hyperlink(new Run("hyperlink")) { NavigateUri = uri });
+
+ModernMessageBox.Show(owner, theme, text, "Details",
+    new[] { new ModernDialogButton("OK", ModernDialogResult.Ok, IsDefault: true, IsCancel: true, Accent: true) },
+    ModernDialogIcon.Info);
+```
+
+<ThemedImage slug="dialogs__rich-content" alt="Dialog with rich content" />
+
+## ModernToast
+
+Lightweight, auto-dismissing notifications shown in the bottom-right of a window. There are four
+types: `Info`, `Success`, `Warning`, `Error`.
+
+```csharp
+ModernToast.Show(owner, "Your settings were loaded.", ToastType.Info, title: "Heads up");
+```
+
+<ThemedImage slug="toasts__info" alt="Info toast" />
+
+```csharp
+ModernToast.Show(owner, "Export completed.", ToastType.Success, title: "Done");
+```
+
+<ThemedImage slug="toasts__success" alt="Success toast" />
+
+```csharp
+ModernToast.Show(owner, "Some parameters were skipped.", ToastType.Warning, title: "Check input");
+```
+
+<ThemedImage slug="toasts__warning" alt="Warning toast" />
+
+```csharp
+ModernToast.Show(owner, "The file could not be opened.", ToastType.Error, title: "Failed");
+```
+
+<ThemedImage slug="toasts__error" alt="Error toast" />
+
+### Settings
+
+Two static knobs apply to every toast:
+
+```csharp
+ModernToast.MaxVisible = 3;                            // cap shown at once
+ModernToast.DefaultDuration = TimeSpan.FromSeconds(4); // auto-dismiss after
+
+// A per-call duration still overrides the default:
+ModernToast.Show(owner, "Saved", ToastType.Success, duration: TimeSpan.FromSeconds(2));
+```

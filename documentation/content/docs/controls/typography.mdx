@@ -1,0 +1,38 @@
+---
+title: Typography
+description: Title, body and caption text styles.
+---
+
+`TextBlock` and `Label` inherit the theme foreground and font automatically. Three keyed styles cover
+the common roles.
+
+## Title
+
+Larger and semibold — for section headings.
+
+```xml
+<TextBlock Text="Title text" Style="{DynamicResource TitleTextStyle}" />
+```
+
+<ThemedImage slug="typography__title" alt="Title text style" />
+
+## Body
+
+Normal size with wrapping — for paragraphs.
+
+```xml
+<TextBlock TextWrapping="Wrap" Style="{DynamicResource BodyTextStyle}"
+           Text="Body text uses the theme foreground colour and the Inventor font." />
+```
+
+<ThemedImage slug="typography__body" alt="Body text style" />
+
+## Caption
+
+Smaller and muted — for secondary labels.
+
+```xml
+<TextBlock Text="Caption text is muted and smaller." Style="{DynamicResource CaptionTextStyle}" />
+```
+
+<ThemedImage slug="typography__caption" alt="Caption text style" />

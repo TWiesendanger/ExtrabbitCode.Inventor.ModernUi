@@ -1,0 +1,67 @@
+---
+title: Buttons
+description: Default, accent, danger, disabled and icon buttons.
+---
+
+The standard `Button` is themed implicitly. Three keyed styles cover the common variants.
+
+## Default button
+
+A flat button with a subtle border and hover glow — used for secondary actions.
+
+```xml
+<Button Content="Default" Width="120" />
+```
+
+<ThemedImage slug="buttons__default-button" alt="Default button" />
+
+## Accent button
+
+The primary action. Apply `AccentButton` for an accent-filled button with white text.
+
+```xml
+<Button Content="Primary" Width="120" Style="{DynamicResource AccentButton}" />
+```
+
+<ThemedImage slug="buttons__accent-button" alt="Accent button" />
+
+## Danger button
+
+For destructive actions (delete, remove). Apply `DangerButton`.
+
+```xml
+<Button Content="Delete" Width="120" Style="{DynamicResource DangerButton}" />
+```
+
+<ThemedImage slug="buttons__danger-button" alt="Danger button" />
+
+## Disabled
+
+Disabled buttons dim automatically.
+
+```xml
+<Button Content="Disabled" Width="120" IsEnabled="False" />
+```
+
+<ThemedImage slug="buttons__disabled-button" alt="Disabled button" />
+
+## Icon buttons
+
+`IconButton` is a borderless, compact button for toolbars and in-cell actions. The content is a glyph
+`TextBlock` (see [Icons](/docs/icons)).
+
+```xml
+<StackPanel Orientation="Horizontal">
+  <Button Style="{DynamicResource IconButton}" ToolTip="Settings">
+    <TextBlock FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" Text="&#xE713;" />
+  </Button>
+  <Button Style="{DynamicResource IconButton}" ToolTip="Refresh" Margin="6,0,0,0">
+    <TextBlock FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" Text="&#xE72C;" />
+  </Button>
+  <Button Style="{DynamicResource IconButton}" ToolTip="Delete" Margin="6,0,0,0">
+    <TextBlock FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" Text="&#xE74D;" />
+  </Button>
+</StackPanel>
+```
+
+<ThemedImage slug="buttons__icon-buttons" alt="Icon buttons" />

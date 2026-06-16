@@ -1,0 +1,64 @@
+---
+title: Layout
+description: Group boxes, separators, tooltips, scroll bars and tab controls.
+---
+
+## Group box
+
+```xml
+<GroupBox Header="Output" Width="260">
+  <StackPanel>
+    <TextBlock Text="Body Name" Margin="0,0,0,4" />
+    <TextBox Text="Solid1" />
+  </StackPanel>
+</GroupBox>
+```
+
+<ThemedImage slug="layout__group-box" alt="Group box" />
+
+## Separator
+
+```xml
+<StackPanel Width="260">
+  <TextBlock Text="Section one" />
+  <Separator />
+  <TextBlock Text="Section two" />
+</StackPanel>
+```
+
+<ThemedImage slug="layout__separator" alt="Separator" />
+
+## Tooltip
+
+`ToolTip` is themed (panel surface, theme border and font).
+
+```xml
+<Button Content="Hover for a themed tooltip"
+        ToolTip="Themed tooltip — panel surface, theme border and font." />
+```
+
+<ThemedImage slug="layout__tooltip" alt="Tooltip" />
+
+## Scroll bar
+
+```xml
+<ScrollViewer Height="96" Width="260" VerticalScrollBarVisibility="Visible">
+  <StackPanel>
+    <!-- many items … -->
+  </StackPanel>
+</ScrollViewer>
+```
+
+<ThemedImage slug="layout__scroll-bar" alt="Scroll bar" />
+
+## Tab control
+
+```xml
+<TabControl Width="300" Height="120">
+  <TabItem Header="General"><TextBlock Text="General settings" /></TabItem>
+  <TabItem Header="Advanced"><TextBlock Text="Advanced settings" /></TabItem>
+  <TabItem Header="About"><TextBlock Text="About this add-in" /></TabItem>
+</TabControl>
+```
+
+<ThemedImage slug="layout__tab-control" alt="Tab control" />

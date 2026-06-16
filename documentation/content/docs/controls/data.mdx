@@ -1,0 +1,68 @@
+---
+title: Data
+description: Tree views and data grids.
+---
+
+## Tree view
+
+`TreeView` and `TreeViewItem` are themed with expand toggles.
+
+```xml
+<TreeView Width="260" Height="180">
+  <TreeViewItem Header="Assembly1" IsExpanded="True">
+    <TreeViewItem Header="Part1" />
+    <TreeViewItem Header="Part2" />
+    <TreeViewItem Header="Sub-assembly" IsExpanded="True">
+      <TreeViewItem Header="Part3" />
+      <TreeViewItem Header="Part4" />
+    </TreeViewItem>
+  </TreeViewItem>
+</TreeView>
+```
+
+<ThemedImage slug="data__tree-view" alt="Tree view" />
+
+## Tree view with icons
+
+Use a glyph `TextBlock` (or an `Image`) in the item header for file-type icons.
+
+```xml
+<TreeViewItem.Header>
+  <StackPanel Orientation="Horizontal">
+    <TextBlock FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" Text="&#xE8B7;" Margin="0,0,8,0" />
+    <TextBlock Text="Assembly1" VerticalAlignment="Center" />
+  </StackPanel>
+</TreeViewItem.Header>
+```
+
+<ThemedImage slug="data__tree-view-with-icons" alt="Tree view with icons" />
+
+## Tree view with tri-state checkboxes
+
+Put a `CheckBox` in each header and wire the parent/child checked logic in code for tri-state
+behaviour.
+
+<ThemedImage slug="data__tree-view-with-checkboxes-tri-state" alt="Tree view with tri-state checkboxes" />
+
+## Assembly tree (file-type icons)
+
+The same pattern using the Inventor file-type icons from your resources.
+
+<ThemedImage slug="data__assembly-tree-file-type-icons" alt="Assembly tree with file-type icons" />
+
+## Data grid
+
+`DataGrid` is themed (headers, rows, cells). Combine it with the `IconButton` style for in-cell
+actions.
+
+```xml
+<DataGrid ItemsSource="{Binding Parameters}" AutoGenerateColumns="False" CanUserAddRows="False">
+  <DataGrid.Columns>
+    <DataGridTextColumn Header="Parameter" Binding="{Binding Name}" Width="*" />
+    <DataGridTextColumn Header="Value" Binding="{Binding Value}" />
+    <DataGridTextColumn Header="Unit" Binding="{Binding Unit}" />
+  </DataGrid.Columns>
+</DataGrid>
+```
+
+<ThemedImage slug="data__data-grid" alt="Data grid" />

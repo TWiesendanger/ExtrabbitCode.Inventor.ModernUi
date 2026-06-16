@@ -1,0 +1,78 @@
+---
+title: Getting Started
+description: Install ExtrabbitCode.Inventor.ModernUi and theme your first window.
+---
+
+## Install
+
+Add the NuGet package to your add-in project:
+
+```bash
+dotnet add package ExtrabbitCode.Inventor.ModernUi
+```
+
+The package targets `net8.0-windows` with WPF.
+
+## Theme a window
+
+There are two ways to get a themed window. Use **`ModernWindow`** as a base, or call
+**`ModernUi.Apply`** on any existing `Window`.
+
+```csharp
+using ExtrabbitCode.Inventor.ModernUi;
+
+// Option A — derive from ModernWindow (themes itself in the constructor):
+var dialog = new ModernWindow(Theme.Dark) { Title = "My dialog", Content = myControl };
+
+// Option B — apply to an existing Window:
+ModernUi.Apply(existingWindow, Theme.Dark);
+```
+
+Both inject the colours, font and control styles into **that window's** resources only — nothing is
+written to `Application.Current.Resources`.
+
+## Match Inventor's theme and font
+
+Read the active theme and UI font from the Inventor API and pass them in, so your dialog matches
+Inventor exactly:
+
+```csharp
+Theme theme = app.ThemeManager.ActiveTheme.Name == "LightTheme"
+    ? Theme.Light
+    : Theme.Dark;
+
+FontOptions font = FontOptions.FromInventor(
+    app.GeneralOptions.TextAppearance, // family
+    app.GeneralOptions.TextSize);      // size in points
+
+var dialog = new ModernWindow(theme, font: font)
+{
+    Title = "Attributes",
+    Content = myControl,
+};
+```
+
+## Own the dialog to Inventor
+
+So the window stays on top of Inventor and closes with it, set Inventor's main window as its owner:
+
+```csharp
+using System.Windows.Interop;
+
+_ = new WindowInteropHelper(dialog) { Owner = new IntPtr(app.MainFrameHWND) };
+dialog.Show();
+```
+
+## Use the controls
+
+Inside a themed window, the standard WPF controls are styled automatically — just write normal XAML:
+
+```xml
+<StackPanel>
+  <TextBox Width="240" />
+  <Button Content="OK" Style="{DynamicResource AccentButton}" Margin="0,8,0,0" />
+</StackPanel>
+```
+
+See [Controls](/docs/controls/buttons) for every styled control, and [Theming](/docs/theming) for
+palettes, fonts and design tokens.

@@ -1,0 +1,47 @@
+---
+title: Badges
+description: Status pills, counter badges and two-tone shields.
+---
+
+Badge styles apply to a `ContentControl`.
+
+## Status badges
+
+`Badge` (neutral), `BadgeAccent` and `BadgeError` render pill-shaped labels.
+
+```xml
+<StackPanel Orientation="Horizontal">
+  <ContentControl Style="{DynamicResource Badge}" Content="Draft" />
+  <ContentControl Style="{DynamicResource BadgeAccent}" Content="New" Margin="8,0,0,0" />
+  <ContentControl Style="{DynamicResource BadgeError}" Content="Error" Margin="8,0,0,0" />
+</StackPanel>
+```
+
+<ThemedImage slug="badges__status-badges" alt="Status badges" />
+
+## Counter on a button
+
+`CounterBadge` is a small circular count you can overlay on a control.
+
+```xml
+<Grid HorizontalAlignment="Left">
+  <Button Content="Inbox" />
+  <ContentControl Style="{DynamicResource CounterBadge}" Content="3"
+                  HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-8,-8,0" />
+</Grid>
+```
+
+<ThemedImage slug="badges__counter-on-a-button" alt="Counter badge on a button" />
+
+## Shield (two-tone)
+
+`ShieldLabel` + `ShieldValue` form a GitHub-style two-tone badge.
+
+```xml
+<StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+  <ContentControl Style="{DynamicResource ShieldLabel}" Content="build" />
+  <ContentControl Style="{DynamicResource ShieldValue}" Content="passing" />
+</StackPanel>
+```
+
+<ThemedImage slug="badges__shield-two-tone" alt="Two-tone shield badge" />

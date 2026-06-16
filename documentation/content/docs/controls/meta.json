@@ -1,0 +1,14 @@
+{
+  "title": "Controls",
+  "pages": [
+    "buttons",
+    "text-input",
+    "selection",
+    "typography",
+    "display",
+    "badges",
+    "layout",
+    "menus",
+    "data"
+  ]
+}

@@ -17,4 +17,21 @@ own version into one Inventor process without clashing.
 ModernUi.Apply(window, Theme.Dark);
 ```
 
-This site documents every control and feature with a short example and a screenshot.
+## Why it exists
+
+Inventor loads every add-in into a single process. A normal WPF theme library registers dependency
+properties and writes to `Application.Current.Resources`, so two add-ins shipping different versions
+clash. ModernUi never does either: it injects brushes, fonts and control styles into a single
+window's resources and styles only framework types. The result is a clean Inventor-aligned look that
+is safe to ship alongside any other add-in.
+
+## Explore
+
+<Cards>
+  <Card title="Getting started" description="Install the package and theme your first window." href="/docs/getting-started" />
+  <Card title="Theming" description="Palettes, fonts, design tokens and live theme switching." href="/docs/theming" />
+  <Card title="Controls" description="Every styled control with a snippet and a screenshot." href="/docs/controls/buttons" />
+  <Card title="Icons" description="The ModernGlyphs catalog and the Icon() helper." href="/docs/icons" />
+  <Card title="Dialogs & toasts" description="ModernMessageBox and ModernToast." href="/docs/dialogs-and-toasts" />
+  <Card title="API reference" description="ModernUi, ModernWindow, ThemePalette, FontOptions." href="/docs/api" />
+</Cards>

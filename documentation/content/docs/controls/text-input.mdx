@@ -1,0 +1,65 @@
+---
+title: Text input
+description: Text boxes, the search box, combo boxes and validation.
+---
+
+## Text box
+
+The standard `TextBox` is themed implicitly, with an accent underline on focus.
+
+```xml
+<TextBox Width="240" Text="Editable text" />
+```
+
+<ThemedImage slug="text-input__text-box" alt="Text box" />
+
+## Search box
+
+The `SearchBox` style adds a leading magnifier glyph and a placeholder. The placeholder text comes
+from the `Tag` property, so no extra dependency property is involved — it shows while the field is
+empty.
+
+```xml
+<TextBox Width="240" Style="{DynamicResource SearchBox}" Tag="Search ..." />
+```
+
+<ThemedImage slug="text-input__search-box-placeholder-icon" alt="Search box with placeholder and icon" />
+
+## Combo box
+
+```xml
+<ComboBox Width="240" SelectedIndex="0">
+  <ComboBoxItem Content="First option" />
+  <ComboBoxItem Content="Second option" />
+  <ComboBoxItem Content="Third option" />
+</ComboBox>
+```
+
+<ThemedImage slug="text-input__combo-box" alt="Combo box" />
+
+## Disabled
+
+```xml
+<TextBox Width="240" Text="Disabled" IsEnabled="False" />
+```
+
+<ThemedImage slug="text-input__disabled-text-box" alt="Disabled text box" />
+
+## Validation
+
+Standard WPF `ValidationRule`s drive a themed error adorner (a red badge with the message in its
+tooltip) — no extra wiring beyond the binding rule.
+
+```xml
+<TextBox Width="240">
+  <TextBox.Text>
+    <Binding Path="Value" UpdateSourceTrigger="PropertyChanged">
+      <Binding.ValidationRules>
+        <local:NumberValidationRule ValidatesOnTargetUpdated="True" />
+      </Binding.ValidationRules>
+    </Binding>
+  </TextBox.Text>
+</TextBox>
+```
+
+<ThemedImage slug="validation__number-field" alt="Text box with a validation error" />

@@ -1,0 +1,93 @@
+---
+title: Theming
+description: Palettes, fonts, design tokens and live theme switching.
+---
+
+ModernUi resolves every colour, font and metric from **resource keys** injected into the window when
+you call `ModernUi.Apply` (or construct a `ModernWindow`). Your own XAML can reference the same keys
+with `{DynamicResource ...}`.
+
+## Theme
+
+`Theme` selects the built-in palette:
+
+```csharp
+ModernUi.Apply(window, Theme.Light); // or Theme.Dark
+```
+
+## Palette
+
+`ThemePalette` is the single source of truth for colours. Each property maps to a `Brush.*` key:
+
+| Property | Key | Use |
+|---|---|---|
+| `Background` | `Brush.Background` | Window base |
+| `Panel` | `Brush.Panel` | Cards / surfaces |
+| `Control` | `Brush.Control` | Input field background |
+| `Foreground` | `Brush.Foreground` | Primary text |
+| `ForegroundMuted` | `Brush.ForegroundMuted` | Secondary text |
+| `Border` | `Brush.Border` | Dividers / outlines |
+| `Accent` | `Brush.Accent` | Primary buttons, focus |
+| `AccentMuted` | `Brush.AccentMuted` | Hover / selection |
+| `Error` | `Brush.Error` | Destructive / error |
+
+Each colour is also exposed as a raw `Color.*` key (for gradient stops and animations).
+
+### Custom accent
+
+Copy a default palette and override only what you need:
+
+```csharp
+ThemePalette palette = ThemePalette.Dark with
+{
+    Accent = (Color)ColorConverter.ConvertFromString("#FF8A00"),
+};
+
+ModernUi.Apply(window, Theme.Dark, palette);
+```
+
+## Font
+
+`FontOptions` sets the family and base size, exposed as `Font.*` keys (`Font.Family`,
+`Font.Size.Normal`, `Font.Size.Small`, `Font.Size.Title`).
+
+```csharp
+// From Inventor's UI font (points are converted to DIPs):
+FontOptions font = FontOptions.FromInventor(app.GeneralOptions.TextAppearance, app.GeneralOptions.TextSize);
+
+// Or the Windows system font:
+FontOptions fallback = FontOptions.Default;
+
+ModernUi.Apply(window, Theme.Dark, font: font);
+```
+
+## Design tokens
+
+Non-colour metrics are static keys you can reuse for consistent spacing and corners:
+
+| Key | Type | Value |
+|---|---|---|
+| `Radius.Control` | CornerRadius | 4 |
+| `Radius.Card` | CornerRadius | 6 |
+| `Size.ControlHeight` | double | 30 |
+| `Size.ControlHeightLarge` | double | 35 |
+| `Padding.Control` | Thickness | 10,6 |
+| `Padding.Card` | Thickness | 16 |
+| `Margin.Stack` | Thickness | 0,0,0,8 |
+
+```xml
+<Border Background="{DynamicResource Brush.Panel}"
+        CornerRadius="{DynamicResource Radius.Card}"
+        Padding="{DynamicResource Padding.Card}">
+  <TextBlock Foreground="{DynamicResource Brush.Foreground}" Text="Themed surface" />
+</Border>
+```
+
+## Switch theme at runtime
+
+`ModernUi.SetTheme` re-colours an already-themed window live (all styles use `DynamicResource`, so no
+reload is needed):
+
+```csharp
+ModernUi.SetTheme(window, Theme.Light);
+```

@@ -1,0 +1,60 @@
+---
+title: Icons
+description: The ModernGlyphs catalog and the Icon() helper.
+---
+
+ModernUi has no icon control — icons are **glyphs** from the *Segoe Fluent Icons* font (with *Segoe
+MDL2 Assets* as a fallback), rendered in a `TextBlock`. `ModernGlyphs` exposes the common glyphs by
+name so you don't have to memorise codepoints.
+
+## Catalog
+
+```csharp
+ModernGlyphs.Add        // U+E710
+ModernGlyphs.Delete     // U+E74D
+ModernGlyphs.Refresh    // U+E72C
+ModernGlyphs.Search     // U+E721
+ModernGlyphs.Settings   // U+E713
+ModernGlyphs.Copy       // U+E8C8
+// … and more: DeleteAll, ChevronUp/Down, Purge, Book, OpenExternal
+```
+
+<ThemedImage slug="icons__modernglyphs-catalog" alt="ModernGlyphs catalog" />
+
+## A single glyph
+
+In XAML, set the icon font and the glyph directly:
+
+```xml
+<TextBlock FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" FontSize="24" Text="&#xE706;" />
+```
+
+<ThemedImage slug="icons__single-glyph" alt="A single glyph" />
+
+## The Icon() helper
+
+In code, `ModernGlyphs.Icon` builds a ready-to-use `TextBlock`:
+
+```csharp
+TextBlock icon = ModernGlyphs.Icon(ModernGlyphs.Settings, size: 24);
+myButton.Content = icon;
+```
+
+## Icon + text
+
+Combine a glyph and a label in a button:
+
+```xml
+<Button>
+  <StackPanel Orientation="Horizontal">
+    <TextBlock FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" Text="&#xE713;" VerticalAlignment="Center" />
+    <TextBlock Text="Settings" Margin="8,0,0,0" VerticalAlignment="Center" />
+  </StackPanel>
+</Button>
+```
+
+<ThemedImage slug="icons__icon-text-button" alt="Icon and text button" />
+
+## Common glyphs
+
+<ThemedImage slug="icons__common-glyphs" alt="Common glyphs" />

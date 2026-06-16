@@ -1,0 +1,47 @@
+---
+title: Menus
+description: Menu bars and context menus.
+---
+
+## Menu bar
+
+`Menu`, `MenuItem` and `Separator` are themed, including submenus, gestures and checkable items.
+
+```xml
+<Menu>
+  <MenuItem Header="File">
+    <MenuItem Header="New" InputGestureText="Ctrl+N" />
+    <MenuItem Header="Open" InputGestureText="Ctrl+O" />
+    <Separator />
+    <MenuItem Header="Exit" />
+  </MenuItem>
+  <MenuItem Header="Edit">
+    <MenuItem Header="Undo" InputGestureText="Ctrl+Z" />
+    <MenuItem Header="Snap to grid" IsCheckable="True" IsChecked="True" />
+  </MenuItem>
+</Menu>
+```
+
+<ThemedImage slug="menus__menu-bar" alt="Menu bar" />
+
+## Context menu
+
+```xml
+<Border Background="{DynamicResource Brush.Control}" CornerRadius="4" Padding="24">
+  <TextBlock Text="Right-click here" />
+  <Border.ContextMenu>
+    <ContextMenu>
+      <MenuItem Header="Cut" InputGestureText="Ctrl+X" />
+      <MenuItem Header="Copy" InputGestureText="Ctrl+C" />
+      <MenuItem Header="Paste" InputGestureText="Ctrl+V" />
+      <Separator />
+      <MenuItem Header="More">
+        <MenuItem Header="Rename" />
+        <MenuItem Header="Delete" />
+      </MenuItem>
+    </ContextMenu>
+  </Border.ContextMenu>
+</Border>
+```
+
+<ThemedImage slug="menus__context-menu-right-click" alt="Context menu" />

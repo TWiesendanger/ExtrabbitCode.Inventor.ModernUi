@@ -1,0 +1,98 @@
+---
+title: API Reference
+description: ModernUi, ModernWindow, ThemePalette, FontOptions and ModernGlyphs.
+---
+
+All types live in the `ExtrabbitCode.Inventor.ModernUi` namespace.
+
+## ModernUi
+
+Static entry point. Applies the theme window-scoped (never touches `Application.Current.Resources`).
+
+```csharp
+// Apply colours, font, control styles (and, by default, the Modern title bar) to a window.
+void ModernUi.Apply(
+    Window window,
+    Theme theme,
+    ThemePalette? palette = null,
+    FontOptions? font = null,
+    bool applyWindowChrome = true);
+
+// Re-colour an already-themed window at runtime (colours only).
+void ModernUi.SetTheme(Window window, Theme theme, ThemePalette? palette = null);
+```
+
+`applyWindowChrome: false` skips the custom title bar — use it when the window's content is hosted
+elsewhere (e.g. re-parented into an Inventor dockable panel) so the host owns the chrome.
+
+## ModernWindow
+
+A `Window` base class that themes itself in its constructor — the only custom control type in the
+library.
+
+```csharp
+new ModernWindow();                                  // dark theme (designer/default)
+new ModernWindow(Theme theme,
+                 ThemePalette? palette = null,
+                 FontOptions? font = null);
+```
+
+## Theme
+
+```csharp
+enum Theme { Light, Dark }
+```
+
+## ThemePalette
+
+A record of the nine theme colours. Use a built-in default or copy-and-override.
+
+```csharp
+ThemePalette.Light          // built-in light palette
+ThemePalette.Dark           // built-in dark palette
+ThemePalette.For(theme)     // default for a Theme
+
+// Override one colour:
+ThemePalette p = ThemePalette.Dark with { Accent = myColor };
+```
+
+Properties: `Background`, `Panel`, `Control`, `Foreground`, `ForegroundMuted`, `Border`, `Accent`,
+`AccentMuted`, `Error`. See [Theming](/docs/theming) for the resource-key mapping.
+
+## FontOptions
+
+```csharp
+FontOptions.Default                              // Windows system UI font
+FontOptions.FromInventor(string? family, double sizeInPoints); // Inventor's UI font (points → DIPs)
+new FontOptions(FontFamily family, double normalSize);
+```
+
+Properties: `Family`, `NormalSize`.
+
+## ModernMessageBox / ModernToast
+
+See [Dialogs & Toasts](/docs/dialogs-and-toasts) for full examples.
+
+```csharp
+ModernDialogResult ModernMessageBox.Show(Window? owner, Theme theme, string message, string title = "",
+    ModernDialogButtons buttons = ModernDialogButtons.Ok, ModernDialogIcon icon = ModernDialogIcon.None,
+    ThemePalette? palette = null, FontOptions? font = null);
+
+// Custom buttons and/or rich content overloads:
+ModernDialogResult ModernMessageBox.Show(Window? owner, Theme theme, string message, string title,
+    IReadOnlyList<ModernDialogButton> buttons, ModernDialogIcon icon = ModernDialogIcon.None, …);
+ModernDialogResult ModernMessageBox.Show(Window? owner, Theme theme, FrameworkElement content, string title,
+    IReadOnlyList<ModernDialogButton> buttons, ModernDialogIcon icon = ModernDialogIcon.None, …);
+
+void ModernToast.Show(Window owner, string message, ToastType type = ToastType.Info,
+    string? title = null, TimeSpan? duration = null);
+```
+
+## ModernGlyphs
+
+Named Segoe Fluent / MDL2 glyphs plus a `TextBlock` factory. See [Icons](/docs/icons).
+
+```csharp
+string ModernGlyphs.Add;                         // and Delete, Refresh, Search, Settings, Copy, …
+TextBlock ModernGlyphs.Icon(string glyph, double size = 16d);
+```

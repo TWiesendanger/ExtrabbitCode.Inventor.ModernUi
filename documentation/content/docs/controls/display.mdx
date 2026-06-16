@@ -1,0 +1,88 @@
+---
+title: Display
+description: Progress bars, spinners, loaders, cards and expanders.
+---
+
+## Progress bar
+
+The standard determinate `ProgressBar` is themed (rounded, accent fill).
+
+```xml
+<ProgressBar Value="60" Maximum="100" />
+```
+
+<ThemedImage slug="display__progress-bar" alt="Progress bar" />
+
+## Indeterminate bar
+
+A sweeping band for unknown-duration work. Apply `IndeterminateBar`.
+
+```xml
+<ProgressBar Style="{DynamicResource IndeterminateBar}" />
+```
+
+<ThemedImage slug="display__indeterminate-bar" alt="Indeterminate bar" />
+
+## Spinner
+
+A rotating arc. Apply `Spinner`; size it with `Width`/`Height`.
+
+```xml
+<StackPanel Orientation="Horizontal">
+  <ProgressBar Style="{DynamicResource Spinner}" />
+  <ProgressBar Style="{DynamicResource Spinner}" Width="40" Height="40" Margin="20,0,0,0" />
+</StackPanel>
+```
+
+<ThemedImage slug="display__spinner" alt="Spinner" />
+
+### With a label
+
+```xml
+<StackPanel Orientation="Horizontal">
+  <ProgressBar Style="{DynamicResource Spinner}" Width="20" Height="20" />
+  <TextBlock Text="Loading…" VerticalAlignment="Center" Margin="10,0,0,0" />
+</StackPanel>
+```
+
+<ThemedImage slug="display__spinner-with-label" alt="Spinner with a label" />
+
+## Dots loader
+
+Three pulsing dots. Apply `DotsLoader`.
+
+```xml
+<ProgressBar Style="{DynamicResource DotsLoader}" HorizontalAlignment="Left" />
+```
+
+<ThemedImage slug="display__dots-loader" alt="Dots loader" />
+
+<Callout type="info">
+  Animation timing can't be data-bound in XAML. To change a spinner or bar's speed at runtime, drive
+  it from a controllable `AnimationClock` and set `clock.Controller.SpeedRatio`.
+</Callout>
+
+## Card
+
+Apply the `Card` style to a `Border` for a panel surface with rounded corners and padding.
+
+```xml
+<Border Style="{DynamicResource Card}">
+  <TextBlock Text="Card surface" />
+</Border>
+```
+
+<ThemedImage slug="display__card" alt="Card" />
+
+## Expander
+
+```xml
+<Expander Header="Output" IsExpanded="True">
+  <StackPanel>
+    <TextBlock Text="Body Name" Margin="0,0,0,4" />
+    <TextBox Text="Solid1" Width="200" HorizontalAlignment="Left" />
+  </StackPanel>
+</Expander>
+```
+
+<ThemedImage slug="display__expander" alt="Expander" />

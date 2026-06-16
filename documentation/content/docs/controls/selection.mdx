@@ -1,0 +1,88 @@
+---
+title: Selection
+description: Check boxes, toggle switches, radio buttons, list boxes and sliders.
+---
+
+## Check box
+
+```xml
+<CheckBox Content="Checked option" IsChecked="True" />
+```
+
+<ThemedImage slug="selection__check-box" alt="Check box" />
+
+## Toggle switch
+
+Apply the `ToggleSwitch` style to a `CheckBox` for a switch with a sliding thumb.
+
+```xml
+<CheckBox Content="Enabled" IsChecked="True" Style="{DynamicResource ToggleSwitch}" />
+```
+
+<ThemedImage slug="selection__toggle-switch" alt="Toggle switch" />
+
+## Radio buttons
+
+```xml
+<StackPanel>
+  <RadioButton Content="Option one" IsChecked="True" GroupName="demo" />
+  <RadioButton Content="Option two" GroupName="demo" />
+</StackPanel>
+```
+
+<ThemedImage slug="selection__radio-buttons" alt="Radio buttons" />
+
+## List box
+
+```xml
+<ListBox Width="240" Height="120" SelectedIndex="0">
+  <ListBoxItem Content="Solid1" />
+  <ListBoxItem Content="Solid2" />
+  <ListBoxItem Content="Surface1" />
+</ListBox>
+```
+
+<ThemedImage slug="selection__list-box" alt="List box" />
+
+## Slider
+
+The `Slider` is themed with an accent fill.
+
+```xml
+<Slider Width="280" Minimum="0" Maximum="100" Value="40" />
+```
+
+<ThemedImage slug="selection__slider" alt="Slider" />
+
+### With a live value
+
+```xml
+<DockPanel Width="280">
+  <TextBlock DockPanel.Dock="Right" Width="32" TextAlignment="Right"
+             Text="{Binding Value, ElementName=mySlider, StringFormat={}{0:0}}" />
+  <Slider x:Name="mySlider" Minimum="0" Maximum="100" Value="40" />
+</DockPanel>
+```
+
+<ThemedImage slug="selection__slider-with-live-value" alt="Slider with a live value" />
+
+### With ticks and snapping
+
+```xml
+<Slider Width="280" Minimum="0" Maximum="100" Value="40"
+        TickPlacement="BottomRight" TickFrequency="10" IsSnapToTickEnabled="True" />
+```
+
+<ThemedImage slug="selection__slider-with-ticks-snapping" alt="Slider with ticks and snapping" />
+
+### With min / max labels
+
+```xml
+<DockPanel Width="300">
+  <TextBlock DockPanel.Dock="Left" Text="0" Foreground="{DynamicResource Brush.ForegroundMuted}" />
+  <TextBlock DockPanel.Dock="Right" Text="100" Foreground="{DynamicResource Brush.ForegroundMuted}" />
+  <Slider Minimum="0" Maximum="100" Value="40" AutoToolTipPlacement="TopLeft" />
+</DockPanel>
+```
+
+<ThemedImage slug="selection__slider-with-min-max-labels" alt="Slider with min and max labels" />
