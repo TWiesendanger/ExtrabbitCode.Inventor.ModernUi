@@ -2,6 +2,7 @@ import defaultMdxComponents from 'fumadocs-ui/mdx';
 import type { MDXComponents } from 'mdx/types';
 import type { ImgHTMLAttributes } from 'react';
 import { ThemedImage } from './themed-image';
+import { Swatch } from './swatch';
 
 function resolvePublicSrc(src: string | undefined): string | undefined {
   if (!src?.startsWith('/')) return src;
@@ -15,6 +16,7 @@ export function getMDXComponents(components?: MDXComponents) {
       <img src={resolvePublicSrc(src)} alt={alt} {...props} />
     ),
     ThemedImage,
+    Swatch,
     ...components,
   } satisfies MDXComponents;
 }
