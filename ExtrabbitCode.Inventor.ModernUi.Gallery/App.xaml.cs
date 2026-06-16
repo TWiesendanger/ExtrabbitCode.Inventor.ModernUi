@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -226,11 +227,11 @@ public partial class App : Application
                 CaptureToast(theme, slug, type, title, message, outputDir);
             }
 
-            // 4. Interactive states (default / hover / focus) for input-reactive controls. These need
-            // a real on-screen window + cursor, so they briefly show a window and move the cursor.
-            foreach ((string slug, Func<FrameworkElement> make) in StateJobs())
+            // 4. Interactive states (hover / focus / pressed / selected) for input-reactive controls.
+            // Focus needs a real activated window; the rest are forced via read-only DP keys.
+            foreach ((string slug, Func<(FrameworkElement root, Control target)> build, StateKind[] states) in StateJobs())
             {
-                CaptureStates(theme, slug, make, outputDir);
+                CaptureStates(theme, slug, build, states, outputDir);
             }
         }
 
@@ -329,42 +330,72 @@ public partial class App : Application
         ShowActivated = false,
     };
 
-    /// <summary>Controls whose hover / focus states are worth showing in the docs (each built fresh
-    /// per capture). The factory returns the exact control to focus / hover.</summary>
-    private static IEnumerable<(string slug, Func<FrameworkElement> make)> StateJobs()
-    {
-        yield return ("text-input__text-box", () => new TextBox { Width = 240, Text = "Editable text" });
+    /// <summary>The interactive states a control can be captured in.</summary>
+    private enum StateKind { Hover, Focus, Pressed, Selected }
 
-        yield return ("text-input__search-box", () =>
-        {
-            var tb = new TextBox { Width = 240, Tag = "Search ..." };
-            tb.SetResourceReference(FrameworkElement.StyleProperty, "SearchBox");
-            return tb;
-        });
+    /// <summary>Controls whose interactive states are worth showing in the docs. Each job builds the
+    /// control fresh (root to render + the target element the state applies to) and lists its states.
+    /// For list items the target is the item itself, not the list.</summary>
+    private static IEnumerable<(string slug, Func<(FrameworkElement root, Control target)> build, StateKind[] states)> StateJobs()
+    {
+        // Only controls whose hover / focus / pressed visuals are clearly visible are captured.
+        // ComboBox, CheckBox and ToggleSwitch are omitted: their hover feedback is a faint grey glow
+        // (or a border that doesn't surface when the state is forced) and doesn't read as a still.
+        yield return ("text-input__text-box", () => Solo(new TextBox { Width = 240, Text = "Editable text" }),
+            [StateKind.Hover, StateKind.Focus]);
+        yield return ("text-input__search-box", () => Solo(Styled(new TextBox { Width = 240, Tag = "Search ..." }, "SearchBox")),
+            [StateKind.Hover, StateKind.Focus]);
+
+        yield return ("buttons__accent-button", () => Solo(Styled(new Button { Content = "Primary", Width = 120 }, "AccentButton")),
+            [StateKind.Hover, StateKind.Pressed]);
+
+        yield return ("selection__list-box", MakeListBox,
+            [StateKind.Hover, StateKind.Selected]);
+        yield return ("selection__slider", () => Solo(new Slider { Width = 240, Minimum = 0, Maximum = 100, Value = 40 }),
+            [StateKind.Hover]);
     }
 
-    /// <summary>Captures a control in its default, hover and focused states. Hover/focus are
-    /// input-driven, so this briefly shows an on-screen, activated window, moves the cursor over the
-    /// control, and sets keyboard focus — restoring the cursor afterwards.</summary>
-    private void CaptureStates(Theme theme, string slug, Func<FrameworkElement> make, string outputDir)
+    private static (FrameworkElement root, Control target) Solo(Control c) => (c, c);
+
+    private static T Styled<T>(T element, string styleKey) where T : FrameworkElement
+    {
+        element.SetResourceReference(FrameworkElement.StyleProperty, styleKey);
+        return element;
+    }
+
+    private static (FrameworkElement root, Control target) MakeListBox()
+    {
+        var lb = new ListBox { Width = 240, Height = 120 };
+        var first = new ListBoxItem { Content = "Solid1" };
+        lb.Items.Add(first);
+        lb.Items.Add(new ListBoxItem { Content = "Solid2" });
+        lb.Items.Add(new ListBoxItem { Content = "Surface1" });
+        return (lb, first); // the hover/selection target is the first item, not the list
+    }
+
+    /// <summary>Captures the listed interactive states of a control. Hover/pressed are forced via the
+    /// controls' read-only DP keys (deterministic); focus uses real keyboard focus in an activated
+    /// window; selection sets the item's IsSelected.</summary>
+    private void CaptureStates(Theme theme, string slug,
+        Func<(FrameworkElement root, Control target)> build, StateKind[] states, string outputDir)
     {
         var host = new ModernWindow(theme)
         {
             Width = 340,
-            Height = 160,
+            Height = 220,
             WindowStartupLocation = WindowStartupLocation.Manual,
             Left = 80,
             Top = 80,
             ShowInTaskbar = false,
         };
 
-        FrameworkElement control = make();
+        (FrameworkElement root, Control target) = build();
         var container = new Border
         {
             Padding = new Thickness(20),
             HorizontalAlignment = HorizontalAlignment.Left,
             VerticalAlignment = VerticalAlignment.Top,
-            Child = control,
+            Child = root,
         };
         container.SetResourceReference(Border.BackgroundProperty, "Brush.Background");
 
@@ -373,23 +404,57 @@ public partial class App : Application
         host.Activate();
         MeasureArrange(host, container);
 
-        // (The default state already has an image from the inline pass, so only hover/focus here.)
-
-        // hover — set IsMouseOver directly (its template trigger fires the hover visual). This is
-        // deterministic, unlike moving the real cursor, which doesn't reliably register off-screen.
-        SetMouseOver(control, true);
-        host.UpdateLayout();
-        SaveBitmap(RenderElement(container), DocPath(outputDir, slug + "--hover", theme));
-        SetMouseOver(control, false);
-
-        // focused — real keyboard focus shows the accent underline (the window is activated above).
-        control.Focus();
-        Keyboard.Focus(control);
-        WaitMs(120);
-        host.UpdateLayout();
-        SaveBitmap(RenderElement(container), DocPath(outputDir, slug + "--focused", theme));
+        foreach (StateKind state in states)
+        {
+            ApplyState(target, state, true);
+            if (state == StateKind.Focus)
+            {
+                WaitMs(120);
+            }
+            host.UpdateLayout();
+            SaveBitmap(RenderElement(container),
+                DocPath(outputDir, slug + "--" + state.ToString().ToLowerInvariant(), theme));
+            ApplyState(target, state, false);
+        }
 
         host.Close();
+    }
+
+    private static void ApplyState(Control target, StateKind state, bool on)
+    {
+        switch (state)
+        {
+            case StateKind.Hover:
+                // The Slider's hover visual lives on its Thumb, not the root, so target that.
+                DependencyObject hoverEl = target is Slider slider
+                    ? FindDescendant<Thumb>(slider) ?? (DependencyObject)target
+                    : target;
+                SetReadOnly(hoverEl, IsMouseOverKey, on);
+                break;
+            case StateKind.Pressed:
+                if (target is ButtonBase)
+                {
+                    SetReadOnly(target, IsPressedKey, on);
+                }
+                break;
+            case StateKind.Selected:
+                if (target is ListBoxItem item)
+                {
+                    item.IsSelected = on;
+                }
+                break;
+            case StateKind.Focus:
+                if (on)
+                {
+                    target.Focus();
+                    Keyboard.Focus(target);
+                }
+                else
+                {
+                    Keyboard.ClearFocus();
+                }
+                break;
+        }
     }
 
     private static void MeasureArrange(Window host, FrameworkElement element)
@@ -400,18 +465,42 @@ public partial class App : Application
         host.UpdateLayout();
     }
 
-    // IsMouseOver is a read-only dependency property; its backing key lets us force the hover visual
-    // deterministically for a screenshot. Resolved once via reflection (null if the runtime renames it).
-    private static readonly DependencyPropertyKey? IsMouseOverKey =
-        typeof(UIElement).GetField("IsMouseOverPropertyKey", BindingFlags.NonPublic | BindingFlags.Static)
-            ?.GetValue(null) as DependencyPropertyKey;
+    // IsMouseOver / IsPressed are read-only dependency properties; their backing keys let us force the
+    // hover / pressed visuals deterministically for a screenshot (moving the real cursor doesn't
+    // register reliably). Resolved once via reflection; null if a runtime ever renames them.
+    private static readonly DependencyPropertyKey? IsMouseOverKey = ReadOnlyKey(typeof(UIElement), "IsMouseOverPropertyKey");
+    private static readonly DependencyPropertyKey? IsPressedKey = ReadOnlyKey(typeof(ButtonBase), "IsPressedPropertyKey");
 
-    private static void SetMouseOver(UIElement element, bool value)
+    private static DependencyPropertyKey? ReadOnlyKey(Type type, string fieldName) =>
+        type.GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Static)?.GetValue(null) as DependencyPropertyKey;
+
+    private static void SetReadOnly(DependencyObject element, DependencyPropertyKey? key, bool value)
     {
-        if (IsMouseOverKey is not null)
+        if (key is not null)
         {
-            element.SetValue(IsMouseOverKey, value);
+            element.SetValue(key, value);
         }
+    }
+
+    private static T? FindDescendant<T>(DependencyObject root) where T : DependencyObject
+    {
+        int count = VisualTreeHelper.GetChildrenCount(root);
+        for (int i = 0; i < count; i++)
+        {
+            DependencyObject child = VisualTreeHelper.GetChild(root, i);
+            if (child is T match)
+            {
+                return match;
+            }
+
+            T? deeper = FindDescendant<T>(child);
+            if (deeper is not null)
+            {
+                return deeper;
+            }
+        }
+
+        return null;
     }
 
     private static IEnumerable<(string slug, Action show)> DialogJobs(Window host, Theme theme)
