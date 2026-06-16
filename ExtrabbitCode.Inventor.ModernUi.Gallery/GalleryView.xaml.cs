@@ -1174,10 +1174,10 @@ public partial class GalleryView : UserControl
         new DemoPage("Display",
         [
             new DemoItem("Progress bar", """
-                <ProgressBar Value="60" Maximum="100" />
+                <ProgressBar Value="60" Maximum="100" Width="280" HorizontalAlignment="Left" />
                 """),
             new DemoItem("Indeterminate bar", """
-                <ProgressBar Style="{DynamicResource IndeterminateBar}" />
+                <ProgressBar Style="{DynamicResource IndeterminateBar}" Width="280" HorizontalAlignment="Left" />
                 """),
             new DemoItem("Spinner", """
                 <StackPanel Orientation="Horizontal">
