@@ -225,7 +225,88 @@ public partial class App : Application
             }
         }
 
+        // 4. A sample themed with a fully custom palette (for the Theming docs page).
+        CaptureCustomPalette(outputDir);
+
         Shutdown();
+    }
+
+    /// <summary>Renders a small control sample under a completely custom <see cref="ThemePalette"/>,
+    /// to show on the docs that every colour can be overridden.</summary>
+    private void CaptureCustomPalette(string outputDir)
+    {
+        // A "Tokyo Night" style palette — nothing to do with the Inventor defaults.
+        ThemePalette palette = new()
+        {
+            Background = Hex("#1a1b26"),
+            Panel = Hex("#24283b"),
+            Control = Hex("#1f2335"),
+            Foreground = Hex("#c0caf5"),
+            ForegroundMuted = Hex("#565f89"),
+            Border = Hex("#2f334d"),
+            Accent = Hex("#7aa2f7"),
+            AccentMuted = Hex("#3d59a1"),
+            Error = Hex("#f7768e"),
+        };
+
+        ModernWindow host = CreateOffscreenHost(Theme.Dark, 1000, 800);
+        ModernUi.SetTheme(host, Theme.Dark, palette); // re-colour to the custom palette
+        host.Show();
+
+        FrameworkElement sample = ParseSample("""
+            <StackPanel>
+                <TextBlock Text="Custom palette" Style="{DynamicResource TitleTextStyle}" Margin="0,0,0,12" />
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                    <Button Content="Primary" Style="{DynamicResource AccentButton}" Width="110" />
+                    <Button Content="Delete" Style="{DynamicResource DangerButton}" Width="110" Margin="8,0,0,0" />
+                    <Button Content="Cancel" Width="110" Margin="8,0,0,0" />
+                </StackPanel>
+                <TextBox Width="300" Style="{DynamicResource SearchBox}" Tag="Search ..." Margin="0,0,0,12" />
+                <StackPanel Orientation="Horizontal">
+                    <CheckBox Content="Enabled" IsChecked="True" Style="{DynamicResource ToggleSwitch}" />
+                    <ContentControl Style="{DynamicResource BadgeAccent}" Content="New" Margin="16,0,0,0" />
+                    <ContentControl Style="{DynamicResource BadgeError}" Content="Error" Margin="8,0,0,0" />
+                </StackPanel>
+            </StackPanel>
+            """);
+
+        var card = new Border
+        {
+            Padding = new Thickness(20),
+            CornerRadius = new CornerRadius(6),
+            BorderThickness = new Thickness(1),
+            Child = sample,
+        };
+        card.SetResourceReference(Border.BackgroundProperty, "Brush.Panel");
+        card.SetResourceReference(Border.BorderBrushProperty, "Brush.Border");
+
+        var outer = new Border
+        {
+            Padding = new Thickness(24),
+            HorizontalAlignment = HorizontalAlignment.Left,
+            VerticalAlignment = VerticalAlignment.Top,
+            Child = card,
+        };
+        outer.SetResourceReference(Border.BackgroundProperty, "Brush.Background");
+
+        host.Content = outer;
+        host.UpdateLayout();
+        outer.Measure(new Size(900, double.PositiveInfinity));
+        outer.Arrange(new Rect(outer.DesiredSize));
+        host.UpdateLayout();
+
+        SaveBitmap(RenderElement(outer), Path.Combine(outputDir, "theming__custom-palette.png"));
+        host.Close();
+    }
+
+    private static Color Hex(string hex) => (Color)ColorConverter.ConvertFromString(hex)!;
+
+    private static FrameworkElement ParseSample(string innerXaml)
+    {
+        const string ns = "http://schemas.microsoft.com/winfx/2006/xaml/presentation";
+        const string nsX = "http://schemas.microsoft.com/winfx/2006/xaml";
+        string xaml = $"<StackPanel xmlns=\"{ns}\" xmlns:x=\"{nsX}\">{innerXaml}</StackPanel>";
+        return (FrameworkElement)System.Windows.Markup.XamlReader.Parse(xaml);
     }
 
     private static ModernWindow CreateOffscreenHost(Theme theme, double width, double height) => new(theme)
