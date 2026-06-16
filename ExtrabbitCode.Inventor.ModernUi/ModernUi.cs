@@ -1,6 +1,7 @@
 using System.IO.Packaging;
 using System.Reflection;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 
@@ -67,7 +68,15 @@ public static class ModernUi
     /// <param name="theme">Light or Dark. Selects the default palette when <paramref name="palette"/> is null.</param>
     /// <param name="palette">Optional color override. Defaults to <see cref="ThemePalette.For"/>.</param>
     /// <param name="font">Optional font. Defaults to <see cref="FontOptions.Default"/>.</param>
-    public static void Apply(Window window, Theme theme, ThemePalette? palette = null, FontOptions? font = null)
+    /// <param name="applyWindowChrome">
+    /// When <c>true</c> (default) the custom Modern title bar (<c>ModernWindowStyle</c>) is assigned to
+    /// the window. Pass <c>false</c> when the window's content is hosted elsewhere and should not have a
+    /// title bar — e.g. a WPF window re-parented into an Inventor dockable panel. The colors, font and
+    /// control styles are still applied either way; only the window chrome is skipped (and the window
+    /// surface is themed directly so there is no unstyled flash).
+    /// </param>
+    public static void Apply(Window window, Theme theme, ThemePalette? palette = null, FontOptions? font = null,
+        bool applyWindowChrome = true)
     {
         ArgumentNullException.ThrowIfNull(window);
 
@@ -85,12 +94,24 @@ public static class ModernUi
             res.MergedDictionaries.Add(LoadDictionary(path));
         }
 
-        // 4. Assign the window chrome style explicitly (a Window does not reliably pick up an
-        //    implicit style from its own resources).
-        window.SetResourceReference(FrameworkElement.StyleProperty, "ModernWindowStyle");
+        if (applyWindowChrome)
+        {
+            // 4. Assign the window chrome style explicitly (a Window does not reliably pick up an
+            //    implicit style from its own resources).
+            window.SetResourceReference(FrameworkElement.StyleProperty, "ModernWindowStyle");
 
-        // 5. Wire the custom title-bar caption buttons (min / max / restore / close).
-        WireCaptionCommands(window);
+            // 5. Wire the custom title-bar caption buttons (min / max / restore / close).
+            WireCaptionCommands(window);
+        }
+        else
+        {
+            // No custom title bar: the host owns the chrome (e.g. an Inventor dockable window). Theme
+            // the window surface directly so the area behind the content is not an unstyled flash.
+            window.SetResourceReference(Control.BackgroundProperty, "Brush.Background");
+            window.SetResourceReference(Control.ForegroundProperty, "Brush.Foreground");
+            window.SetResourceReference(Control.FontFamilyProperty, "Font.Family");
+            window.SetResourceReference(Control.FontSizeProperty, "Font.Size.Normal");
+        }
     }
 
     /// <summary>
