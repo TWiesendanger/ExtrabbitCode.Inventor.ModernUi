@@ -22,6 +22,12 @@ exception. This is verified by an automated two-`AssemblyLoadContext` test.
 
 Dependency flow: everything references the **library**; the **add-in** and **Gallery** share `GalleryView`; the **ConflictTest** loads the library by reflection (to get two isolated copies). The library, Gallery and ConflictTest build and run anywhere; the **Demo.AddIn** and **Coexistence.A/B** need Inventor installed to load.
 
+## Starter template
+
+Building an Inventor add-in from scratch? [**ExtrabbitCode.Inventor.Core.Template**](https://github.com/TWiesendanger/ExtrabbitCode.Inventor.Core.Template)
+is a ready-to-use add-in starter — isolated `AssemblyLoadContext`, ribbon/command scaffolding and the
+deploy plumbing already wired up — and it uses ModernUi as its **default UI**.
+
 ## Using it in an add-in
 
 ```csharp
