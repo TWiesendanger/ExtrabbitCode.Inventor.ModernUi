@@ -241,7 +241,131 @@ public partial class App : Application
         // 6. Full gallery-window overview shots (for the docs Introduction page).
         CaptureOverview(outputDir);
 
+        // 7. Menus need to be opened to show anything (they are popups).
+        CaptureMenus(outputDir);
+
         Shutdown();
+    }
+
+    /// <summary>Menus are popups, so a static render shows nothing useful. This opens them and renders
+    /// the popup content: the context menu opened, and the menu bar composited with its File dropdown.</summary>
+    private void CaptureMenus(string outputDir)
+    {
+        foreach (Theme theme in new[] { Theme.Dark, Theme.Light })
+        {
+            Color background = ThemePalette.For(theme).Background;
+
+            // --- Context menu, opened ---
+            {
+                var host = new ModernWindow(theme)
+                {
+                    Width = 260, Height = 220,
+                    WindowStartupLocation = WindowStartupLocation.Manual, Left = 120, Top = 120,
+                    ShowInTaskbar = false,
+                };
+                var anchor = new Grid();
+                host.Content = anchor;
+                host.Show();
+                host.Activate();
+                WaitMs(120);
+
+                var cm = new ContextMenu { PlacementTarget = anchor, Placement = PlacementMode.Center };
+                cm.Items.Add(new MenuItem { Header = "Cut", InputGestureText = "Ctrl+X" });
+                cm.Items.Add(new MenuItem { Header = "Copy", InputGestureText = "Ctrl+C" });
+                cm.Items.Add(new MenuItem { Header = "Paste", InputGestureText = "Ctrl+V" });
+                cm.Items.Add(new Separator());
+                var more = new MenuItem { Header = "More" };
+                more.Items.Add(new MenuItem { Header = "Rename" });
+                more.Items.Add(new MenuItem { Header = "Delete" });
+                cm.Items.Add(more);
+
+                cm.IsOpen = true;
+                WaitMs(250);
+                // The ContextMenu itself is the rendered visual when open (its popup is its parent).
+                SaveBitmap(RenderOnBackground(cm, background),
+                    DocPath(outputDir, "menus__context-menu-right-click", theme));
+                cm.IsOpen = false;
+                host.Close();
+            }
+
+            // --- Menu bar with the File dropdown open (bar + dropdown composited) ---
+            {
+                var host = new ModernWindow(theme)
+                {
+                    Width = 320, Height = 240,
+                    WindowStartupLocation = WindowStartupLocation.Manual, Left = 120, Top = 120,
+                    ShowInTaskbar = false,
+                };
+                var dock = new DockPanel();
+                var menu = new Menu();
+                DockPanel.SetDock(menu, Dock.Top);
+                var file = new MenuItem { Header = "File" };
+                file.Items.Add(new MenuItem { Header = "New", InputGestureText = "Ctrl+N" });
+                file.Items.Add(new MenuItem { Header = "Open", InputGestureText = "Ctrl+O" });
+                file.Items.Add(new Separator());
+                file.Items.Add(new MenuItem { Header = "Exit" });
+                var edit = new MenuItem { Header = "Edit" };
+                edit.Items.Add(new MenuItem { Header = "Undo", InputGestureText = "Ctrl+Z" });
+                menu.Items.Add(file);
+                menu.Items.Add(edit);
+                dock.Children.Add(menu);
+                dock.Children.Add(new Grid());
+                host.Content = dock;
+                host.Show();
+                host.Activate();
+                WaitMs(120);
+
+                file.IsSubmenuOpen = true;
+                WaitMs(250);
+
+                RenderTargetBitmap bar = RenderElement(menu);
+                Point filePos = file.TranslatePoint(new Point(0, 0), menu);
+                if (FindDescendant<Popup>(file)?.Child is FrameworkElement dropdown)
+                {
+                    RenderTargetBitmap drop = RenderElement(dropdown);
+                    SaveBitmap(Compose(bar, drop, filePos.X, menu.ActualHeight, background),
+                        DocPath(outputDir, "menus__menu-bar", theme));
+                }
+                file.IsSubmenuOpen = false;
+                host.Close();
+            }
+        }
+    }
+
+    /// <summary>Renders an element onto a solid themed background (so transparent popup corners read
+    /// correctly), cropped to the element.</summary>
+    private static RenderTargetBitmap RenderOnBackground(FrameworkElement element, Color background)
+    {
+        int w = Math.Max(1, (int)Math.Ceiling(element.ActualWidth));
+        int h = Math.Max(1, (int)Math.Ceiling(element.ActualHeight));
+        var dv = new DrawingVisual();
+        using (DrawingContext dc = dv.RenderOpen())
+        {
+            dc.DrawRectangle(new SolidColorBrush(background), null, new Rect(0, 0, w, h));
+            dc.DrawRectangle(new VisualBrush(element), null, new Rect(0, 0, w, h));
+        }
+        var rtb = new RenderTargetBitmap(w, h, 96, 96, PixelFormats.Pbgra32);
+        rtb.Render(dv);
+        return rtb;
+    }
+
+    /// <summary>Composites a top bitmap (menu bar) with a dropdown bitmap placed at (x, y), on a solid
+    /// themed background.</summary>
+    private static RenderTargetBitmap Compose(RenderTargetBitmap top, RenderTargetBitmap dropdown,
+        double dropX, double dropY, Color background)
+    {
+        int w = (int)Math.Ceiling(Math.Max(top.PixelWidth, dropX + dropdown.PixelWidth));
+        int h = (int)Math.Ceiling(dropY + dropdown.PixelHeight);
+        var dv = new DrawingVisual();
+        using (DrawingContext dc = dv.RenderOpen())
+        {
+            dc.DrawRectangle(new SolidColorBrush(background), null, new Rect(0, 0, w, h));
+            dc.DrawImage(top, new Rect(0, 0, top.PixelWidth, top.PixelHeight));
+            dc.DrawImage(dropdown, new Rect(dropX, dropY, dropdown.PixelWidth, dropdown.PixelHeight));
+        }
+        var rtb = new RenderTargetBitmap(w, h, 96, 96, PixelFormats.Pbgra32);
+        rtb.Render(dv);
+        return rtb;
     }
 
     /// <summary>Captures full gallery-window screenshots of a couple of rich pages, for the docs
