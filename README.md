@@ -1,5 +1,8 @@
 # ExtrabbitCode.Inventor.ModernUi
 
+[![NuGet](https://img.shields.io/nuget/v/ExtrabbitCode.Inventor.ModernUi.svg?logo=nuget)](https://www.nuget.org/packages/ExtrabbitCode.Inventor.ModernUi)
+[![Downloads](https://img.shields.io/nuget/dt/ExtrabbitCode.Inventor.ModernUi.svg)](https://www.nuget.org/packages/ExtrabbitCode.Inventor.ModernUi)
+
 <img src="resources/ModernUi-1024.png" alt="ExtrabbitCode Modern UI" width="120" align="right" />
 
 A small WPF styling library that gives Inventor add-in dialogs a consistent, Inventor-aligned look
