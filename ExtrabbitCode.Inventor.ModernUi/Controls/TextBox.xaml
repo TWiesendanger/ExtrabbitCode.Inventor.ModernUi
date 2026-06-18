@@ -36,7 +36,6 @@
              both themes; AccentMuted is reserved for subtle hover backgrounds. -->
         <Setter Property="SelectionBrush" Value="{DynamicResource Brush.Accent}" />
         <Setter Property="BorderThickness" Value="1" />
-        <!-- Slightly less vertical padding than the shared Padding.Control (6) so a single line of
         <Setter Property="Padding" Value="10,4" />
         <Setter Property="MinHeight" Value="{DynamicResource Size.ControlHeight}" />
         <Setter Property="FontFamily" Value="{DynamicResource Font.Family}" />
