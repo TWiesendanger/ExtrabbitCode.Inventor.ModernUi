@@ -73,19 +73,27 @@
         <Setter Property="FontSize" Value="{DynamicResource Font.Size.Normal}" />
         <Setter Property="MinHeight" Value="{DynamicResource Size.ControlHeight}" />
         <Setter Property="Padding" Value="10,0" />
+        <Setter Property="MaxDropDownHeight" Value="240" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
         <Setter Property="SnapsToDevicePixels" Value="True" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ComboBox">
                     <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="22" />
+                        </Grid.ColumnDefinitions>
+
                         <ToggleButton x:Name="ToggleButton"
+                                      Grid.ColumnSpan="2"
                                       Template="{StaticResource ModernComboToggle}"
                                       Focusable="False"
                                       ClickMode="Press"
                                       IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" />
 
                         <ContentPresenter x:Name="ContentSite"
+                                          Grid.Column="0"
                                           Margin="{TemplateBinding Padding}"
                                           Content="{TemplateBinding SelectionBoxItem}"
                                           ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
@@ -96,18 +104,20 @@
 
                         <!-- Editable text host. -->
                         <TextBox x:Name="PART_EditableTextBox"
+                                 Grid.Column="0"
                                  Margin="{TemplateBinding Padding}"
                                  Padding="0"
                                  VerticalAlignment="Center"
                                  Background="Transparent"
                                  BorderThickness="0"
                                  Foreground="{DynamicResource Brush.Foreground}"
-                                 CaretBrush="{DynamicResource Brush.Accent}"
+                                 CaretBrush="{DynamicResource Brush.Foreground}"
                                  Focusable="True"
                                  IsReadOnly="{TemplateBinding IsReadOnly}"
                                  Visibility="Hidden" />
 
                         <Popup x:Name="Popup"
+                               Grid.ColumnSpan="2"
                                AllowsTransparency="True"
                                Focusable="False"
                                IsOpen="{TemplateBinding IsDropDownOpen}"
