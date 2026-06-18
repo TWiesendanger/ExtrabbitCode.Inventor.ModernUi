@@ -13,7 +13,7 @@ namespace ExtrabbitCode.Inventor.ModernUi.Demo.AddIn;
 [ProgId("ExtrabbitCode.Inventor.ModernUi.Demo.DemoAddInServer")]
 [ComVisible(true)]
 [ClassInterface(ClassInterfaceType.None)]
-public class DemoAddInServer : ApplicationAddInServer
+public class DemoAddInServer : IsolatedApplicationAddInServer
 {
     private const string AddInGuid = "80423f77-2aef-4502-91da-29bd193cc7bd";
     private const string ButtonInternalName = "ExtrabbitCode_ModernUi_ShowGallery";
@@ -21,9 +21,9 @@ public class DemoAddInServer : ApplicationAddInServer
     private Application? _app;
     private ButtonDefinition? _button;
 
-    public void Activate(ApplicationAddInSite addInSiteObject, bool firstTime)
+    protected override void OnActivate(ApplicationAddInSite site, bool firstTime)
     {
-        _app = addInSiteObject.Application;
+        _app = site.Application;
 
         System.Reflection.Assembly self = typeof(DemoAddInServer).Assembly;
         object smallIcon = PictureDispConverter.FromResource(self, "ModernUi-16.png") ?? (object)Type.Missing;
@@ -45,7 +45,7 @@ public class DemoAddInServer : ApplicationAddInServer
         AddButtonToRibbons();
     }
 
-    public void Deactivate()
+    protected override void OnDeactivate()
     {
         if (_button is not null)
         {
@@ -58,14 +58,6 @@ public class DemoAddInServer : ApplicationAddInServer
         GC.Collect();
         GC.WaitForPendingFinalizers();
     }
-
-    /// <summary>Legacy member of the add-in interface; unused.</summary>
-    public void ExecuteCommand(int commandID)
-    {
-    }
-
-    /// <summary>No automation object is exposed.</summary>
-    public object? Automation => null;
 
     private void OnShowGallery(NameValueMap context)
     {
