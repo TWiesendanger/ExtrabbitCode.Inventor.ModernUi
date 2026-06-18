@@ -36,7 +36,8 @@
              both themes; AccentMuted is reserved for subtle hover backgrounds. -->
         <Setter Property="SelectionBrush" Value="{DynamicResource Brush.Accent}" />
         <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="Padding" Value="{DynamicResource Padding.Control}" />
+        <!-- Slightly less vertical padding than the shared Padding.Control (6) so a single line of
+        <Setter Property="Padding" Value="10,4" />
         <Setter Property="MinHeight" Value="{DynamicResource Size.ControlHeight}" />
         <Setter Property="FontFamily" Value="{DynamicResource Font.Family}" />
         <Setter Property="FontSize" Value="{DynamicResource Font.Size.Normal}" />
@@ -100,7 +101,8 @@
          Use: <TextBox Style="{DynamicResource SearchBox}" Tag="Search ..." />. The placeholder text
          comes from the framework Tag property, so no dependency property is registered. -->
     <Style x:Key="SearchBox" TargetType="TextBox" BasedOn="{StaticResource ModernTextBoxBase}">
-        <Setter Property="Padding" Value="2,6,8,6" />
+        <!-- Reduced vertical padding (see ModernTextBoxBase) so text fits within Size.ControlHeight. -->
+        <Setter Property="Padding" Value="2,4,8,4" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="TextBox">
