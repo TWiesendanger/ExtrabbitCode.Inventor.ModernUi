@@ -115,7 +115,7 @@ public partial class App : Application
     }
 
     /// <summary>Pages captured individually by "--shoot" (one PNG each, per theme), in addition to the overview.</summary>
-    private static readonly string[] PagesToShoot = ["Buttons", "Text input", "Icons", "Message boxes"];
+    private static readonly string[] PagesToShoot = ["Buttons", "Text input", "Icons", "Message boxes", "Color picker"];
 
     /// <summary>Selects the next queued page, captures it, then either recurses or closes the window
     /// and moves on to the next theme.</summary>
@@ -711,6 +711,12 @@ public partial class App : Application
             };
             ModernMessageBox.Show(host, theme, text, "Details", buttons, ModernDialogIcon.Info);
         });
+
+        yield return ("dialogs__color-picker", () => ModernColorPicker.Show(host, theme,
+            Color.FromRgb(0xF2, 0x8C, 0x28), "Pick a color"));
+
+        yield return ("dialogs__color-picker-alpha", () => ModernColorPicker.Show(host, theme,
+            Color.FromArgb(0xCC, 0x06, 0x96, 0xD7), "Pick a color", showAlpha: true));
     }
 
     private void CaptureDialog(Window host, string slug, Theme theme, Action show, string outputDir)

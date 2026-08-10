@@ -1,6 +1,6 @@
 ---
 title: Dialogs & Toasts
-description: ModernMessageBox for modal dialogs and ModernToast for notifications.
+description: ModernMessageBox for modal dialogs, ModernColorPicker for picking colors and ModernToast for notifications.
 ---
 
 ## ModernMessageBox
@@ -74,6 +74,35 @@ ModernMessageBox.Show(owner, theme, text, "Details",
 ```
 
 <ThemedImage slug="dialogs__rich-content" alt="Dialog with rich content" />
+
+## ModernColorPicker
+
+A themed modal color picker: a saturation/value field, a hue bar, hex + RGB input, preset swatches
+and an old/new preview (click the left half to restore the initial color). Returns the chosen
+`Color`, or `null` when cancelled.
+
+```csharp
+Color? picked = ModernColorPicker.Show(owner, theme,
+    initial: Color.FromRgb(0xF2, 0x8C, 0x28), title: "Pick a color");
+
+if (picked is Color color) { /* use color */ }
+```
+
+<ThemedImage slug="dialogs__color-picker" alt="Color picker dialog" />
+
+`showAlpha: true` adds an opacity bar, an A field and 8-digit hex (`#AARRGGBB`):
+
+```csharp
+Color? picked = ModernColorPicker.Show(owner, theme,
+    initial: Color.FromArgb(0xCC, 0x06, 0x96, 0xD7),
+    title: "Pick a color", showAlpha: true);
+```
+
+<ThemedImage slug="dialogs__color-picker-alpha" alt="Color picker with alpha bar" />
+
+`presets:` replaces the built-in swatch row with your own colors (an empty array hides the row).
+Like the other dialogs it inherits the owner window's palette, so a customized accent carries
+through.
 
 ## ModernToast
 

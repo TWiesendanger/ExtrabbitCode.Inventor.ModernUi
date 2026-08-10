@@ -86,3 +86,14 @@ Apply the `Card` style to a `Border` for a panel surface with rounded corners an
 ```
 
 <ThemedImage slug="display__expander" alt="Expander" />
+
+The body uses the Expander's own `Padding` (default: the `Padding.Card` token, 16px). Set it on the
+control for a compact body:
+
+```xml
+<Expander Header="Details" IsExpanded="True" Padding="8,6">
+  <TextBlock Text="A tighter body for dense dialogs." />
+</Expander>
+```
+
+<ThemedImage slug="display__expander-compact-padding" alt="Expander with compact padding" />

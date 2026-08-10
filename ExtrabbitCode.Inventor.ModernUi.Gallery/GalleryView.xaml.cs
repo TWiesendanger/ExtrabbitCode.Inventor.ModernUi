@@ -496,6 +496,50 @@ public partial class GalleryView : UserControl
         return trigger;
     }
 
+    /// <summary>An interactive ModernColorPicker demo: a trigger button plus a swatch + hex label
+    /// showing the last picked color (which is also the initial color when reopening).</summary>
+    private FrameworkElement BuildColorPickerDemo(Color initial, bool showAlpha, Color[]? presets = null)
+    {
+        Color current = initial;
+
+        var fill = new SolidColorBrush(current);
+        var swatch = new Border
+        {
+            Width = 28,
+            Height = 28,
+            CornerRadius = new CornerRadius(4),
+            BorderThickness = new Thickness(1),
+            Margin = new Thickness(12, 0, 0, 0),
+            VerticalAlignment = VerticalAlignment.Center,
+            Background = fill,
+        };
+        swatch.SetResourceReference(Border.BorderBrushProperty, "Brush.Border");
+
+        string Format(Color c) => showAlpha ? $"#{c.A:X2}{c.R:X2}{c.G:X2}{c.B:X2}" : $"#{c.R:X2}{c.G:X2}{c.B:X2}";
+        var hex = new TextBlock { Text = Format(current), Margin = new Thickness(8, 0, 0, 0), VerticalAlignment = VerticalAlignment.Center };
+        hex.SetResourceReference(TextBlock.ForegroundProperty, "Brush.ForegroundMuted");
+        hex.SetResourceReference(TextBlock.FontFamilyProperty, "Font.Family");
+
+        var trigger = new Button { Content = "Pick a color" };
+        trigger.Click += (_, _) =>
+        {
+            Window? owner = Window.GetWindow(this);
+            Color? picked = ModernColorPicker.Show(owner, _theme, current, "Pick a color", showAlpha, presets);
+            if (picked is Color c)
+            {
+                current = c;
+                fill.Color = c;
+                hex.Text = Format(c);
+            }
+        };
+
+        var panel = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Left };
+        panel.Children.Add(trigger);
+        panel.Children.Add(swatch);
+        panel.Children.Add(hex);
+        return panel;
+    }
+
     /// <summary>Loads an embedded image (by logical name) from the hosting assembly, or null.</summary>
     private static ImageSource? LoadIcon(string name)
     {
@@ -952,17 +996,27 @@ public partial class GalleryView : UserControl
                 <Button Content="Disabled" Width="120" HorizontalAlignment="Left" IsEnabled="False" />
                 """),
             new DemoItem("Icon buttons", """
+                <!-- IconButton carries the icon font (and 16px size) itself — bare glyph text is enough. -->
                 <StackPanel Orientation="Horizontal">
-                    <Button Style="{DynamicResource IconButton}" ToolTip="Settings">
-                        <TextBlock FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" Text="&#xE713;" />
-                    </Button>
-                    <Button Style="{DynamicResource IconButton}" ToolTip="Refresh" Margin="6,0,0,0">
-                        <TextBlock FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" Text="&#xE72C;" />
-                    </Button>
-                    <Button Style="{DynamicResource IconButton}" ToolTip="Delete" Margin="6,0,0,0">
-                        <TextBlock FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" Text="&#xE74D;" />
-                    </Button>
+                    <Button Style="{DynamicResource IconButton}" ToolTip="Settings" Content="&#xE713;" />
+                    <Button Style="{DynamicResource IconButton}" ToolTip="Refresh" Margin="6,0,0,0" Content="&#xE72C;" />
+                    <Button Style="{DynamicResource IconButton}" ToolTip="Delete" Margin="6,0,0,0" Content="&#xE74D;" />
                 </StackPanel>
+                """),
+            new DemoItem("Icon button toolbar", """
+                <!-- Expand / collapse / select all / deselect all — the usual list-header actions,
+                     grouped on a panel-tinted surface with a divider between the pairs. -->
+                <Border Background="{DynamicResource Brush.Panel}" CornerRadius="6" Padding="3"
+                        HorizontalAlignment="Left">
+                    <StackPanel Orientation="Horizontal">
+                        <Button Style="{DynamicResource IconButton}" ToolTip="Expand all" Content="&#xE70D;" />
+                        <Button Style="{DynamicResource IconButton}" ToolTip="Collapse all" Margin="4,0,0,0" Content="&#xE70E;" />
+                        <Border Width="1" Height="16" Margin="6,0,2,0" VerticalAlignment="Center"
+                                Background="{DynamicResource Brush.Border}" />
+                        <Button Style="{DynamicResource IconButton}" ToolTip="Select all" Margin="4,0,0,0" Content="&#xE73A;" />
+                        <Button Style="{DynamicResource IconButton}" ToolTip="Deselect all" Margin="4,0,0,0" Content="&#xE739;" />
+                    </StackPanel>
+                </Border>
                 """),
         ]),
 
@@ -978,6 +1032,11 @@ public partial class GalleryView : UserControl
                     <TextBox Width="240" Margin="0,8,0,0" Style="{DynamicResource SearchBox}"
                              Tag="Search ..." Text="bracket" />
                 </StackPanel>
+                """),
+            new DemoItem("Filter box (placeholder, no icon)", """
+                <!-- PlaceholderBox = the SearchBox placeholder behavior without the magnifier. -->
+                <TextBox Width="240" HorizontalAlignment="Left"
+                         Style="{DynamicResource PlaceholderBox}" Tag="Filter ..." />
                 """),
             new DemoItem("Disabled text box", """
                 <TextBox Width="240" HorizontalAlignment="Left" Text="Disabled" IsEnabled="False" />
@@ -1004,6 +1063,12 @@ public partial class GalleryView : UserControl
                 """),
             new DemoItem("Toggle switch (off)", """
                 <CheckBox Content="Off" IsChecked="False" Style="{DynamicResource ToggleSwitch}" />
+                """),
+            new DemoItem("Toggle switch on a ToggleButton", """
+                <!-- The same style fits a ToggleButton (CheckBox derives from it) — handy when the
+                     toggle drives a command instead of a bound flag. -->
+                <ToggleButton Content="Include references" IsChecked="True"
+                              Style="{DynamicResource ToggleSwitch}" />
                 """),
             new DemoItem("Radio buttons", """
                 <StackPanel>
@@ -1171,6 +1236,42 @@ public partial class GalleryView : UserControl
                 """) { Build = BuildRichContentDemo, DocCapture = DocCapture.Dialog },
         ]),
 
+        new DemoPage("Color picker",
+        [
+            new DemoItem("Pick a color", """
+                Color? picked = ModernColorPicker.Show(owner, theme,
+                    initial: Color.FromRgb(0xF2, 0x8C, 0x28),
+                    title: "Pick a color");
+
+                if (picked is Color color) { /* use color */ }
+                """) { Build = () => BuildColorPickerDemo(Color.FromRgb(0xF2, 0x8C, 0x28), showAlpha: false),
+                    DocCapture = DocCapture.Dialog },
+
+            new DemoItem("With alpha", """
+                // showAlpha adds an opacity bar and 8-digit hex (#AARRGGBB).
+                Color? picked = ModernColorPicker.Show(owner, theme,
+                    initial: Color.FromArgb(0xCC, 0x06, 0x96, 0xD7),
+                    title: "Pick a color",
+                    showAlpha: true);
+                """) { Build = () => BuildColorPickerDemo(Color.FromArgb(0xCC, 0x06, 0x96, 0xD7), showAlpha: true),
+                    DocCapture = DocCapture.Dialog },
+
+            new DemoItem("Custom presets", """
+                // Your own preset swatches (an empty array hides the row).
+                Color[] presets =
+                {
+                    Color.FromRgb(0x06, 0x96, 0xD7), Color.FromRgb(0xF2, 0x8C, 0x28),
+                    Color.FromRgb(0x3F, 0xB9, 0x50), Color.FromRgb(0xEC, 0x4A, 0x41),
+                };
+
+                Color? picked = ModernColorPicker.Show(owner, theme,
+                    initial: presets[0], presets: presets);
+                """) { Build = () => BuildColorPickerDemo(Color.FromRgb(0x06, 0x96, 0xD7), showAlpha: false,
+                    [Color.FromRgb(0x06, 0x96, 0xD7), Color.FromRgb(0xF2, 0x8C, 0x28),
+                     Color.FromRgb(0x3F, 0xB9, 0x50), Color.FromRgb(0xEC, 0x4A, 0x41)]),
+                    DocCapture = DocCapture.Skip },
+        ]),
+
         new DemoPage("Display",
         [
             new DemoItem("Progress bar", """
@@ -1228,6 +1329,12 @@ public partial class GalleryView : UserControl
                     </StackPanel>
                 </Expander>
                 """),
+            new DemoItem("Expander (compact padding)", """
+                <!-- The body uses the Expander's own Padding (default: the Padding.Card token). -->
+                <Expander Header="Details" IsExpanded="True" Padding="8,6">
+                    <TextBlock Text="A tighter body for dense dialogs." />
+                </Expander>
+                """),
         ]),
 
         new DemoPage("Badges",
@@ -1236,6 +1343,8 @@ public partial class GalleryView : UserControl
                 <StackPanel Orientation="Horizontal">
                     <ContentControl Style="{DynamicResource Badge}" Content="Draft" />
                     <ContentControl Style="{DynamicResource BadgeAccent}" Content="New" Margin="8,0,0,0" />
+                    <ContentControl Style="{DynamicResource BadgeSuccess}" Content="Passed" Margin="8,0,0,0" />
+                    <ContentControl Style="{DynamicResource BadgeWarning}" Content="Check" Margin="8,0,0,0" />
                     <ContentControl Style="{DynamicResource BadgeError}" Content="Error" Margin="8,0,0,0" />
                 </StackPanel>
                 """),
@@ -1385,6 +1494,21 @@ public partial class GalleryView : UserControl
                         <TreeViewItem Header="Sub-assembly" IsExpanded="True">
                             <TreeViewItem Header="Part3" />
                             <TreeViewItem Header="Part4" />
+                        </TreeViewItem>
+                    </TreeViewItem>
+                </TreeView>
+                """),
+            new DemoItem("Tree view (compact indent)", """
+                <!-- The child indent is the Margin.TreeIndent token; override it per tree (as here)
+                     or window-wide. 0 leaves just the 16px expander column per level. -->
+                <TreeView Width="260" Height="150" HorizontalAlignment="Left">
+                    <TreeView.Resources>
+                        <Thickness x:Key="Margin.TreeIndent">0</Thickness>
+                    </TreeView.Resources>
+                    <TreeViewItem Header="Assembly1" IsExpanded="True">
+                        <TreeViewItem Header="Part1" />
+                        <TreeViewItem Header="Sub-assembly" IsExpanded="True">
+                            <TreeViewItem Header="Part2" />
                         </TreeViewItem>
                     </TreeViewItem>
                 </TreeView>

@@ -27,6 +27,16 @@ Apply the `ToggleSwitch` style to a `CheckBox` for a switch with a sliding thumb
 |---|---|
 | <ThemedImage slug="selection__toggle-switch" alt="Toggle switch on" /> | <ThemedImage slug="selection__toggle-switch-off" alt="Toggle switch off" /> |
 
+The style also fits a plain `ToggleButton` (a `CheckBox` is one) - handy when the switch drives a
+command instead of a bound flag:
+
+```xml
+<ToggleButton Content="Include references" IsChecked="True"
+              Style="{DynamicResource ToggleSwitch}" />
+```
+
+<ThemedImage slug="selection__toggle-switch-on-a-togglebutton" alt="Toggle switch on a ToggleButton" />
+
 ## Radio buttons
 
 ```xml

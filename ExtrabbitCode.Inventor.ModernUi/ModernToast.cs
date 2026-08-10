@@ -50,7 +50,8 @@ public static class ModernToast
     /// </summary>
     public static TimeSpan DefaultDuration { get; set; } = TimeSpan.FromSeconds(4);
 
-    // Status accent colors (match the palette's accent/error; green/amber for success/warning).
+    // Fallback status colors, used only when the owner window carries no themed Color.* resources
+    // (i.e. was never passed to ModernUi.Apply). Match the default palette.
     private static readonly Color InfoColor = Color.FromRgb(0x06, 0x96, 0xD7);
     private static readonly Color SuccessColor = Color.FromRgb(0x3F, 0xB9, 0x50);
     private static readonly Color WarningColor = Color.FromRgb(0xD2, 0x99, 0x22);
@@ -80,7 +81,7 @@ public static class ModernToast
             return; // window has no wrappable content yet
         }
 
-        FrameworkElement toast = BuildToast(message, title, type);
+        FrameworkElement toast = BuildToast(message, title, type, StatusColor(owner, type));
 
         // Enforce the visible cap: drop the oldest toasts to make room for the new one.
         int max = Math.Max(1, MaxVisible);
@@ -138,15 +139,23 @@ public static class ModernToast
         return host;
     }
 
-    private static FrameworkElement BuildToast(string message, string? title, ToastType type)
+    /// <summary>The toast's accent, taken from the owner's themed palette (<c>Color.Success</c> etc.)
+    /// so custom palettes carry through; falls back to the library defaults.</summary>
+    private static Color StatusColor(Window owner, ToastType type)
     {
-        Color accent = type switch
+        Color Res(string key, Color fallback) => owner.TryFindResource(key) is Color c ? c : fallback;
+
+        return type switch
         {
-            ToastType.Success => SuccessColor,
-            ToastType.Warning => WarningColor,
-            ToastType.Error => ErrorColor,
-            _ => InfoColor,
+            ToastType.Success => Res("Color.Success", SuccessColor),
+            ToastType.Warning => Res("Color.Warning", WarningColor),
+            ToastType.Error => Res("Color.Error", ErrorColor),
+            _ => Res("Color.Accent", InfoColor),
         };
+    }
+
+    private static FrameworkElement BuildToast(string message, string? title, ToastType type, Color accent)
+    {
         SolidColorBrush accentBrush = new(accent);
         accentBrush.Freeze();
 

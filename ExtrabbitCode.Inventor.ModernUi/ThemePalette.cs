@@ -1,3 +1,4 @@
+using System.Windows;
 using System.Windows.Media;
 
 namespace ExtrabbitCode.Inventor.ModernUi;
@@ -41,6 +42,14 @@ public sealed record ThemePalette
     /// <summary>Error / destructive. Key: <c>Brush.Error</c>.</summary>
     public required Color Error { get; init; }
 
+    /// <summary>Success / positive status (toasts, badges, status glyphs). Optional — defaults to
+    /// the library green, same in both themes like <see cref="Error"/>. Key: <c>Brush.Success</c>.</summary>
+    public Color Success { get; init; } = Hex("#3FB950");
+
+    /// <summary>Warning / caution status (toasts, badges, dialog icons). Optional — defaults to the
+    /// library amber, same in both themes like <see cref="Error"/>. Key: <c>Brush.Warning</c>.</summary>
+    public Color Warning { get; init; } = Hex("#D29922");
+
     /// <summary>Default dark palette, aligned to Inventor's dark theme.</summary>
     public static ThemePalette Dark { get; } = new()
     {
@@ -71,6 +80,38 @@ public sealed record ThemePalette
 
     /// <summary>Returns the built-in default palette for the given <paramref name="theme"/>.</summary>
     public static ThemePalette For(Theme theme) => theme == Theme.Light ? Light : Dark;
+
+    /// <summary>
+    /// Reconstructs a palette from a themed window's injected <c>Color.*</c> resources, so a child
+    /// dialog matches the owner's current colors (e.g. a customized accent). The resources are read
+    /// as raw <see cref="Color"/> values — a framework type — so this is safe even when the owner
+    /// was themed by a different version of this library. Returns null when the owner has none.
+    /// </summary>
+    internal static ThemePalette? TryInheritFrom(Window? owner, Theme theme)
+    {
+        if (owner is null || owner.TryFindResource("Color.Accent") is not Color)
+        {
+            return null;
+        }
+
+        ThemePalette d = For(theme);
+        Color C(string key, Color fallback) => owner.TryFindResource(key) is Color c ? c : fallback;
+
+        return d with
+        {
+            Background = C("Color.Background", d.Background),
+            Panel = C("Color.Panel", d.Panel),
+            Control = C("Color.Control", d.Control),
+            Foreground = C("Color.Foreground", d.Foreground),
+            ForegroundMuted = C("Color.ForegroundMuted", d.ForegroundMuted),
+            Border = C("Color.Border", d.Border),
+            Accent = C("Color.Accent", d.Accent),
+            AccentMuted = C("Color.AccentMuted", d.AccentMuted),
+            Error = C("Color.Error", d.Error),
+            Success = C("Color.Success", d.Success),
+            Warning = C("Color.Warning", d.Warning),
+        };
+    }
 
     private static Color Hex(string hex) => (Color)ColorConverter.ConvertFromString(hex)!;
 }

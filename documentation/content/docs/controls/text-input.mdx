@@ -39,6 +39,17 @@ It reacts the same way - the placeholder stays while empty, with the hover and f
 |---|---|
 | <ThemedImage slug="text-input__search-box--hover" alt="Search box on hover" /> | <ThemedImage slug="text-input__search-box--focus" alt="Search box focused" /> |
 
+## Filter box (placeholder, no icon)
+
+`PlaceholderBox` is the same placeholder behavior without the magnifier - for filter, name or path
+fields where a search icon would be misleading.
+
+```xml
+<TextBox Width="240" Style="{DynamicResource PlaceholderBox}" Tag="Filter ..." />
+```
+
+<ThemedImage slug="text-input__filter-box-placeholder-no-icon" alt="Filter box with placeholder" />
+
 ## Combo box
 
 ```xml

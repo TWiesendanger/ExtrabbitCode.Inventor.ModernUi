@@ -46,6 +46,18 @@
         <Setter Property="Foreground" Value="#FFFFFFFF" />
     </Style>
 
+    <!-- Success / positive variant. -->
+    <Style x:Key="BadgeSuccess" TargetType="ContentControl" BasedOn="{StaticResource Badge}">
+        <Setter Property="Background" Value="{DynamicResource Brush.Success}" />
+        <Setter Property="Foreground" Value="#FFFFFFFF" />
+    </Style>
+
+    <!-- Warning / caution variant. -->
+    <Style x:Key="BadgeWarning" TargetType="ContentControl" BasedOn="{StaticResource Badge}">
+        <Setter Property="Background" Value="{DynamicResource Brush.Warning}" />
+        <Setter Property="Foreground" Value="#FFFFFFFF" />
+    </Style>
+
     <!-- Counter bubble: circle for a single digit, pill for more. Overlay on a button by placing it
          in the same Grid with HorizontalAlignment=Right, VerticalAlignment=Top and a negative margin. -->
     <Style x:Key="CounterBadge" TargetType="ContentControl" BasedOn="{StaticResource Badge}">

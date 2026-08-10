@@ -7,12 +7,15 @@ Badge styles apply to a `ContentControl`.
 
 ## Status badges
 
-`Badge` (neutral), `BadgeAccent` and `BadgeError` render pill-shaped labels.
+`Badge` (neutral), `BadgeAccent`, `BadgeSuccess`, `BadgeWarning` and `BadgeError` render pill-shaped
+labels, colored from the themed status brushes (`Brush.Success` / `Brush.Warning` / `Brush.Error`).
 
 ```xml
 <StackPanel Orientation="Horizontal">
   <ContentControl Style="{DynamicResource Badge}" Content="Draft" />
   <ContentControl Style="{DynamicResource BadgeAccent}" Content="New" Margin="8,0,0,0" />
+  <ContentControl Style="{DynamicResource BadgeSuccess}" Content="Passed" Margin="8,0,0,0" />
+  <ContentControl Style="{DynamicResource BadgeWarning}" Content="Check" Margin="8,0,0,0" />
   <ContentControl Style="{DynamicResource BadgeError}" Content="Error" Margin="8,0,0,0" />
 </StackPanel>
 ```

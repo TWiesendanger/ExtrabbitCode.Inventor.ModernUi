@@ -56,21 +56,36 @@ Disabled buttons dim automatically.
 
 ## Icon buttons
 
-`IconButton` is a borderless, compact button for toolbars and in-cell actions. The content is a glyph
-`TextBlock` (see [Icons](/docs/icons)).
+`IconButton` is a borderless, compact button for toolbars and in-cell actions. It carries the icon
+font (and a 16px size) itself, so a bare glyph string is all it needs (see [Icons](/docs/icons)).
 
 ```xml
 <StackPanel Orientation="Horizontal">
-  <Button Style="{DynamicResource IconButton}" ToolTip="Settings">
-    <TextBlock FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" Text="&#xE713;" />
-  </Button>
-  <Button Style="{DynamicResource IconButton}" ToolTip="Refresh" Margin="6,0,0,0">
-    <TextBlock FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" Text="&#xE72C;" />
-  </Button>
-  <Button Style="{DynamicResource IconButton}" ToolTip="Delete" Margin="6,0,0,0">
-    <TextBlock FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" Text="&#xE74D;" />
-  </Button>
+  <Button Style="{DynamicResource IconButton}" ToolTip="Settings" Content="&#xE713;" />
+  <Button Style="{DynamicResource IconButton}" ToolTip="Refresh" Margin="6,0,0,0" Content="&#xE72C;" />
+  <Button Style="{DynamicResource IconButton}" ToolTip="Delete" Margin="6,0,0,0" Content="&#xE74D;" />
 </StackPanel>
 ```
 
 <ThemedImage slug="buttons__icon-buttons" alt="Icon buttons" />
+
+## Icon button toolbar
+
+The usual list-header actions — expand / collapse / select all / deselect all — grouped on a
+panel-tinted surface, with a thin divider between the pairs.
+
+```xml
+<Border Background="{DynamicResource Brush.Panel}" CornerRadius="6" Padding="3"
+        HorizontalAlignment="Left">
+  <StackPanel Orientation="Horizontal">
+    <Button Style="{DynamicResource IconButton}" ToolTip="Expand all" Content="&#xE70D;" />
+    <Button Style="{DynamicResource IconButton}" ToolTip="Collapse all" Margin="4,0,0,0" Content="&#xE70E;" />
+    <Border Width="1" Height="16" Margin="6,0,2,0" VerticalAlignment="Center"
+            Background="{DynamicResource Brush.Border}" />
+    <Button Style="{DynamicResource IconButton}" ToolTip="Select all" Margin="4,0,0,0" Content="&#xE73A;" />
+    <Button Style="{DynamicResource IconButton}" ToolTip="Deselect all" Margin="4,0,0,0" Content="&#xE739;" />
+  </StackPanel>
+</Border>
+```
+
+<ThemedImage slug="buttons__icon-button-toolbar" alt="Icon button toolbar" />

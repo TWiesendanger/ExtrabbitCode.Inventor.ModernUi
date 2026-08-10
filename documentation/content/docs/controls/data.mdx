@@ -22,6 +22,28 @@ description: Tree views and data grids.
 
 <ThemedImage slug="data__tree-view" alt="Tree view" />
 
+## Compact indent
+
+The extra indent of child items is the `Margin.TreeIndent` token (default `8,0,0,0`, on top of the
+16px expander column). Override it per tree — or window-wide in the window's resources — for a
+compact layout:
+
+```xml
+<TreeView Width="260" Height="150">
+  <TreeView.Resources>
+    <Thickness x:Key="Margin.TreeIndent">0</Thickness>
+  </TreeView.Resources>
+  <TreeViewItem Header="Assembly1" IsExpanded="True">
+    <TreeViewItem Header="Part1" />
+    <TreeViewItem Header="Sub-assembly" IsExpanded="True">
+      <TreeViewItem Header="Part2" />
+    </TreeViewItem>
+  </TreeViewItem>
+</TreeView>
+```
+
+<ThemedImage slug="data__tree-view-compact-indent" alt="Tree view with compact indent" />
+
 ## Tree view with icons
 
 Use a glyph `TextBlock` (or an `Image`) in the item header for file-type icons.

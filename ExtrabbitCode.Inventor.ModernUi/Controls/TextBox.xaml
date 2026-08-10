@@ -36,7 +36,8 @@
              both themes; AccentMuted is reserved for subtle hover backgrounds. -->
         <Setter Property="SelectionBrush" Value="{DynamicResource Brush.Accent}" />
         <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="Padding" Value="10,4" />
+        <!-- Left/right kept tight: a plain input needs no icon-sized indent (SearchBox pads its own). -->
+        <Setter Property="Padding" Value="6,4" />
         <Setter Property="MinHeight" Value="{DynamicResource Size.ControlHeight}" />
         <Setter Property="FontFamily" Value="{DynamicResource Font.Family}" />
         <Setter Property="FontSize" Value="{DynamicResource Font.Size.Normal}" />
@@ -95,6 +96,70 @@
 
     <!-- Implicit default text box. -->
     <Style TargetType="TextBox" BasedOn="{StaticResource ModernTextBoxBase}" />
+
+    <!-- Placeholder box: a plain text box with a placeholder (set via Tag) shown while empty — the
+         SearchBox without the magnifier, for filter/name/path fields.
+         Use: <TextBox Style="{DynamicResource PlaceholderBox}" Tag="Filter ..." />. The placeholder
+         text comes from the framework Tag property, so no dependency property is registered. -->
+    <Style x:Key="PlaceholderBox" TargetType="TextBox" BasedOn="{StaticResource ModernTextBoxBase}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TextBox">
+                    <Border x:Name="Bd"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="{DynamicResource Radius.Control}"
+                            SnapsToDevicePixels="True">
+                        <Grid>
+                            <TextBlock x:Name="Placeholder"
+                                       Text="{TemplateBinding Tag}"
+                                       Foreground="{DynamicResource Brush.ForegroundMuted}"
+                                       Margin="{TemplateBinding Padding}"
+                                       VerticalAlignment="Center"
+                                       IsHitTestVisible="False"
+                                       Visibility="Collapsed" />
+                            <ScrollViewer x:Name="PART_ContentHost"
+                                          Margin="{TemplateBinding Padding}"
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                          Focusable="False"
+                                          HorizontalScrollBarVisibility="Hidden"
+                                          VerticalScrollBarVisibility="Hidden" />
+                            <Border x:Name="Underline"
+                                    Height="2"
+                                    Margin="2,0,2,0"
+                                    VerticalAlignment="Bottom"
+                                    Background="{DynamicResource Brush.Accent}"
+                                    CornerRadius="0,0,2,2"
+                                    Visibility="Collapsed" />
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <!-- Placeholder is shown only while the field is empty. -->
+                        <Trigger Property="Text" Value="">
+                            <Setter TargetName="Placeholder" Property="Visibility" Value="Visible" />
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Underline" Property="Visibility" Value="Visible" />
+                            <Setter TargetName="Underline" Property="Background" Value="{DynamicResource Brush.Foreground}" />
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                            <Setter TargetName="Underline" Property="Visibility" Value="Visible" />
+                            <Setter TargetName="Underline" Property="Background" Value="{DynamicResource Brush.Accent}" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Bd" Property="Opacity" Value="0.5" />
+                        </Trigger>
+                        <Trigger Property="Validation.HasError" Value="True">
+                            <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource Brush.Error}" />
+                            <Setter TargetName="Underline" Property="Visibility" Value="Visible" />
+                            <Setter TargetName="Underline" Property="Background" Value="{DynamicResource Brush.Error}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 
     <!-- Search box: a leading magnifier glyph and a placeholder (set via Tag) shown while empty.
          Use: <TextBox Style="{DynamicResource SearchBox}" Tag="Search ..." />. The placeholder text

@@ -60,10 +60,11 @@ the `ModernWindow` title bar.
 
 | Purpose | Keys |
 |---|---|
-| Buttons | `AccentButton`, `IconButton` |
+| Buttons | `AccentButton`, `IconButton` (carries the icon font — bare glyph content works) |
+| Inputs | `SearchBox` (placeholder + magnifier), `PlaceholderBox` (placeholder only) |
 | Typography | `TitleTextStyle`, `BodyTextStyle`, `CaptionTextStyle` |
-| Surface / toggle | `Card`, `ToggleSwitch` |
-| Badges | `Badge`, `BadgeAccent`, `BadgeError`, `CounterBadge`, `ShieldLabel` + `ShieldValue` |
+| Surface / toggle | `Card`, `ToggleSwitch` (fits `CheckBox` or `ToggleButton`) |
+| Badges | `Badge`, `BadgeAccent`, `BadgeSuccess`, `BadgeWarning`, `BadgeError`, `CounterBadge`, `ShieldLabel` + `ShieldValue` |
 | Loaders | `Spinner`, `DotsLoader`, `IndeterminateBar` |
 
 **Dialogs & notifications** — code helpers, no XAML needed:
@@ -72,12 +73,15 @@ the `ModernWindow` title bar.
 ModernDialogResult r = ModernMessageBox.Show(owner, theme, "Delete the selected items?",
     "Confirm", ModernDialogButtons.YesNo, ModernDialogIcon.Question);
 
+Color? picked = ModernColorPicker.Show(owner, theme, Color.FromRgb(0xF2, 0x8C, 0x28),
+    "Pick a color", showAlpha: true);                   // null when cancelled
+
 ModernToast.Show(owner, "Export completed.", ToastType.Success, title: "Done");
 ModernToast.MaxVisible = 3;                             // cap shown at once
 ModernToast.DefaultDuration = TimeSpan.FromSeconds(4);  // auto-dismiss (per-call duration overrides)
 ```
 
-Both are hosted window-scoped (the toast inside the owner's visual tree) and **inherit the owner
+All are hosted window-scoped (the toast inside the owner's visual tree) and **inherit the owner
 window's palette**, so a customized accent carries through. Loader animation speed is fixed in the
 styles; drive a controllable `AnimationClock` if you need it adjustable at runtime (see the Gallery's
 speed-control samples).
@@ -96,6 +100,10 @@ ModernUi.Apply(window, Theme.Dark,
 uses this). Alongside each `Brush.*`, the apply step also injects a raw `Color.*` resource (e.g.
 `Color.Accent`) for the few places that need a `Color` rather than a brush — gradient stops and
 animations such as the indeterminate progress bar.
+
+Besides `Error`, the palette carries optional `Success` and `Warning` status colors (with library
+defaults) — toasts, the warning dialog icon and the `BadgeSuccess` / `BadgeWarning` styles all
+follow them, so status colors stay consistent across an add-in.
 
 Non-color tokens (corner radius, control height, paddings) live in `Shared.xaml`.
 

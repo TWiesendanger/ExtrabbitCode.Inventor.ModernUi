@@ -72,7 +72,8 @@
         <Setter Property="FontFamily" Value="{DynamicResource Font.Family}" />
         <Setter Property="FontSize" Value="{DynamicResource Font.Size.Normal}" />
         <Setter Property="MinHeight" Value="{DynamicResource Size.ControlHeight}" />
-        <Setter Property="Padding" Value="10,0" />
+        <!-- Matches the TextBox's tight 6px indent so mixed form rows line up. -->
+        <Setter Property="Padding" Value="6,0" />
         <Setter Property="MaxDropDownHeight" Value="240" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
         <Setter Property="SnapsToDevicePixels" Value="True" />

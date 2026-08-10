@@ -149,9 +149,8 @@ public static class ModernMessageBox
         }
 
         // Match the owner's current colors (e.g. a customized accent) unless an explicit palette is
-        // given. The owner's Color.* resources are read directly — Color is a framework type, so this
-        // is safe even when the owner was themed by a different version of this library.
-        ThemePalette? effective = palette ?? TryInheritPalette(owner, theme);
+        // given.
+        ThemePalette? effective = palette ?? ThemePalette.TryInheritFrom(owner, theme);
 
         ModernWindow window = new(theme, effective, font)
         {
@@ -266,31 +265,6 @@ public static class ModernMessageBox
         _ => throw new ArgumentOutOfRangeException(nameof(buttons), buttons, null),
     };
 
-    /// <summary>Reconstructs a palette from the owner's injected <c>Color.*</c> resources, or null.</summary>
-    private static ThemePalette? TryInheritPalette(Window? owner, Theme theme)
-    {
-        if (owner is null || owner.TryFindResource("Color.Accent") is not Color)
-        {
-            return null;
-        }
-
-        ThemePalette d = ThemePalette.For(theme);
-        Color C(string key, Color fallback) => owner.TryFindResource(key) is Color c ? c : fallback;
-
-        return d with
-        {
-            Background = C("Color.Background", d.Background),
-            Panel = C("Color.Panel", d.Panel),
-            Control = C("Color.Control", d.Control),
-            Foreground = C("Color.Foreground", d.Foreground),
-            ForegroundMuted = C("Color.ForegroundMuted", d.ForegroundMuted),
-            Border = C("Color.Border", d.Border),
-            Accent = C("Color.Accent", d.Accent),
-            AccentMuted = C("Color.AccentMuted", d.AccentMuted),
-            Error = C("Color.Error", d.Error),
-        };
-    }
-
     private static FrameworkElement? BuildIcon(ModernDialogIcon icon)
     {
         if (icon == ModernDialogIcon.None)
@@ -298,14 +272,13 @@ public static class ModernMessageBox
             return null;
         }
 
-        // Segoe Fluent Icons glyphs.
-        (int glyph, string? brushKey, string? hardColor) = icon switch
+        // Segoe Fluent Icons glyphs, colored from the themed status brushes.
+        (int glyph, string brushKey) = icon switch
         {
-            ModernDialogIcon.Info => (0xE946, "Brush.Accent", null),
-            ModernDialogIcon.Warning => (0xE7BA, null, "#E0A52E"),
-            ModernDialogIcon.Error => (0xE783, "Brush.Error", null),
-            ModernDialogIcon.Question => (0xE897, "Brush.Accent", (string?)null),
-            _ => (0, null, null),
+            ModernDialogIcon.Info => (0xE946, "Brush.Accent"),
+            ModernDialogIcon.Warning => (0xE7BA, "Brush.Warning"),
+            ModernDialogIcon.Error => (0xE783, "Brush.Error"),
+            _ => (0xE897, "Brush.Accent"), // Question
         };
 
         TextBlock tb = new()
@@ -316,15 +289,7 @@ public static class ModernMessageBox
             Margin = new Thickness(0, 0, 14, 0),
             VerticalAlignment = VerticalAlignment.Top,
         };
-        if (brushKey is not null)
-        {
-            tb.SetResourceReference(TextBlock.ForegroundProperty, brushKey);
-        }
-        else if (hardColor is not null)
-        {
-            tb.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(hardColor)!);
-        }
-
+        tb.SetResourceReference(TextBlock.ForegroundProperty, brushKey);
         return tb;
     }
 }

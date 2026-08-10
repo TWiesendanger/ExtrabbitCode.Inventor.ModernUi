@@ -19,4 +19,8 @@
     <Thickness x:Key="Padding.Card">16</Thickness>
     <Thickness x:Key="Margin.Stack">0,0,0,8</Thickness>
 
+    <!-- Extra indent of a TreeViewItem's children (on top of the 16px expander column). Override
+         per tree for a compact layout: <TreeView.Resources><Thickness x:Key="Margin.TreeIndent">0</Thickness></TreeView.Resources> -->
+    <Thickness x:Key="Margin.TreeIndent">8,0,0,0</Thickness>
+
 </ResourceDictionary>

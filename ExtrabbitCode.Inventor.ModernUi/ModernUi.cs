@@ -144,6 +144,8 @@ public static class ModernUi
         res["Brush.Accent"] = Frozen(p.Accent);
         res["Brush.AccentMuted"] = Frozen(p.AccentMuted);
         res["Brush.Error"] = Frozen(p.Error);
+        res["Brush.Success"] = Frozen(p.Success);
+        res["Brush.Warning"] = Frozen(p.Warning);
 
         res["Color.Background"] = p.Background;
         res["Color.Panel"] = p.Panel;
@@ -154,6 +156,8 @@ public static class ModernUi
         res["Color.Accent"] = p.Accent;
         res["Color.AccentMuted"] = p.AccentMuted;
         res["Color.Error"] = p.Error;
+        res["Color.Success"] = p.Success;
+        res["Color.Warning"] = p.Warning;
     }
 
     /// <summary>Inserts the <c>Font.*</c> resources derived from <paramref name="font"/>.</summary>

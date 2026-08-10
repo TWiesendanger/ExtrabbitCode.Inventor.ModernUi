@@ -32,8 +32,12 @@ ModernUi.Apply(window, Theme.Light); // or Theme.Dark
 | `Accent` | <Swatch light="#0696d7" dark="#0696d7" /> | `Brush.Accent` | Primary buttons, focus |
 | `AccentMuted` | <Swatch light="#f2f2f2" dark="#3a7292" /> | `Brush.AccentMuted` | Subtle hover background |
 | `Error` | <Swatch light="#ec4a41" dark="#ec4a41" /> | `Brush.Error` | Destructive / error |
+| `Success` | <Swatch light="#3fb950" dark="#3fb950" /> | `Brush.Success` | Positive status (optional, has a default) |
+| `Warning` | <Swatch light="#d29922" dark="#d29922" /> | `Brush.Warning` | Caution status (optional, has a default) |
 
-Each colour is also exposed as a raw `Color.*` key (for gradient stops and animations).
+Each colour is also exposed as a raw `Color.*` key (for gradient stops and animations). `Success`
+and `Warning` are optional record members with library defaults - toasts, the warning dialog icon
+and the `BadgeSuccess` / `BadgeWarning` styles all follow them.
 
 ### Custom accent
 

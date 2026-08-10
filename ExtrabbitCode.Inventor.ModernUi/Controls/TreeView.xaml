@@ -62,7 +62,10 @@
                             <ContentPresenter ContentSource="Header" VerticalAlignment="Center" />
                         </Border>
 
-                        <ItemsPresenter x:Name="ItemsHost" Grid.Row="1" Grid.Column="1" Margin="8,0,0,0" />
+                        <!-- Child indent comes from the Margin.TreeIndent token (Shared.xaml), so a
+                             consumer can override it window-wide or per tree via TreeView.Resources. -->
+                        <ItemsPresenter x:Name="ItemsHost" Grid.Row="1" Grid.Column="1"
+                                        Margin="{DynamicResource Margin.TreeIndent}" />
                     </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsExpanded" Value="False">

@@ -49,6 +49,8 @@
         <Setter Property="FontFamily" Value="{DynamicResource Font.Family}" />
         <Setter Property="FontSize" Value="{DynamicResource Font.Size.Normal}" />
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <!-- Default content padding; set Padding on the Expander itself for a compact body. -->
+        <Setter Property="Padding" Value="{DynamicResource Padding.Card}" />
         <Setter Property="SnapsToDevicePixels" Value="True" />
         <Setter Property="Template">
             <Setter.Value>
@@ -71,7 +73,7 @@
                                 Visibility="Collapsed"
                                 Background="{DynamicResource Brush.Background}"
                                 CornerRadius="0,0,4,4"
-                                Padding="{DynamicResource Padding.Card}"
+                                Padding="{TemplateBinding Padding}"
                                 SnapsToDevicePixels="True">
                             <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                               VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
