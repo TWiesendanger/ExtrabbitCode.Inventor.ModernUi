@@ -107,7 +107,10 @@ internal static class Program
         MethodInfo apply = modernUi.GetMethod("Apply", BindingFlags.Public | BindingFlags.Static)!;
 
         Window window = new() { Title = content, Width = 360, Height = 240 };
-        apply.Invoke(null, [window, darkTheme, null, null]);
+
+        // Reflection Invoke needs the full parameter list (optional parameters are not filled in):
+        // Apply(window, theme, palette, font, applyWindowChrome).
+        apply.Invoke(null, [window, darkTheme, null, null, true]);
         window.Content = new StackPanel
         {
             Margin = new Thickness(16),
