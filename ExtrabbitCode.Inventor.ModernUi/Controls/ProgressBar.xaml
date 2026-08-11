@@ -29,9 +29,10 @@
         </Setter>
     </Style>
 
-    <!-- Indeterminate bar: an accent band sweeps left -> right and repeats. Uses animated gradient
-         offsets (relative 0..1), so it scales to any width without a converter (which would need a
-         clr-namespace reference and break version coexistence).
+    <!-- Indeterminate bar: an accent band sweeps left -> right and repeats. The band lives in a
+         fixed 100x8 coordinate space inside a Stretch="Fill" Viewbox, so the sweep scales to any
+         width without a converter (which would need a clr-namespace reference and break version
+         coexistence).
          Use: <ProgressBar Style="{DynamicResource IndeterminateBar}" /> -->
     <Style x:Key="IndeterminateBar" TargetType="ProgressBar">
         <Setter Property="Background" Value="{DynamicResource Brush.Control}" />
@@ -48,30 +49,40 @@
                             CornerRadius="4"
                             ClipToBounds="True"
                             SnapsToDevicePixels="True">
-                        <Border CornerRadius="4">
-                            <Border.Background>
-                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                    <GradientStop x:Name="S1" Color="Transparent" Offset="-0.4" />
-                                    <GradientStop x:Name="S2" Color="{DynamicResource Color.Accent}" Offset="-0.2" />
-                                    <GradientStop x:Name="S3" Color="Transparent" Offset="0.0" />
-                                </LinearGradientBrush>
-                            </Border.Background>
-                        </Border>
+                        <!-- The trigger lives on the band itself and animates it by property path —
+                             no Storyboard.TargetName. With a DynamicResource style, a re-template
+                             during the Loaded broadcast makes a TargetName resolve against a dead
+                             template name scope and throw. The path must start at RenderTransform
+                             (DP default Transform.Identity): a path through a template-baked value
+                             like Background resolves to null on the torn-down instance and still
+                             throws when the stale trigger fires. -->
+                        <Viewbox Stretch="Fill">
+                            <Grid Width="100" Height="8">
+                                <Rectangle Width="40" Height="8" HorizontalAlignment="Left">
+                                    <Rectangle.Fill>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                            <GradientStop Color="Transparent" Offset="0.0" />
+                                            <GradientStop Color="{DynamicResource Color.Accent}" Offset="0.5" />
+                                            <GradientStop Color="Transparent" Offset="1.0" />
+                                        </LinearGradientBrush>
+                                    </Rectangle.Fill>
+                                    <Rectangle.RenderTransform>
+                                        <TranslateTransform X="-40" />
+                                    </Rectangle.RenderTransform>
+                                    <Rectangle.Triggers>
+                                        <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+                                            <BeginStoryboard>
+                                                <Storyboard RepeatBehavior="Forever">
+                                                    <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)"
+                                                                     From="-40" To="100" Duration="0:0:1.1" />
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </EventTrigger>
+                                    </Rectangle.Triggers>
+                                </Rectangle>
+                            </Grid>
+                        </Viewbox>
                     </Border>
-                    <ControlTemplate.Triggers>
-                        <EventTrigger RoutedEvent="Loaded">
-                            <BeginStoryboard>
-                                <Storyboard RepeatBehavior="Forever">
-                                    <DoubleAnimation Storyboard.TargetName="S1" Storyboard.TargetProperty="Offset"
-                                                     From="-0.4" To="1.0" Duration="0:0:1.1" />
-                                    <DoubleAnimation Storyboard.TargetName="S2" Storyboard.TargetProperty="Offset"
-                                                     From="-0.2" To="1.2" Duration="0:0:1.1" />
-                                    <DoubleAnimation Storyboard.TargetName="S3" Storyboard.TargetProperty="Offset"
-                                                     From="0.0" To="1.4" Duration="0:0:1.1" />
-                                </Storyboard>
-                            </BeginStoryboard>
-                        </EventTrigger>
-                    </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
