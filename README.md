@@ -84,7 +84,9 @@ ModernToast.DefaultDuration = TimeSpan.FromSeconds(4);  // auto-dismiss (per-cal
 All are hosted window-scoped (the toast inside the owner's visual tree) and **inherit the owner
 window's palette**, so a customized accent carries through. Loader animation speed is fixed in the
 styles; drive a controllable `AnimationClock` if you need it adjustable at runtime (see the Gallery's
-speed-control samples).
+speed-control samples). Since v1.1.1 the loader storyboards are name-scope independent: toggling a
+loader's visibility or swapping themes at runtime no longer risks the WPF re-template race
+(`InvalidOperationException: name cannot be found in the name scope`) that v1.1.0 could hit.
 
 ## Changing colors
 
